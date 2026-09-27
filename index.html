@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
 <title>EduTest Pro</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#6C3EF4">
@@ -1958,6 +1958,17 @@ function mathEditGetLatexString(el){
 // Kursor turgan joyga (qaysi maydonda bo'lsa - savol yoki variant - o'sha
 // yerga), tayyor (bo'sh joysiz) LaTeX'ni chip sifatida qo'yadi
 function insLatex(latex){
+  // TUZATISH (2026-09-27): sekin internetda MathLive kutubxonasi hali
+  // yuklanib ulgurmagan bo'lishi mumkin (<script defer src=".../mathlive">
+  // hali ishga tushmagan) - shu holatda <math-field> "custom element" sifatida
+  // registratsiya qilinmagan bo'ladi va formula chiqarish o'rniga bo'sh,
+  // uslubsiz to'rtburchak qutichalar ustma-ust chiqib qolardi (har tugma
+  // bosilganda YANA bittasi qo'shilib, "daraja"lar buzilib ko'rinishi shu edi).
+  // Endi shu holatni oldindan tekshirib, foydalanuvchiga aniq xabar beramiz.
+  if(!(window.customElements && customElements.get('math-field'))){
+    alert("⏳ Formula muharriri hali to'liq yuklanmadi (internet sekin bo'lishi mumkin). Bir necha soniya kutib, qayta urinib ko'ring.");
+    return null;
+  }
   var el=currentEditorEl();
   el.focus();
   var range=(_aqSavedRange && editorContains(_aqSavedRange.startContainer)) ? _aqSavedRange.cloneRange() : getEndRange(el);
@@ -1987,6 +1998,7 @@ function insLatexTemplate(latex){
   // chiqqan quticha ustiga bir marta bossa yetarli (MathLive'ning o'zi
   // uchun bu - odatiy, 100% ishlaydigan usul).
   var chip=insLatex(latex);
+  if(!chip) return null;
   try{ chip.focus(); }catch(e){}
   return chip;
 }
@@ -2601,8 +2613,14 @@ function closeLogoutWarn(){
 }
 function confirmLogoutWarn(){
   document.getElementById('logout-warn-modal').style.display='none';
+  // TUZATISH (2026-09-27): avval shu yerda 300ms dan keyin majburiy logout()
+  // chaqirilardi - bu doSubmitTest() ko'rsatgan natija sahifasini (va undagi
+  // "Batafsil" tugmasini) o'quvchi bosishga ulgurmasdanoq bosh sahifaga
+  // qaytarib yuborardi (video orqali tasdiqlangan real xato). Endi faqat
+  // testni yakunlaymiz - natija sahifasi normal oddiy "Yakunlash" oqimidagi
+  // kabi ko'rinadi, o'quvchi "Batafsil"ni ko'radi va tayyor bo'lganda "Bosh
+  // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
   submitTest(true);
-  setTimeout(function(){logout();}, 300);
 }
 function logout(){ME=null;if(S.iv)clearInterval(S.iv);_backWarned=false;
   // To'liq ekrandan chiqish - faqat haqiqatan fullscreen bolsa
@@ -3835,6 +3853,17 @@ function refreshSyms(){
 }
 function closeAQ(){document.getElementById('aq-modal').style.display='none';}
 document.querySelectorAll('input[name="aqtype"]').forEach(function(r){r.addEventListener('change',function(){aqIsM=this.value==='multi';aqCorr=[];renderAQO();});});
+// TUZATISH (2026-09-27): telefonda klaviatura chiqqanda modal oynadagi
+// (masalan "Savol qo'shish") maydon klaviatura ostida qolib ketardi.
+// Klaviatura animatsiyasi tugagach, fokusdagi maydonni ekran markaziga
+// aylantiramiz.
+document.addEventListener('focusin', function(e){
+  if(e.target && e.target.closest && e.target.closest('.modal')){
+    setTimeout(function(){
+      try{ e.target.scrollIntoView({block:'center', behavior:'smooth'}); }catch(err){}
+    }, 300);
+  }
+});
 function renderAQO(){
   document.getElementById('aq-opts').innerHTML=aqOpts.map(function(o,i){
     var s=aqCorr.indexOf(i)>=0;
