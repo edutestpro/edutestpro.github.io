@@ -5120,7 +5120,13 @@ async function startBookGeneration(file, mode, count){
 // og'ir .exe import ishlab turganda (LibreOffice band bolganda) foydalanuvchi
 // tizimga kira olmay qolar edi (login/profil ochilmay qolardi). Endi
 // import qancha og'ir bolmasin, login/profil doim tez ishlaydi.
-var RENDER_SERVER='https://edutest-server-7.onrender.com';
+// TUZATISH (2026-09-28): edutest-server-7 (Render) admin tomonidan SUSPEND
+// qilindi - shu manzilga borgan har qanday sorov endi doim 503 qaytaradi
+// (CORS header ham bo'lmagani uchun brauzerda "Failed to fetch" ko'rinadi).
+// r2_stats/upload_image/notify_teacher_status/parent_link_create endi
+// VM1'ga (DB_SERVER bilan bir xil manzil - ikkalasi ham bir xil Docker
+// image'ni ishlatadi, shuning uchun bu route'lar VM1'da ham mavjud) yo'naltirildi.
+var RENDER_SERVER=DB_SERVER;
 // 2026-08-09: import-server pool (avval 10 ta alohida bepul Render xizmati,
 // round-robin bilan) BUTUNLAY OLIB TASHLANDI va ORNIGA Oracle Cloud Always
 // Free VM(lar) (Docker+LibreOffice, Nginx+Let's Encrypt SSL bilan HTTPS'ga
