@@ -4291,9 +4291,19 @@ async function loadStorageStats(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Yuklanmoqda...';}
 
   // R2 va Supabase Storage'ni PARALLEL yuklaymiz - ikkalasi bir-biriga bog'liq emas
-  var r2Promise = fetch(RENDER_SERVER+'/r2_stats',{method:'GET'})
-    .then(function(r){return r.json();})
-    .catch(function(e){return {configured:false,error:'Server bilan bog\'lanib bo\'lmadi: '+e.message};});
+  async function fetchR2StatsWithRetry(){
+    var delays=[0,5000,10000];
+    for(var i=0;i<delays.length;i++){
+      if(delays[i]) await new Promise(function(res){setTimeout(res, delays[i]);});
+      try{
+        var r=await fetch(RENDER_SERVER+'/r2_stats',{method:'GET'});
+        return await r.json();
+      }catch(e){
+        if(i===delays.length-1) return {configured:false,error:'Server bilan bog\'lanib bo\'lmadi: '+e.message};
+      }
+    }
+  }
+  var r2Promise = fetchR2StatsWithRetry();
 
   var sbPromise = (async function(){
     if(!_sbReady||!_sb) return null;
@@ -5164,14 +5174,21 @@ VM_FALLBACK[IMPORT_SERVER_2]='https://92-5-126-0.nip.io';
 // VM_FALLBACK[IMPORT_SERVER_3]='https://34-58-106-227.nip.io'; // VM5 (Google) - 2026-09-06 ochirildi, yuqoridagi izohga qarang
 VM_FALLBACK[IMPORT_SERVER_4]='https://130-61-74-112.nip.io';
 VM_FALLBACK[IMPORT_SERVER_5]='https://130-61-172-212.nip.io';
+var FETCHVM_TIMEOUT_MS=120000; // 2 daqiqa
+function _fetchWithTimeout(url, opts, timeoutMs){
+  var ctrl=new AbortController();
+  var timer=setTimeout(function(){ ctrl.abort(); }, timeoutMs||FETCHVM_TIMEOUT_MS);
+  var mergedOpts=Object.assign({}, opts||{}, {signal:ctrl.signal});
+  return fetch(url, mergedOpts).finally(function(){ clearTimeout(timer); });
+}
 async function fetchVM(server, path, opts){
   try{
-    return await fetch(server+path, opts);
+    return await _fetchWithTimeout(server+path, opts, FETCHVM_TIMEOUT_MS);
   }catch(e){
     var fb=VM_FALLBACK[server];
     if(fb){
-      console.warn('fetchVM: '+server+' javob bermadi, '+fb+'ga otilmoqda');
-      return await fetch(fb+path, opts);
+      console.warn('fetchVM: '+server+' javob bermadi/vaqt tugadi, '+fb+'ga otilmoqda');
+      return await _fetchWithTimeout(fb+path, opts, FETCHVM_TIMEOUT_MS);
     }
     throw e;
   }
