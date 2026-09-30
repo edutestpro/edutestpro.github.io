@@ -2040,7 +2040,22 @@ function insLatexTemplate(latex){
   // uchun bu - odatiy, 100% ishlaydigan usul).
   var chip=insLatex(latex);
   if(!chip) return null;
-  try{ chip.focus(); }catch(e){}
+  // TUZATISH (2026-09-30): oddiy .focus() kursorni formula OXIRIGA qo'yadi, ya'ni
+  // kasr/daraja kvadrati (placeholder) ICHIGA emas - shu sabab yozilgan raqamlar
+  // kvadratdan tashqariga tushib, "2^2^2" kabi oddiy matn bo'lib qolardi va
+  // daraja uchun kvadratcha chiqmasdi. Endi kursor darhol BIRINCHI kvadratga
+  // o'tadi (u tanlangan holda ko'rinadi) va yozish shu yerdan boshlanadi.
+  function goFirstPlaceholder(){
+    try{
+      chip.focus();
+      chip.executeCommand('moveToMathfieldStart');
+      chip.executeCommand('moveToNextPlaceholder');
+    }catch(e){}
+  }
+  goFirstPlaceholder();
+  // Element endigina yaratilgani uchun ba'zan birinchi urinish ulgurmaydi -
+  // foydalanuvchi hali hech narsa yozmagan bo'lsagina bir marta takrorlaymiz.
+  setTimeout(function(){ try{ if(chip.value===latex) goFirstPlaceholder(); }catch(e){} }, 80);
   return chip;
 }
 function insSym(s){
