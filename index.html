@@ -1999,6 +1999,17 @@ function makeChip(latex){
     var owner=findMathEditAncestor(mf.parentNode);
     if(owner){ _activeEditorEl=owner; owner.focus(); }
   }
+  // TUZATISH (2026-09-30): ba'zi klaviatura tartiblarida (masalan US-International)
+  // Shift+6 "o'lik tugma" (Dead key) bo'lib, keyingi belgi bilan birga oddiy
+  // "^7" MATNI bo'lib tushadi - MathLive buni daraja deb tanimaydi va formulada
+  // "1^7^7^7" kabi tekis yozuv chiqadi. Bu tugmani ushlab, MathLive'ning o'z
+  // "daraja"ga o'tish buyrug'ini bajaramiz (oddiy '^' tugmasidek).
+  mf.addEventListener('keydown', function(ev){
+    if(ev.key==='Dead' && ev.shiftKey && ev.code==='Digit6'){
+      ev.preventDefault(); ev.stopPropagation();
+      try{ mf.executeCommand('moveToSuperscript'); }catch(e){}
+    }
+  }, true);
   mf.addEventListener('move-out', function(ev){
     var dir=(ev.detail&&ev.detail.direction==='backward')?'backward':'forward';
     exitField(dir);
