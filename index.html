@@ -2117,6 +2117,23 @@ function insLatexTemplate(latex){
   setTimeout(function(){ try{ if(chip.value===latex) goFirstPlaceholder(); }catch(e){} }, 80);
   return chip;
 }
+// Yuqori/pastki indeks belgilari (asboblar panelidagi ⁰-⁹, ₀-₉ tugmalari).
+// MathLive ularning HAR BIRINI alohida "^{9}" ga aylantiradi, natijada ⁹ni 4 marta
+// bossangiz "1^{9}^{9}^{9}^{9}" (buzuq, tekis "^" bilan chiziladi) bo'lardi.
+// Endi birinchi bosishda darajaga o'tiladi, keyingi tugmalar shu daraja ICHIGA
+// oddiy raqam bo'lib qo'shiladi: "1^{9999}". Kursorni boshqa joyga siljitsangiz -
+// keyingi bosish yangi daraja boshlaydi.
+var SUP_MAP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁺':'+','⁻':'-','ⁿ':'n'};
+var SUB_MAP={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','₊':'+','₋':'-'};
+function insScriptChar(mf, ch){
+  var isSup=SUP_MAP.hasOwnProperty(ch);
+  var plain=(isSup?SUP_MAP:SUB_MAP)[ch];
+  var kind=isSup?'sup':'sub';
+  var same=(mf._scriptKind===kind && mf._scriptPos!==undefined && mf.position===mf._scriptPos);
+  if(!same) mf.executeCommand(isSup?'moveToSuperscript':'moveToSubscript');
+  mf.executeCommand(['insert', plain]);
+  mf._scriptKind=kind; mf._scriptPos=mf.position;
+}
 function insSym(s){
   // Agar kursor hozir biror formula maydonining (<math-field>) ICHIDA
   // tursa - belgi O'SHA formula ichiga qo'yiladi. Aks holda - siz OXIRGI
@@ -2124,6 +2141,9 @@ function insSym(s){
   // oddiy matn sifatida qo'shiladi. (Avvalgi xato: doim savolga yozilardi.)
   var af=document.activeElement;
   if(af && af.tagName==='MATH-FIELD' && editorContains(af)){
+    if(SUP_MAP.hasOwnProperty(s) || SUB_MAP.hasOwnProperty(s)){
+      try{ insScriptChar(af, s); return; }catch(e){}
+    }
     try{ af.executeCommand(['insert', s]); return; }catch(e){}
   }
   var el=currentEditorEl(); el.focus();
