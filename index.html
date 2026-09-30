@@ -972,6 +972,54 @@ var SB_KEY = 'sb_publishable_sU45gZYAtOGHx2SLnZfC_A_JqKLqLry';
 var SB_STORAGE_BUCKET = 'edutest-images';
 
 var _sb = null;
+// ─── SERVER TOKENI (2026-09-30) ─────────────────────────────────────────────
+// Kirgach server bergan vaqtinchalik token XOTIRADA saqlanadi (sahifa
+// yangilansa qayta kirish kerak - ilova avval ham shunday ishlagan). Token
+// FAQAT bizning serverlarga va faqat himoyalangan endpointlarga (AI, import,
+// rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
+var _authToken=null;
+var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
+var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp)(?:[?#]|$)/;
+(function(){
+  var origFetch=window.fetch.bind(window);
+  window.fetch=function(input,init){
+    var prot=false;
+    try{
+      var url=(typeof input==='string')?input:((input&&input.url)||'');
+      prot=!!(_authToken && _AUTH_HOSTS.test(url) && _AUTH_PATHS.test(url.replace(_AUTH_HOSTS,'')));
+      if(prot){
+        init=init||{};
+        var h=new Headers(init.headers||((typeof input!=='string'&&input.headers)?input.headers:{}));
+        if(!h.has('Authorization')) h.set('Authorization','Bearer '+_authToken);
+        init.headers=h;
+      }
+    }catch(e){}
+    var p=origFetch(input,init);
+    if(!prot) return p;
+    return p.then(function(res){
+      if(res.status===401){
+        _authToken=null;
+        try{ showSyncNotice('Sessiya muddati tugadi. Iltimos, chiqib qayta kiring.'); }catch(e){}
+      }
+      return res;
+    });
+  };
+})();
+// Login/parolni SERVERDA tekshirtiradi. {ok:true,token} | {ok:false,status,error}
+// (login xato/tasdiqlanmagan/juda ko'p urinish) | null (server bu imkoniyatni
+// bermaydi - eski server yoki tarmoq xatosi: eskicha mahalliy tekshiruvga o'tiladi).
+async function serverLogin(login,pass,role){
+  try{
+    var res=await fetch(DB_SERVER+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:login,pass:pass,role:role})});
+    if(res.ok){ var d=await res.json(); return d&&d.token?{ok:true,token:d.token}:null; }
+    if(res.status===401||res.status===403||res.status===429){
+      var e2={}; try{ e2=await res.json(); }catch(x){}
+      return {ok:false,status:res.status,error:e2.error||''};
+    }
+    return null;
+  }catch(e){ return null; }
+}
+
 var _sbReady = false;
 var _realtimeCh = null;
 
@@ -2570,11 +2618,20 @@ async function doLogin(){
   var u=document.getElementById('li-u').value.trim(),p=document.getElementById('li-p').value;
   if(!u||!p){showErr("Login va parol kiriting!");return;}
   document.getElementById('auth-err').innerHTML='<div class="alt ai">&#x23F3; Tekshirilmoqda...</div>';
+  // Avval SERVER login/parolni tekshiradi (u token ham beradi). Server bu
+  // imkoniyatni bermasa (null) - eskicha mahalliy tekshiruvga o'tamiz.
+  var srv=await serverLogin(u,p,authRole);
+  if(srv && !srv.ok){
+    if(srv.status===403 && srv.error==='not_approved') showErr("Hisobingiz hali admin tomonidan tasdiqlanmagan. Iltimos, kuting yoki admin bilan boglaning.");
+    else if(srv.status===429) showErr("Juda ko'p noto'g'ri urinish. Bir necha daqiqadan so'ng qayta urinib ko'ring.");
+    else showErr("Login yoki parol noto'g'ri!");
+    return;
+  }
   // Har doim serverdan eng so'nggi ma'lumotni yuklaymiz — iPhone/yangi
   // qurilmada localStorage bo'sh bo'lsa ham kirish ishlashi uchun.
   try{ await syncFromCloud(); }catch(e){}
   var db=getDB(),found=null;
-  db.users.forEach(function(x){if(x.login===u&&x.pass===p&&x.role===authRole)found=x;});
+  db.users.forEach(function(x){if(x.login===u&&x.role===authRole&&(srv?true:x.pass===p))found=x;});
   if(!found){
     // Agar topilmasa — internet muammosi bo'lishi mumkin, aniq xabar beramiz
     var hasUsers=(db.users||[]).filter(function(x){return x.role===authRole;}).length;
@@ -2591,9 +2648,10 @@ async function doLogin(){
   }
   document.getElementById('li-u').value='';
   document.getElementById('li-p').value='';
+  _authToken=srv?srv.token:null;
   ME=found;afterLogin();
 }
-function doRegister(){
+async function doRegister(){
   var name=document.getElementById('rg-n').value.trim();
   var user=document.getElementById('rg-u').value.trim();
   var pass=document.getElementById('rg-p').value;
@@ -2630,6 +2688,14 @@ function doRegister(){
     showAuthTab('li');
     document.getElementById('auth-err').innerHTML='<div class="alt as mt8">&#x2705; Ma\'lumotlaringiz adminga jo\'natildi! Admin tasdiqlagandan keyin tizimga kirishingiz mumkin bo\'ladi. Admin tasdiqlagach (yoki rad etsa), natija <b>'+email+'</b> manziliga xabar qilinadi.</div>';
     return;
+  }
+  // Yangi hisob serverga yetib borguncha biroz kutib, token olamiz (server
+  // bazadan tekshiradi). Olinmasa - tokensiz davom etamiz (yumshoq rejimda ishlaydi).
+  for(var ti=0; ti<4 && !_authToken; ti++){
+    await new Promise(function(r){ setTimeout(r, ti?1500:600); });
+    var sl=await serverLogin(user,pass,authRole);
+    if(sl && sl.ok) _authToken=sl.token;
+    else if(!sl || sl.status===429) break;
   }
   ME=nu;afterLogin();
 }
@@ -2678,7 +2744,7 @@ function confirmLogoutWarn(){
   // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
   submitTest(true);
 }
-function logout(){ME=null;if(S.iv)clearInterval(S.iv);_backWarned=false;
+function logout(){ME=null;_authToken=null;if(S.iv)clearInterval(S.iv);_backWarned=false;
   // To'liq ekrandan chiqish - faqat haqiqatan fullscreen bolsa
   if(document.fullscreenElement||document.webkitFullscreenElement){
     if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
