@@ -1162,17 +1162,43 @@ function startDbPolling(){
 // sozlangan) server, VM8 emas.
 var DB_SERVER='https://92-5-41-212.nip.io';
 
-async function sbPush(db) {
-  if (!_sbReady) return false;
+// TUZATISH (2026-09-30): import kabi tez ketma-ket saveDB() chaqiruvlarida bir
+// nechta db_save so'rovi PARALLEL ketib, server ularni tartibsiz qabul qilar
+// edi - server eskirgan (past v) nusxani rad etgani uchun har biriga 409 kelar,
+// har 409 esa butun bazani qayta yuklashga sabab bo'lardi. Endi so'rovlar
+// KETMA-KET yuboriladi va navbatda undan keyingi yangi saqlash bor bo'lsa,
+// eskirgan nusxa umuman yuborilmaydi (yangisi barcha o'zgarishni o'z ichiga oladi).
+// force=true - o'tkazib yuborilmaydi (kutilayotgan natijalarni yuborish uchun).
+var _pushChain=Promise.resolve(true), _pushSeq=0, _pushLatestDb=null, _lastOkV=0;
+function sbPush(db, force) {
+  if (!_sbReady) return Promise.resolve(false);
+  var mySeq=++_pushSeq;
+  _pushLatestDb=db;
+  var p=_pushChain.then(function(){
+    if(!force && mySeq!==_pushSeq) return true;
+    return _sbPushOnce(force ? db : _pushLatestDb);
+  });
+  _pushChain=p.catch(function(){ return false; });
+  return p;
+}
+async function _sbPushOnce(db) {
   try {
     var res = await fetch(DB_SERVER+'/db_save', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ value: JSON.stringify(db) })
     });
-    if(res.status===409){ markConnOk(); return await sbResolveConflict(db); }
+    if(res.status===409){
+      markConnOk();
+      var info={}; try{ info=await res.json(); }catch(e){}
+      // O'zimizning yuqoriroq nusxamiz allaqachon qabul qilingan bo'lsa - bu
+      // shunchaki kechikib kelgan eski surat, e'tibor bermaymiz.
+      if(typeof info.server_v==='number' && info.server_v<=_lastOkV) return true;
+      return await sbResolveConflict(db);
+    }
     if(!res.ok){ console.error('Server push xato (kod: '+res.status+')'); markConnLost(); return false; }
     markConnOk();
+    if((db.v||0)>_lastOkV) _lastOkV=db.v||0;
     return true;
   } catch(e) { console.error('Server push xato (malumot juda katta bolishi yoki server band bolishi mumkin):', e); markConnLost(); return false; }
 }
@@ -1310,7 +1336,7 @@ async function flushPendingSync(){
   _flushingSync=true;
   try{
     var db=getDB();
-    var ok=await sbPush(db);
+    var ok=await sbPush(db, true);
     if(ok){
       pending.forEach(function(rid){
         var r=(db.results||[]).find(function(x){return x.id===rid;});
