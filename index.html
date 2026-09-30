@@ -3389,7 +3389,7 @@ function renderQ(){
   // nomutanosib katta chiqardi. Shuning uchun oddiy, tekis HTML ko'rinishga
   // qaytarildi - formulalar endi to'g'ri, aniq chiqadi.
   var imgSrc=(q.img||q.image)?imgSrcVal(q.img||q.image):'';
-  var imgHtml=imgSrc?'<div style="text-align:center;margin:10px 0"><img src="'+imgSrc+'" style="max-width:100%;max-height:260px;border-radius:8px;background:#fff;padding:4px"></div>':'';
+  var imgHtml=imgSrc?'<div style="text-align:center;margin:10px 0"><img src="'+imgSrc+'" style="max-width:100%;max-height:420px;border-radius:8px;background:#fff;padding:4px"></div>':'';
   var optsHtml=(q.options||[]).map(function(opt,i){
     var sel=ans.indexOf(i)>=0;
     var ctrl=q.isMulti
@@ -3625,7 +3625,7 @@ function fireConfetti(count){
 }
 function toggleDetail(){
   showDet=!showDet;var el=document.getElementById('r-det');el.style.display=showDet?'block':'none';
-  if(showDet&&S.lastRes){document.getElementById('r-det-body').innerHTML=S.lastRes.details.map(function(d,i){return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px"><div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+((d.img||d.image)?'<img src="'+imgSrcVal(d.img||d.image)+'" style="max-width:100%;max-height:150px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+d.options.map(function(opt,oi){var isR=d.correct.indexOf(oi)>=0,isU=d.userAns.indexOf(oi)>=0,bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent',ic=isR?'✅':(isU&&!isR)?'❌':'⬜';var isImg=isImgVal(opt);var optContent=isImg?'<img src="'+imgSrcVal(opt)+'" style="max-height:80px;border-radius:4px;vertical-align:middle;margin-left:4px">':opt;return '<div style="padding:6px 8px;border-radius:6px;font-size:13px;background:'+bg+';margin-bottom:4px">'+ic+' '+String.fromCharCode(65+oi)+'. '+optContent+(isR?'<span style="color:#16a34a;font-size:11px;font-weight:700;margin-left:6px">(To\'g\'ri)</span>':'')+'</div>';}).join('')+'</div>';}).join('');renderMathIn(document.getElementById('r-det-body'));}
+  if(showDet&&S.lastRes){document.getElementById('r-det-body').innerHTML=S.lastRes.details.map(function(d,i){return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px"><div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+((d.img||d.image)?'<img src="'+imgSrcVal(d.img||d.image)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+d.options.map(function(opt,oi){var isR=d.correct.indexOf(oi)>=0,isU=d.userAns.indexOf(oi)>=0,bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent',ic=isR?'✅':(isU&&!isR)?'❌':'⬜';var isImg=isImgVal(opt);var optContent=isImg?'<img src="'+imgSrcVal(opt)+'" style="max-height:80px;border-radius:4px;vertical-align:middle;margin-left:4px">':opt;return '<div style="padding:6px 8px;border-radius:6px;font-size:13px;background:'+bg+';margin-bottom:4px">'+ic+' '+String.fromCharCode(65+oi)+'. '+optContent+(isR?'<span style="color:#16a34a;font-size:11px;font-weight:700;margin-left:6px">(To\'g\'ri)</span>':'')+'</div>';}).join('')+'</div>';}).join('');renderMathIn(document.getElementById('r-det-body'));}
 }
 
 var _curQFolder=null;
@@ -4207,7 +4207,7 @@ function renderReviewList(){
     }).join('');
     return '<div class="pd" style="margin-bottom:12px">'+
       '<div class="ts tm" style="margin-bottom:4px">'+_aiEsc(g.topic)+' &middot; '+g.flags.length+' ta o\'quvchi xato ishlagan</div>'+
-      (q.image?'<img src="'+imgSrcVal(q.image)+'" style="max-width:100%;max-height:150px;border-radius:6px;margin-bottom:8px">':'')+
+      (q.image?'<img src="'+imgSrcVal(q.image)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px">':'')+
       '<div style="font-weight:700;margin-bottom:8px">'+_aiEsc(q.text||'(rasm/formula)')+'</div>'+
       optsHtml+
       '<div class="fx" style="gap:8px;margin-top:10px">'+
@@ -4308,7 +4308,7 @@ function showResultDetail(id){
       var imgSrc=d.img||d.image||'';
       return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px">'+
         '<div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+
-        (imgSrc?'<img src="'+imgSrcVal(imgSrc)+'" style="max-width:100%;max-height:150px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+
+        (imgSrc?'<img src="'+imgSrcVal(imgSrc)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+
         (d.options||[]).map(function(opt,oi){
           var isR=(d.correct||[]).indexOf(oi)>=0,isU=(d.userAns||[]).indexOf(oi)>=0;
           var bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent';
