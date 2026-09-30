@@ -979,7 +979,7 @@ var _sb = null;
 // rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
 var _authToken=null;
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -5501,7 +5501,7 @@ async function distributeEmfConversion(emfTasks, onProgress){
       try{
         var res=await fetchVM(srv.url,'/convert_emfs',{
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({tasks: chunk.map(function(t){return {id:t.id, emf_b64:t.emf_b64};})})
+          body: JSON.stringify({tasks: chunk.map(function(t){return {id:t.id, emf_b64:t.emf_b64, raw:!!t.raw};})})
         }).then(function(r){return r.json();});
         if(res && res.results){
           Object.keys(res.results).forEach(function(id){ results[id]=res.results[id]; });
@@ -5546,7 +5546,7 @@ async function distributeEmfConversion(emfTasks, onProgress){
       try{
         var res2=await fetchVM(srv2.url,'/convert_emfs',{
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({tasks: leftover.map(function(t){return {id:t.id, emf_b64:t.emf_b64};})})
+          body: JSON.stringify({tasks: leftover.map(function(t){return {id:t.id, emf_b64:t.emf_b64, raw:!!t.raw};})})
         }).then(function(r){return r.json();});
         if(res2 && res2.results){
           Object.keys(res2.results).forEach(function(id){ results[id]=res2.results[id]; });
@@ -5572,6 +5572,51 @@ async function distributeEmfConversion(emfTasks, onProgress){
     console.warn(stillLeft.length+' ta rasm/formula '+FALLBACK_ROUNDS+' bosqichdan keyin ham konvertatsiya qilinmadi - xom malumot saqlab qolindi, keyinroq "Tuzatish" tugmasi bilan qayta urinish mumkin.');
   }
   return results;
+}
+
+// Ko'p qismli (rasm + formula) savol/javoblarni BITTA rasmga birlashtiradi.
+// Qismlar: tayyor rasm (img_b64) yoki konvertatsiya natijasi (emfResults[task_id]:
+// xom PNG base64, yoki eski serverdan kelgan URL/data-URL). Birlashtirishni
+// server (/compose_parts) bajaradi va R2'ga yuklaydi. Natija emfResults[key] ga yoziladi.
+var _composeRR=0;
+async function composeOnePartsList(parts){
+  var urls=SERVER_POOL.map(function(s){return s.url;});
+  for(var i=0;i<urls.length;i++){
+    var u=urls[(_composeRR+i)%urls.length];
+    try{
+      var r=await fetchVM(u,'/compose_parts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parts:parts})});
+      if(!r.ok) continue;
+      var d=await r.json();
+      if(d && d.url){ _composeRR++; return d.url; }
+    }catch(e){}
+  }
+  return null;
+}
+async function composeMultiSpecs(specs, emfResults, onProgress){
+  if(!specs.length) return;
+  var idx=0, done=0, failed=0;
+  async function worker(){
+    while(idx<specs.length){
+      var sp=specs[idx++];
+      var parts=[];
+      sp.parts.forEach(function(p){
+        if(p.img_b64){ parts.push({b64:p.img_b64}); return; }
+        var v=emfResults[p.task_id];
+        if(!v || typeof v!=='string' || v.indexOf('EMFPENDING:')===0) return;
+        if(v.indexOf('data:')===0) parts.push({b64:v.split(',')[1]});
+        else if(v.indexOf('http')===0) parts.push({url:v});
+        else parts.push({b64:v});
+      });
+      if(parts.length){
+        var url=await composeOnePartsList(parts);
+        if(url) emfResults[sp.key]=url; else failed++;
+      }
+      done++;
+      if(onProgress) onProgress(done, specs.length);
+    }
+  }
+  await Promise.all(Array.from({length:Math.min(4,specs.length)}, worker));
+  if(failed) console.warn(failed+' ta ko\'p qismli rasm birlashtirilmadi');
 }
 
 // Fayllarni (extract_batch_start orqali) EMF-siz ochib, keyin barcha
@@ -5609,6 +5654,7 @@ async function distributedExeImport(files, folderName, msg){
 
   var allFileResults=[]; // {filename, topic, questions, questionsToAsk, error?}
   var allEmfTasks=[];    // {id, emf_b64} - global id: "<globalFileIdx>_<kind>_<qIdx>_<optIdx>"
+  var allMultiSpecs=[];  // {key, parts:[{img_b64}|{task_id}]} - bir nechta obyektli (rasm+formula) savol/javob
   var extractedCount=0;
   var srvIdx=0;
 
@@ -5659,7 +5705,16 @@ async function distributedExeImport(files, folderName, msg){
           var globalFileIdx=startFileIdx+t.file_index;
           var idParts=t.id.split('_');
           var newId=globalFileIdx+'_'+idParts.slice(1).join('_');
-          allEmfTasks.push({id:newId, emf_b64:t.emf_b64});
+          allEmfTasks.push({id:newId, emf_b64:t.emf_b64, raw:!!t.raw});
+        });
+        // Ko'p qismli (rasm+formula) savol/javoblar: fayl indeksini global qilib qo'yamiz
+        (res.multi_specs||[]).forEach(function(sp){
+          var g=startFileIdx+sp.file_index;
+          var reId=function(s){ var a=String(s).split('_'); return g+'_'+a.slice(1).join('_'); };
+          allMultiSpecs.push({
+            key: reId(sp.key),
+            parts: (sp.parts||[]).map(function(p){ return p.task_id ? {task_id: reId(p.task_id)} : {img_b64: p.img_b64}; })
+          });
         });
         ok=true;
       }catch(e){
@@ -5693,6 +5748,14 @@ async function distributedExeImport(files, folderName, msg){
   var emfResults=await distributeEmfConversion(allEmfTasks, function(done,total,activeServers){
     msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; Formula/rasmlar o\'girilmoqda: '+done+'/'+total+' ('+activeServers.length+' ta server ishlamoqda: '+activeServers.join(', ')+')</div>';
   });
+
+  // 2b-BOSQICH: bir nechta obyektli (rasm+formula) savol/javoblarni birlashtirish
+  if(allMultiSpecs.length){
+    msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; Ko\'p qismli rasm/formulalar birlashtirilmoqda (0/'+allMultiSpecs.length+')...</div>';
+    await composeMultiSpecs(allMultiSpecs, emfResults, function(d,t){
+      msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; Ko\'p qismli rasm/formulalar birlashtirilmoqda ('+d+'/'+t+')...</div>';
+    });
+  }
 
   // 3-BOSQICH: natijalarni togri joylarga (savol/variant) qo'yish
   allFileResults.forEach(function(fr, fileIdx){
