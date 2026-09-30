@@ -1122,10 +1122,58 @@ async function sbPush(db) {
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ value: JSON.stringify(db) })
     });
+    if(res.status===409){ markConnOk(); return await sbResolveConflict(db); }
     if(!res.ok){ console.error('Server push xato (kod: '+res.status+')'); markConnLost(); return false; }
     markConnOk();
     return true;
   } catch(e) { console.error('Server push xato (malumot juda katta bolishi yoki server band bolishi mumkin):', e); markConnLost(); return false; }
+}
+
+// Server bu qurilmaning bazasini "eskirgan" deb rad etdi (409): boshqa qurilma
+// yangiroq versiyani allaqachon saqlagan. Eskirgan nusxa bilan butun bazani
+// bosib ketmaymiz - yangi bazani tortib olamiz. FAQAT hali serverga
+// yetmagan (kutilayotgan) imtihon natijalari yangi bazaga qo'shib qayta
+// yuboriladi, shunda internetsiz topshirilgan natija yo'qolmaydi.
+var _resolvingConflict=false;
+async function sbResolveConflict(localDb){
+  if(_resolvingConflict) return false;
+  _resolvingConflict=true;
+  try{
+    var remote=await sbPull();
+    if(!remote) return false;
+    var pend=getPendingSync();
+    var have={};
+    (remote.results||[]).forEach(function(r){ have[r.id]=1; });
+    var added=0;
+    (localDb.results||[]).forEach(function(r){
+      if(pend.indexOf(r.id)>=0 && !have[r.id]){ (remote.results=remote.results||[]).push(r); added++; }
+    });
+    if(added){
+      remote.v=(remote.v||0)+1;
+      var res2=await fetch(DB_SERVER+'/db_save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:JSON.stringify(remote)})});
+      if(!res2.ok) return false;
+    }
+    try{ localStorage.setItem(SK, JSON.stringify(remote)); }catch(e){}
+    console.warn('Baza boshqa qurilmada yangilangan edi - yangi nusxa yuklandi'+(added?(' ('+added+' ta natija qo\'shildi)'):''));
+    showSyncNotice('Ma\'lumotlar boshqa qurilmada yangilangan edi - yangi nusxa yuklandi. Sahifani yangilang.');
+    return true;
+  }catch(e){ console.warn('sbResolveConflict xato:', e); return false; }
+  finally{ _resolvingConflict=false; }
+}
+function showSyncNotice(msg){
+  try{
+    var el=document.getElementById('sync-notice');
+    if(!el){
+      el=document.createElement('div');
+      el.id='sync-notice';
+      el.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:999;background:#92400e;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);max-width:92vw;text-align:center;cursor:pointer';
+      el.onclick=function(){ location.reload(); };
+      document.body.appendChild(el);
+    }
+    el.textContent='⚠️ '+msg;
+    el.style.display='block';
+    clearTimeout(el._t); el._t=setTimeout(function(){ el.style.display='none'; }, 12000);
+  }catch(e){}
 }
 
 async function sbPull() {
