@@ -821,13 +821,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         <h3 style="margin:0">&#x1F4BE; Xotira holati</h3>
         <button class="btn bg bsm" onclick="loadStorageStats()" id="storage-refresh-btn">&#x1F504; Yangilash</button>
       </div>
-      <div class="fg" style="max-width:260px">
-        <label>Supabase reja (avtomatik aniqlanmaydi, qo'lda tanlang)</label>
-        <select id="storage-plan-select" onchange="onStoragePlanChange()">
-          <option value="free">Bepul &#8212; 1 GB</option>
-          <option value="pro">Pullik (Pro) &#8212; 100 GB</option>
-        </select>
-      </div>
       <div id="storage-stats-body"><p class="ts tm" style="text-align:center;padding:14px">&#x23F3; Yuklanmoqda...</p></div>
     </div>
   </div>
@@ -4269,7 +4262,6 @@ function initAdminSettings(){
   var db=getDB();
   renderPendingTeachers();
   renderAdminAllUsers();
-  document.getElementById('storage-plan-select').value=db.storagePlan||'free';
   loadStorageStats();
 }
 var _adminShowPass=false;
@@ -4336,9 +4328,9 @@ async function loadStorageStats(){
   if(btn){btn.disabled=false;btn.textContent='🔄 Yangilash';}
 }
 
-function onStoragePlanChange(){
+function onStoragePlanChange(val){
   var db=getDB();
-  db.storagePlan=document.getElementById('storage-plan-select').value;
+  db.storagePlan=val==='pro'?'pro':'free';
   saveDB(db);
   renderStorageBars();
 }
@@ -4412,7 +4404,7 @@ function renderStorageBars(){
     '<span style="font-size:18px">🟢</span>'+
     '<b style="font-size:14px">Supabase Storage</b>'+
     '<span class="bdg bpu2" style="font-size:11px">Eski rasmlar (18,456+)</span>'+
-    '<select id="storage-plan-select" onchange="onStoragePlanChange()" style="margin-left:auto;font-size:12px;padding:2px 6px;border-radius:6px;border:1px solid var(--bdr)">'+
+    '<select id="storage-plan-select" onchange="onStoragePlanChange(this.value)" style="margin-left:auto;font-size:12px;padding:2px 6px;border-radius:6px;border:1px solid var(--bdr)">'+
     '<option value="free"'+(plan==='free'?' selected':'')+'>Bepul — 1 GB</option>'+
     '<option value="pro"'+(plan==='pro'?' selected':'')+'>Pullik — 100 GB</option>'+
     '</select>'+
