@@ -1129,7 +1129,9 @@ function startDbPolling(){
       var remote=await sbPull(); // FAQAT haqiqatan ozgargan bolsa, tolik blokni tortamiz
       if(!remote) return;
       if((remote.v||0) > (local.v||0)){
-        localStorage.setItem(SK, JSON.stringify(remote));
+        if(mergeLocalAdds(remote,local)){ remote.v=(remote.v||0)+1; localStorage.setItem(SK, JSON.stringify(remote)); sbPush(remote); }
+        else localStorage.setItem(SK, JSON.stringify(remote));
+        rememberSyncedIds(remote);
         renderNotifBell();
         // Ustoz "Natijalar" tabida bolsa - jadval avtomatik yangilanadi
         if(ME && ME.role==='teacher' && document.getElementById('tc-r') && document.getElementById('tc-r').classList.contains('on')) { loadResults(); }
@@ -1201,6 +1203,7 @@ async function _sbPushOnce(db) {
     if(!res.ok){ console.error('Server push xato (kod: '+res.status+')'); markConnLost(); return false; }
     markConnOk();
     if((db.v||0)>_lastOkV) _lastOkV=db.v||0;
+    rememberSyncedIds(db);
     return true;
   } catch(e) { console.error('Server push xato (malumot juda katta bolishi yoki server band bolishi mumkin):', e); markConnLost(); return false; }
 }
@@ -1211,6 +1214,33 @@ async function _sbPushOnce(db) {
 // yetmagan (kutilayotgan) imtihon natijalari yangi bazaga qo'shib qayta
 // yuboriladi, shunda internetsiz topshirilgan natija yo'qolmaydi.
 var _resolvingConflict=false;
+// ─── YANGI QO'SHILGANLARNI SAQLAB QOLISH (2026-10-01) ─────────────────────
+// Muammo: server nusxasi yangiroq bo'lsa (409 yoki polling), qurilmada hali
+// yuborilmagan yangi foydalanuvchi/savol/to'plam jimgina yo'qolardi
+// (masalan, ro'yxatdan o'tgan o'quvchi). Yechim: oxirgi muvaffaqiyatli
+// sinxrondagi id'lar ro'yxatini saqlaymiz. Lokalda bor, serverda yo'q VA
+// oxirgi sinxronda ham bo'lmagan element = shu qurilmada yangi qo'shilgan,
+// uni server nusxasiga qo'shamiz. Oxirgi sinxronda bo'lgan, endi serverda
+// yo'q element = boshqa joyda o'chirilgan, qaytarilmaydi.
+var SYNC_COLLS=['users','userQs','decks','results','collaborations'];
+var SYNCED_IDS_KEY='bt_synced_ids';
+function _collIds(db,c){ return (db[c]||[]).map(function(x){return x&&x.id!=null?String(x.id):null;}).filter(Boolean); }
+function rememberSyncedIds(db){ try{ var o={}; SYNC_COLLS.forEach(function(c){o[c]=_collIds(db,c);}); localStorage.setItem(SYNCED_IDS_KEY,JSON.stringify(o)); }catch(e){} }
+function mergeLocalAdds(remote,local){
+  var synced={}; try{ synced=JSON.parse(localStorage.getItem(SYNCED_IDS_KEY)||'{}'); }catch(e){}
+  var added=0;
+  SYNC_COLLS.forEach(function(c){
+    if(!local[c]||!local[c].length) return;
+    var have={}; _collIds(remote,c).forEach(function(id){have[id]=1;});
+    var was={}; (synced[c]||[]).forEach(function(id){was[id]=1;});
+    local[c].forEach(function(x){ if(!x||x.id==null) return; var id=String(x.id);
+      if(!have[id]&&!was[id]){ (remote[c]=remote[c]||[]).push(x); added++; } });
+  });
+  // o'zlashtirish ma'lumoti: shu qurilmadagi foydalanuvchiniki saqlanadi
+  if(ME&&local.mastery&&local.mastery[ME.id]){ remote.mastery=remote.mastery||{}; var lm=local.mastery[ME.id], rm=remote.mastery[ME.id];
+    if(!rm||JSON.stringify(lm).length>=JSON.stringify(rm).length){ remote.mastery[ME.id]=lm; if(rm!==lm) added++; } }
+  return added;
+}
 async function sbResolveConflict(localDb){
   if(_resolvingConflict) return false;
   _resolvingConflict=true;
@@ -1220,16 +1250,14 @@ async function sbResolveConflict(localDb){
     var pend=getPendingSync();
     var have={};
     (remote.results||[]).forEach(function(r){ have[r.id]=1; });
-    var added=0;
-    (localDb.results||[]).forEach(function(r){
-      if(pend.indexOf(r.id)>=0 && !have[r.id]){ (remote.results=remote.results||[]).push(r); added++; }
-    });
+    var added=mergeLocalAdds(remote,localDb);
     if(added){
       remote.v=(remote.v||0)+1;
       var res2=await fetch(DB_SERVER+'/db_save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:JSON.stringify(remote)})});
       if(!res2.ok) return false;
     }
     try{ localStorage.setItem(SK, JSON.stringify(remote)); }catch(e){}
+    rememberSyncedIds(remote);
     console.warn('Baza boshqa qurilmada yangilangan edi - yangi nusxa yuklandi'+(added?(' ('+added+' ta natija qo\'shildi)'):''));
     showSyncNotice('Ma\'lumotlar boshqa qurilmada yangilangan edi - yangi nusxa yuklandi. Sahifani yangilang.');
     return true;
@@ -2351,8 +2379,12 @@ async function syncFromCloud() {
     // Endi: remote ma'lumot bor va local bo'sh bo'lsa HAR DOIM yuklaymiz.
     var localEmpty = !(local.users && local.users.length > 1);
     if ((remote.v||0) > (local.v||0) || localEmpty) {
+      var _adds = localEmpty ? 0 : mergeLocalAdds(remote, local);
+      if (_adds) remote.v = (remote.v||0) + 1;
       try { localStorage.setItem(SK, JSON.stringify(remote)); } catch(e) {}
-    }
+      rememberSyncedIds(remote);
+      if (_adds) sbPush(remote);
+    } else { rememberSyncedIds(remote); }
   } catch(e) {
     console.warn('syncFromCloud xato:', e);
   }
