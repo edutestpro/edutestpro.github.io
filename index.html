@@ -153,6 +153,8 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
 .ts{font-size:13px}.tm{color:var(--mut)}
 .mt8{margin-top:8px}.mt12{margin-top:12px}
 </style>
+<script>try{if(sessionStorage.getItem('et_sess'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},5000);</script>
+<style>html.et-restoring #pg-home{visibility:hidden}</style>
 </head>
 <body>
 <div id="mathBg"></div>
@@ -7531,7 +7533,8 @@ sbInit();
 // shunda "bosh" qurilmada ham, avval haqiqiy bulutdagi malumot localStorage
 // ga yozib bolinadi, initMeta() esa endi HAQIQIY malumot ustida ishlaydi
 // (bosh standart baza ustida emas) va bekorga bulutga hech narsa yozmaydi.
-syncFromCloud().then(function(){ initMeta(); restoreSession(); });
+restoreSession();
+syncFromCloud().then(function(){ initMeta(); restoreSession(); document.documentElement.classList.remove('et-restoring'); });
 // Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash. sessionStorage
 // tab yopilganda o'chadi - umumiy kompyuterda keyingi odam hisobda qolmaydi.
 function restoreSession(){
@@ -7539,8 +7542,10 @@ function restoreSession(){
   var s=null; try{ s=JSON.parse(sessionStorage.getItem('et_sess')||'null'); }catch(e){}
   if(!s||!s.id) return;
   var u=(getDB().users||[]).filter(function(x){return x.id===s.id;})[0];
-  if(!u||(u.role==='teacher'&&u.approved===false)){ try{sessionStorage.removeItem('et_sess');}catch(e){} return; }
+  if(!u) return;
+  if(u.role==='teacher'&&u.approved===false){ try{sessionStorage.removeItem('et_sess');}catch(e){} document.documentElement.classList.remove('et-restoring'); return; }
   _authToken=s.t||null; ME=u; afterLogin();
+  document.documentElement.classList.remove('et-restoring');
 }
 
 // ── ORQAGA TUGMA VA SAHIFADAN CHIQISH ──────────────────────────────
