@@ -2757,6 +2757,7 @@ async function doRegister(){
   ME=nu;afterLogin();
 }
 function afterLogin(){
+  try{ sessionStorage.setItem('et_sess', JSON.stringify({id:ME.id, t:_authToken||null})); }catch(e){}
   // Agar oldingi sessiyada test yarim qolgan bo'lsa (masalan brauzer yopilgan,
   // blur eventi ishlamagan) - kirish paytida holat to'liq tozalansin.
   if(S.iv) clearInterval(S.iv);
@@ -2801,7 +2802,7 @@ function confirmLogoutWarn(){
   // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
   submitTest(true);
 }
-function logout(){ME=null;_authToken=null;if(S.iv)clearInterval(S.iv);_backWarned=false;
+function logout(){ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
   // To'liq ekrandan chiqish - faqat haqiqatan fullscreen bolsa
   if(document.fullscreenElement||document.webkitFullscreenElement){
     if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
@@ -7530,7 +7531,17 @@ sbInit();
 // shunda "bosh" qurilmada ham, avval haqiqiy bulutdagi malumot localStorage
 // ga yozib bolinadi, initMeta() esa endi HAQIQIY malumot ustida ishlaydi
 // (bosh standart baza ustida emas) va bekorga bulutga hech narsa yozmaydi.
-syncFromCloud().then(function(){ initMeta(); });
+syncFromCloud().then(function(){ initMeta(); restoreSession(); });
+// Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash. sessionStorage
+// tab yopilganda o'chadi - umumiy kompyuterda keyingi odam hisobda qolmaydi.
+function restoreSession(){
+  if(ME) return;
+  var s=null; try{ s=JSON.parse(sessionStorage.getItem('et_sess')||'null'); }catch(e){}
+  if(!s||!s.id) return;
+  var u=(getDB().users||[]).filter(function(x){return x.id===s.id;})[0];
+  if(!u||(u.role==='teacher'&&u.approved===false)){ try{sessionStorage.removeItem('et_sess');}catch(e){} return; }
+  _authToken=s.t||null; ME=u; afterLogin();
+}
 
 // ── ORQAGA TUGMA VA SAHIFADAN CHIQISH ──────────────────────────────
 var _backWarned = false;
