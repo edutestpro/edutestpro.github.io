@@ -7731,5 +7731,49 @@ history.pushState(null, '', location.href);
       <button class="btn bpu blg mt12" onclick="location.reload()">&#x1F504; Qayta urinish</button>
     </div>
   </div>
+<!-- MUAMMO YOZISH (2026-10-01): xabar shu saytning serveri orqali admin Telegram'i va emailiga ketadi -->
+<style>
+#rep-fab{position:fixed;left:14px;bottom:14px;z-index:900;background:#fff;color:var(--pri,#25316d);border:1px solid rgba(37,49,109,.18);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer}
+#rep-fab:hover{transform:translateY(-1px)}
+body:has(#pg-test.on) #rep-fab{display:none}
+#rep-ov{position:fixed;inset:0;background:rgba(10,15,40,.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+#rep-ov.on{display:flex}
+#rep-box{background:#fff;color:#1e2a3a;border-radius:16px;max-width:460px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#rep-box textarea,#rep-box input{width:100%;box-sizing:border-box;border:1px solid #d6dbe8;border-radius:10px;padding:10px;font:inherit;margin-top:6px}
+#rep-box textarea{min-height:120px;resize:vertical}
+</style>
+<button id="rep-fab" onclick="openReport()">&#x1F6E0; Muammo yozish</button>
+<div id="rep-ov" onclick="if(event.target===this)closeReport()">
+  <div id="rep-box">
+    <h3 style="margin:0 0 4px">Muammo haqida yozing</h3>
+    <p style="margin:0 0 10px;font-size:13px;opacity:.7">Xabaringiz to'g'ridan-to'g'ri dastur egasiga yetib boradi.</p>
+    <textarea id="rep-text" maxlength="3000" placeholder="Nima bo'ldi? Qaysi sahifada? Qanday qilib takrorlash mumkin?"></textarea>
+    <input id="rep-contact" maxlength="200" placeholder="Aloqa uchun telefon yoki Telegram (ixtiyoriy)">
+    <div id="rep-msg" style="font-size:13px;margin-top:8px;min-height:18px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn bg bsm" onclick="closeReport()">Bekor qilish</button>
+      <button class="btn bp bsm" id="rep-send" onclick="sendReport()">Yuborish</button>
+    </div>
+  </div>
+</div>
+<script>
+function openReport(){document.getElementById('rep-ov').classList.add('on');document.getElementById('rep-msg').textContent='';setTimeout(function(){document.getElementById('rep-text').focus();},50);}
+function closeReport(){document.getElementById('rep-ov').classList.remove('on');}
+function sendReport(){
+  var t=document.getElementById('rep-text').value.trim(), m=document.getElementById('rep-msg'), b=document.getElementById('rep-send');
+  if(t.length<5){m.style.color='#c0392b';m.textContent='Iltimos, muammoni batafsilroq yozing.';return;}
+  var pg=document.querySelector('.pg.on');
+  b.disabled=true;m.style.color='#555';m.textContent='Yuborilmoqda...';
+  fetch(DB_SERVER+'/report_issue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    text:t, contact:document.getElementById('rep-contact').value.trim(), page:pg?pg.id:'',
+    user:(typeof ME!=='undefined'&&ME)?{name:ME.name,login:ME.login,role:ME.role}:null, ua:navigator.userAgent})})
+  .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,j:j};});})
+  .then(function(res){
+    if(res.ok){m.style.color='#1e8449';m.textContent='Rahmat! Xabaringiz yuborildi.';document.getElementById('rep-text').value='';setTimeout(closeReport,1500);}
+    else{m.style.color='#c0392b';m.textContent=(res.j&&res.j.error)||'Yuborib bo\'lmadi, keyinroq urinib ko\'ring.';}
+  }).catch(function(){m.style.color='#c0392b';m.textContent='Internet aloqasini tekshirib, qayta urinib ko\'ring.';})
+  .then(function(){b.disabled=false;});
+}
+</script>
 </body>
       </html>
