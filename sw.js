@@ -1,4 +1,4 @@
-const CACHE = 'edutest-v125';
+const CACHE = 'edutest-v126';
 const IMG_CACHE = 'edutest-img-v1';
 const FILES = ['./', './index.html'];
 
@@ -8,10 +8,8 @@ self.addEventListener('install', function(e) {
       return cache.addAll(FILES).catch(function(){});
     })
   );
-  // MUHIM: skipWaiting() - yangi SW darhol eski SW ni almashtiradi.
-  // Bu olmasa, maktab kompyuterida sahifa yopilgunga qadar eski kesh
-  // ishlashda davom etadi (foydalanuvchi ma'lumotlarni ko'ra olmaydi).
-  self.skipWaiting();
+  // 2026-10-02: yangi versiya O'ZICHA faollashmaydi (ochiq sahifani qayta yuklab, foydalanuvchini
+  // ish joyidan sakratardi). Sahifa "Yangilash" bannerida SKIP_WAITING yuborganda faollashadi.
 });
 
 self.addEventListener('activate', function(e) {
@@ -134,4 +132,9 @@ self.addEventListener('notificationclick', function(e) {
       if (clients.openWindow) return clients.openWindow(url);
     })
   );
+});
+
+// Sahifa "Yangilash" bosilganda shu xabarni yuboradi
+self.addEventListener('message', function(e){
+  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });

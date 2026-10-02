@@ -2606,7 +2606,7 @@ function renderUsageCard(){
 var S={test:[],idx:0,answers:{},timeLeft:0,iv:null,mode:'',lastRes:null};
 
 function showPg(id){document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});document.getElementById(id).classList.add('on');}
-function switchTab(id,el){document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('on');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});document.getElementById(id).classList.add('on');el.classList.add('on');}
+function switchTab(id,el){try{sessionStorage.setItem('et_tab',id);}catch(e){}document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('on');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});document.getElementById(id).classList.add('on');el.classList.add('on');}
 
 var authRole='student';
 // Yashirin admin kirish: bosh sahifada, hech qanday maydonga yozmasdan
@@ -5460,7 +5460,9 @@ VM_FALLBACK[IMPORT_SERVER_4]='https://130-61-74-112.nip.io';
 VM_FALLBACK[IMPORT_SERVER_5]='https://130-61-172-212.nip.io';
 var FETCHVM_TIMEOUT_MS=120000; // 2 daqiqa
 function _fetchWithTimeout(url, opts, timeoutMs){
+  if(_importCancel&&_importInProgress) return Promise.reject(new Error("Import to'xtatildi"));
   var ctrl=new AbortController();
+  if(_importInProgress){ _impCtrls.push(ctrl); if(_impCtrls.length>200) _impCtrls.splice(0,100); }
   var timer=setTimeout(function(){ ctrl.abort(); }, timeoutMs||FETCHVM_TIMEOUT_MS);
   var mergedOpts=Object.assign({}, opts||{}, {signal:ctrl.signal});
   return fetch(url, mergedOpts).finally(function(){ clearTimeout(timer); });
@@ -5922,6 +5924,7 @@ async function distributedExeImport(files, folderName, msg){
 }
 
 async function saveImportedQs(parsed,msg){
+  if(_importCancel&&_importInProgress) return;
   // MUHIM YANGILANISH (2026-09-19): avval bir xil nomli mavzu import
   // qilinsa, avtomatik "Mavzu (2)" kabi NOYOB nomga o'tkazilardi - bu 2 ta
   // bir xil testni yaratardi. Endi mavzu allaqachon mavjud bo'lsa, savollar
@@ -5996,6 +5999,7 @@ async function saveImportedQs(parsed,msg){
     if(p.nq.text) p.old.text=p.nq.text;
   });
   db.userQs=db.userQs.concat(plan.newOnes); // faqat haqiqatan YANGI savollar qo'shiladi
+  if(_importInProgress) plan.newOnes.forEach(function(q){ _impSavedIds.push(q.id); });
 
   db.topicsMeta=db.topicsMeta||[];
   var f=false;
@@ -6354,7 +6358,8 @@ var _importWakeLock=null;
 var _importInProgress=false;
 var _importWasBackgrounded=false;
 async function acquireImportWakeLock(){
-  _importInProgress=true;
+  if(!_importInProgress){ _importCancel=false; _impSavedIds=[]; }
+  _importInProgress=true; _impBar(true);
   _importWasBackgrounded=false;
   if(!('wakeLock' in navigator)) return; // eski brauzerlarda yoq - ogohlantirish baribir korsatiladi
   try{
@@ -6362,7 +6367,8 @@ async function acquireImportWakeLock(){
   }catch(e){ /* ruxsat berilmasa yoki qollab-quvvatlanmasa - jim otkazib yuboramiz */ }
 }
 function releaseImportWakeLock(){
-  _importInProgress=false;
+  _importInProgress=false; _impBar(false); _impCtrls=[];
+  if(window._swPendingSW&&window._swShowBanner){ var _p=window._swPendingSW; window._swPendingSW=null; try{ window._swShowBanner(_p); }catch(e){} }
   if(_importWakeLock){
     try{ _importWakeLock.release(); }catch(e){}
     _importWakeLock=null;
@@ -6381,6 +6387,42 @@ document.addEventListener('visibilitychange', function(){
     }
   }
 });
+// ═══════════════════════════════════════════════════════════════════════
+// IMPORTNI TO'XTATISH (2026-10-02): import paytida pastda panel —
+// "To'xtatish" (shu paytgacha saqlanganlar qoladi) va "To'xtatish va o'chirish"
+// (shu importda qo'shilgan savollar o'chiriladi).
+// ═══════════════════════════════════════════════════════════════════════
+var _importCancel=false, _impCtrls=[], _impSavedIds=[];
+function _impBar(show){
+  var b=document.getElementById('imp-stop-bar');
+  if(!show){ if(b) b.remove(); return; }
+  if(b) return;
+  b=document.createElement('div'); b.id='imp-stop-bar';
+  b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9998;background:#1e293b;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;box-shadow:0 -4px 16px rgba(0,0,0,.25)';
+  b.innerHTML='<span style="font-weight:700">&#x23F3; Import davom etmoqda</span>'+
+    '<button onclick="cancelImport(false)" style="background:#f59e0b;color:#111;border:none;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">&#x23F9; To\'xtatish</button>'+
+    '<button onclick="cancelImport(true)" style="background:#ef4444;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">&#x1F5D1; To\'xtatish va o\'chirish</button>';
+  document.body.appendChild(b);
+}
+function cancelImport(del){
+  if(!_importInProgress) { _impBar(false); return; }
+  if(!confirm(del?"Importni to'xtatib, shu importda qo'shilgan savollarni o'chirasizmi?":"Importni to'xtatasizmi? Shu paytgacha saqlangan savollar qoladi.")) return;
+  _importCancel=true;
+  _impCtrls.forEach(function(c){ try{ c.abort(); }catch(e){} }); _impCtrls=[];
+  var n=0;
+  if(del&&_impSavedIds.length){
+    var ids={}; _impSavedIds.forEach(function(i){ ids[String(i)]=1; });
+    var db=getDB(), before=(db.userQs||[]).length;
+    db.userQs=(db.userQs||[]).filter(function(q){ return !ids[String(q.id)]; });
+    n=before-db.userQs.length;
+    var left={}; db.userQs.forEach(function(q){ if(q.topic) left[q.topic+'|'+q.teacherId]=1; });
+    db.topicsMeta=(db.topicsMeta||[]).filter(function(m){ return left[m.topic+'|'+m.teacherId]||!(m.teacherId===(ME&&ME.id)&&m._imp); });
+    saveDB(db); _impSavedIds=[];
+    try{ renderQT(); }catch(e){}
+  }
+  releaseImportWakeLock();
+  alert(del?("Import to'xtatildi. "+n+" ta qo'shilgan savol o'chirildi."):"Import to'xtatildi.");
+}
 function importBgWarningHtml(){
   return '<div class="alt aw" style="margin-bottom:8px">&#x26A0;&#xFE0F; Import davomida ekranni ochirmang va boshqa ilovaga otmang - ayniqsa Xiaomi/MIUI qurilmalarda (masalan Redmi) fon rejimi importni "muzlatib" qoyib, xato bilan toxtatishi mumkin. Katta fayllar (kop rasm/formula) bir necha daqiqa davom etishi mumkin.</div>';
 }
@@ -6745,11 +6787,17 @@ if('serviceWorker' in navigator){
       '</div>';
     document.body.appendChild(banner);
     window.swUpdate = function(){
-      newSW.postMessage({type:'SKIP_WAITING'});
+      if(_importInProgress){ window._swPendingSW=newSW; var bb=document.getElementById('sw-update-banner'); if(bb) bb.remove();
+        alert("Import davom etmoqda — import tugagach yangilash taklif qilinadi."); return; }
+      window._swUserReload=true; newSW.postMessage({type:'SKIP_WAITING'});
     };
+  }
+  window._swShowBanner=_showUpdateBanner;
+  if(false){
   }
   navigator.serviceWorker.register('sw.js').then(function(reg){
     if(reg.waiting){
+      window._swUserReload=true; // sahifa endi ochildi — hech qanday ish yo'qolmaydi
       reg.waiting.postMessage({type:'SKIP_WAITING'});
     }
     _swSessionStarted = true;
@@ -6773,14 +6821,15 @@ if('serviceWorker' in navigator){
   }).catch(function(){});
 
   // Yangi SW faollashgach sahifani qayta yuklaymiz
+  // 2026-10-02: faqat foydalanuvchi "Yangilash" ni bosganda (yoki sahifa ochilishida) qayta yuklanadi
   navigator.serviceWorker.addEventListener('controllerchange', function(){
-    window.location.reload();
+    if(window._swUserReload) window.location.reload();
   });
 
   // SW'dan yangilanish xabari kelsa — sahifani reload qilamiz
   navigator.serviceWorker.addEventListener('message', function(e){
     if(e.data && e.data.type === 'SW_UPDATED'){
-      window.location.reload();
+      /* 2026-10-02: endi o'zicha qayta yuklanmaydi (ish joyidan sakrab ketardi) */
     }
   });
 }
@@ -7642,6 +7691,10 @@ function restoreSession(){
   if(!u) return;
   if(u.role==='teacher'&&u.approved===false){ try{sessionStorage.removeItem('et_sess');}catch(e){} document.documentElement.classList.remove('et-restoring'); return; }
   _authToken=s.t||null; ME=u; afterLogin();
+  // 2026-10-02: oxirgi ochiq tab (masalan "Tekshirish") tiklanadi
+  setTimeout(function(){ try{ var t=sessionStorage.getItem('et_tab'); if(!t||!document.getElementById(t)) return;
+    if(typeof openStSection==='function'&&/^st-/.test(t)) { openStSection(t); return; }
+    var bt=document.querySelector('.tab[onclick*="\''+t+'\'"]'); if(bt&&bt.offsetParent!==null) bt.click(); }catch(e){} },60);
   document.documentElement.classList.remove('et-restoring');
 }
 
