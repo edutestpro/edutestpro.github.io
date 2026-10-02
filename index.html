@@ -2185,10 +2185,11 @@ function insScriptChar(mf, ch){
   var isSup=SUP_MAP.hasOwnProperty(ch);
   var plain=(isSup?SUP_MAP:SUB_MAP)[ch];
   var kind=isSup?'sup':'sub';
-  var same=(mf._scriptKind===kind && mf._scriptPos!==undefined && mf.position===mf._scriptPos);
-  if(!same) mf.executeCommand(isSup?'moveToSuperscript':'moveToSubscript');
+  // 2026-10-02 (foydalanuvchi talabi): har bosilgan daraja/indeks tugmasi YANGI
+  // (ichma-ich) daraja ochadi: 3, ¹, ² -> 3^{1^{2}}. Klaviaturadan yozilgan raqam esa
+  // turgan darajaning ICHIGA qo'shiladi (MathLive odatiy xulqi).
+  mf.executeCommand(isSup?'moveToSuperscript':'moveToSubscript');
   mf.executeCommand(['insert', plain]);
-  mf._scriptKind=kind; mf._scriptPos=mf.position;
 }
 function insSym(s){
   // Agar kursor hozir biror formula maydonining (<math-field>) ICHIDA
@@ -2941,6 +2942,7 @@ function renderTopics(){
 function filterBySubj(s){_curSubjFilter=s;_curFolder=null;renderTopics();applySubjectTheme(s);}
 function selectTopicByName(t,el){
   selTopic=t;
+  try{ preloadTopicImages(getQsByTopic(t)); }catch(e){}
   document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
   el.classList.add('on');
   var mc=document.getElementById('mode-card');
@@ -3038,7 +3040,7 @@ function startTest(mode){
   renderQ();showPg('pg-test');startTimer();
 }
 function startTimer(){if(S.iv)clearInterval(S.iv);_backWarned=false;
-  updTmr();if(S.timeLeft>0){S.iv=setInterval(function(){S.timeLeft--;updTmr();if(S.timeLeft<=0){clearInterval(S.iv);submitTest();}},1000);}else{var tel=document.getElementById('t-tmr');if(tel)tel.style.display='none';}}
+  updTmr();if(S.timeLeft>0){S.iv=setInterval(function(){S.timeLeft--;updTmr();if(S.timeLeft<=0){clearInterval(S.iv);submitTest(true);}},1000);}else{var tel=document.getElementById('t-tmr');if(tel)tel.style.display='none';}}
 function updTmr(){var el=document.getElementById('t-tmr');if(!el)return;var m=Math.floor(S.timeLeft/60),s=S.timeLeft%60;el.textContent=m+':'+(s<10?'0'+s:s);el.className=S.timeLeft<=60?'tmr red':'tmr';}
 // ══════════════════════════════════════════════════════════════════════
 // EDUTEST OCR/AI VISION HIMOYA ENGINE v3
@@ -3483,16 +3485,79 @@ document.addEventListener('keydown',function(e){
     e.preventDefault();
   }
 });
+// ═══════════════════════════════════════════════════════════════════════
+// ENTER TUGMASI (2026-10-02): test ichida — keyingi savol (oxirgisida
+// tugatish); formalarda — keyingi maydon, oxirgisida asosiy tugma.
+// ═══════════════════════════════════════════════════════════════════════
+function _visible(el){ return !!(el && el.offsetParent!==null && !el.disabled); }
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter'||e.shiftKey||e.ctrlKey||e.altKey||e.isComposing) return;
+  var tg=e.target, tn=tg.tagName;
+  if(tn==='TEXTAREA'||tn==='MATH-FIELD'||tg.isContentEditable||tn==='BUTTON'||tn==='A') return;
+  // 1) Yakunlash oynasi ochiq bo'lsa — tasdiqlash
+  var fm=document.getElementById('finish-modal');
+  if(fm&&fm.style.display==='flex'){ var cb=fm.querySelector('#finish-confirm-btn'); if(_visible(cb)){ e.preventDefault(); cb.click(); } return; }
+  // 2) Test sahifasi
+  var tp=document.getElementById('pg-test');
+  if(tp&&tp.classList.contains('on')&&S.test&&S.test.length){
+    e.preventDefault();
+    if(S.idx<S.test.length-1){ S.idx++; renderQ(); var fi=document.querySelector('#t-qbody input'); if(fi) fi.focus(); }
+    else submitTest();
+    return;
+  }
+  // 3) Formalar: faqat INPUT/SELECT, o'z Enter ishlovchisi bo'lmasa
+  if((tn!=='INPUT'&&tn!=='SELECT')||tg.hasAttribute('onkeydown')) return;
+  if(tn==='INPUT'&&/^(checkbox|radio|file|button|submit)$/.test(tg.type)) return;
+  var box=tg.closest('.modal,#form-li,#form-rg,.card'); if(!box) return;
+  var fields=[].filter.call(box.querySelectorAll('input,select'),function(x){
+    return _visible(x)&&!/^(checkbox|radio|file|hidden|button|submit)$/.test(x.type||'');
+  });
+  var i=fields.indexOf(tg);
+  e.preventDefault();
+  if(i>=0&&i<fields.length-1){ fields[i+1].focus(); return; }
+  // Oxirgi maydon: faqat kirish/ro'yxat/oynalarda asosiy tugmani bosamiz
+  if(!tg.closest('.modal,#form-li,#form-rg')) return;
+  var btns=[].filter.call(box.querySelectorAll('button'),function(b){
+    return _visible(b)&&!b.classList.contains('bg')&&!b.classList.contains('xb')&&!b.closest('.fx.fxw')&&b.type!=='button';
+  });
+  var main=btns[btns.length-1]; if(main) main.click();
+},false);
+// Mavzu tanlanishi bilan uning BARCHA rasmlari fonda yuklanadi (test ochilganda tayyor bo'lsin)
+var _preImgs=[];
+function preloadTopicImages(qs){
+  var urls={};
+  (qs||[]).forEach(function(q){
+    [q.img,q.image].forEach(function(v){ if(v&&isImgVal(v)) urls[imgSrcVal(v)]=1; });
+    (q.options||[]).forEach(function(o){ if(isImgVal(o)) urls[imgSrcVal(o)]=1; });
+    if(q.optImages) Object.keys(q.optImages).forEach(function(k){ var v=q.optImages[k]; if(v&&isImgVal(v)) urls[imgSrcVal(v)]=1; });
+  });
+  var list=Object.keys(urls).filter(function(u){return u.indexOf('http')===0;});
+  if(!list.length) return;
+  try{ precacheTestImages(qs); }catch(e){}
+  _preImgs=list.map(function(u){ var im=new Image(); im.decoding='async'; im.src=u; return im; });
+}
+
 function submitTest(forced){
   if(!forced){
     var unanswered=[];
     S.test.forEach(function(q,i){
       if(!S.answers[i]||S.answers[i].length===0)unanswered.push(i);
     });
-    var msg='<h2 style="margin-bottom:10px">Testni yakunlaysizmi?</h2>';
+    var cfb=document.getElementById('finish-confirm-btn'), ccb=document.getElementById('finish-cancel-btn');
     if(unanswered.length>0){
-      msg+='<div class="alt aw">'+unanswered.length+' ta savolga javob berilmagan!</div>';
+      // 2026-10-02: test faqat HAMMA savolga javob berilgach tugaydi. Oldinroq
+      // chiqish uchun — "Chiqish" tugmasi (test oldindan yakunlanadi).
+      document.getElementById('finish-modal-body').innerHTML='<h2 style="margin-bottom:10px">Hali tugamadi</h2>'+
+        '<div class="alt aw">'+unanswered.length+' ta savolga javob berilmagan. Avval hammasiga javob bering.</div>'+
+        '<p class="ts tm" style="margin-top:8px">Testni oldinroq tugatmoqchi bo\'lsangiz — yuqoridagi "Chiqish" tugmasini bosing.</p>';
+      if(cfb) cfb.style.display='none';
+      if(ccb){ ccb.textContent='Javobsiz savolga o\'tish'; ccb.onclick=function(){ closeFinishModal(); S.idx=unanswered[0]; renderQ(); }; }
+      document.getElementById('finish-modal').style.display='flex';
+      return;
     }
+    if(cfb) cfb.style.display='';
+    if(ccb){ ccb.textContent='Bekor qilish'; ccb.onclick=closeFinishModal; }
+    var msg='<h2 style="margin-bottom:10px">Testni yakunlaysizmi?</h2>';
     msg+=S.mode==='exam'
       ? '<p class="ts" style="color:var(--ok);font-weight:600">Imtihon rejimi — natijangiz saqlanib qoladi.</p>'
       : '<p class="ts tm">Sinov rejimi — natijalar saqlanmaydi.</p>';
@@ -7695,8 +7760,8 @@ history.pushState(null, '', location.href);
     <div class="modal" style="max-width:420px;text-align:center">
       <div id="finish-modal-body"></div>
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn bg bfw" onclick="closeFinishModal()">Bekor qilish</button>
-        <button class="btn bs bfw" onclick="confirmFinishTest()">Ha, yakunlash</button>
+        <button class="btn bg bfw" id="finish-cancel-btn" onclick="closeFinishModal()">Bekor qilish</button>
+        <button class="btn bs bfw" id="finish-confirm-btn" onclick="confirmFinishTest()">Ha, yakunlash</button>
       </div>
     </div>
   </div>
