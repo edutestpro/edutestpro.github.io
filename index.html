@@ -5575,11 +5575,11 @@ function uniqueTopicName(base){
 // chetlashadi va indikator DB'da (`db.serverBudgetUsed`) saqlanadi, ertasi
 // kun (UTC) qayta tiklanadi. null = cheklovsiz.
 var SERVER_POOL=[
-  {url:IMPORT_SERVER,   name:'VM1 (Oracle AMD)',  weight:15, dailyBudgetSec:null},
-  {url:IMPORT_SERVER_2, name:'VM2 (Oracle AMD)',  weight:15, dailyBudgetSec:null},
+  {url:IMPORT_SERVER,   name:'VM1 (Oracle AMD)',  weight:15, chunk:4, parallel:1, dailyBudgetSec:null},
+  {url:IMPORT_SERVER_2, name:'VM2 (Oracle AMD)',  weight:15, chunk:4, parallel:1, dailyBudgetSec:null},
   // {url:IMPORT_SERVER_3, name:'VM5 (Google e2-micro)', weight:8, dailyBudgetSec:null}, // 2026-09-06 ochirildi: kop xato + hal qilinmagan GCP tolovlari
-  {url:IMPORT_SERVER_4, name:'VM4 (Oracle Ampere)', weight:15, dailyBudgetSec:null},
-  {url:IMPORT_SERVER_5, name:'VM7 (Oracle Ampere)', weight:15, dailyBudgetSec:null},
+  {url:IMPORT_SERVER_4, name:'VM4 (Oracle Ampere)', weight:15, chunk:24, parallel:1, dailyBudgetSec:null},
+  {url:IMPORT_SERVER_5, name:'VM7 (Oracle Ampere)', weight:15, chunk:24, parallel:2, dailyBudgetSec:null},
   // {url:IMPORT_SERVER_6, name:'VM8 (Oracle Ampere)', weight:15, dailyBudgetSec:null}, // 2026-10-01: A1 limiti 2 OCPU - o'chirildi
   // {url:IMPORT_SERVER_7, name:'VM9 (Oracle Ampere)', weight:15, dailyBudgetSec:null} // 2026-10-01: A1 limiti 2 OCPU - o'chirildi
   // Yangi server tayyor bo'lganda, shu yerga qo'shiladi, masalan:
@@ -5685,7 +5685,7 @@ async function distributeEmfConversion(emfTasks, onProgress){
     var totalDownMs=0;
     while(true){
       if(!isServerBudgetAvailable(srv)){ delete activeServers[srv.name]; return; }
-      var chunk=queue.claim(Math.min(srv.weight, MAX_CHUNK));
+      var chunk=queue.claim(srv.chunk||Math.min(srv.weight, MAX_CHUNK));
       if(!chunk.length){ delete activeServers[srv.name]; return; }
       activeServers[srv.name]=true;
       if(onProgress) onProgress(done,total,Object.keys(activeServers));
@@ -5721,7 +5721,9 @@ async function distributeEmfConversion(emfTasks, onProgress){
     }
   }
 
-  await Promise.all(SERVER_POOL.map(worker));
+  // 2026-10-03: o'lchov (vm4, 1-mavzu.exe): 6x1 -> 2.2 formula/s, 24x2 ~2x tez.
+  // Har server o'z 'parallel' soni qadar bir vaqtda so'rov oladi (tarmoq kutilayotganda CPU bo'sh qolmasin).
+  await Promise.all([].concat.apply([], SERVER_POOL.map(function(s){ var a=[]; for(var i=0;i<(s.parallel||1);i++) a.push(s); return a; })).map(worker));
 
   // Agar hali ham vazifalar navbatda qolgan bo'lsa (masalan hammasi bir
   // vaqtda vaqtincha ishdan chiqqan bo'lsa) - endi FAQAT VM1'ga emas,
