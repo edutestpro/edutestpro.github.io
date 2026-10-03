@@ -1605,11 +1605,41 @@ function precacheTestImages(qs){
 }
 
 // ─── LOCAL DB ─────────────────────────────────────────────────────────────────
+// 2026-10-03: eski importda RVF formatlash yozuvlari UTF-16 deb o'qilib, savol matnida
+// "x‰ㄭ㤠〠1" kabi buzuq belgilar qolgan. Ko'rsatishda tozalanadi (x₁, sm³); serverga yozilmaydi.
+function cleanRvfGarbage(t){
+  if(typeof t!=='string'||t.indexOf('\u0a0d')<0) return t;
+  function rec(c){ var o=c.charCodeAt(0); if(o===0x0a0d) return true; var hi=o>>8, lo=o&255; return hi>=32&&hi<=126&&lo>=32&&lo<=126; }
+  var segs=[], cur='', had=false, i=0, n=t.length;
+  while(i<n){
+    if(rec(t[i])){ var j=i; while(j<n&&rec(t[j])&&t[j]!=='\u0a0d') j++;
+      if(j<n&&t[j]==='\u0a0d'){ segs.push([cur,had]); cur=''; had=true; i=j+1; continue; } }
+    cur+=t[i]; i++;
+  }
+  segs.push([cur,had]);
+  var SUB='₀₁₂₃₄₅₆₇₈₉', SUP='⁰¹²³⁴⁵⁶⁷⁸⁹', out='';
+  segs.forEach(function(s,k){
+    var x=s[0];
+    if(s[1]&&k<segs.length-1&&/^\d{1,2}$/.test(x)&&/[A-Za-z]$/.test(out)){
+      var map=/(?:^|[^A-Za-z])(m|sm|cm|km|dm|mm|s)$/.test(out)?SUP:SUB;
+      x=x.replace(/\d/g,function(d){return map[+d];});
+    }
+    out+=x;
+  });
+  return out.replace(/\u2029/g,' ').replace(/[ \t]{2,}/g,' ').trim();
+}
+function fixRvfTexts(db){
+  (db.userQs||[]).forEach(function(q){
+    if(q.text&&q.text.indexOf('\u0a0d')>=0) q.text=cleanRvfGarbage(q.text);
+    if(q.options) q.options=q.options.map(function(o){ return (typeof o==='string'&&o.indexOf('\u0a0d')>=0)?cleanRvfGarbage(o):o; });
+  });
+}
 function localGetDB() {
   try {
     var r = localStorage.getItem(SK);
     if (r) {
       var db = JSON.parse(r);
+      fixRvfTexts(db);
       var changed = false;
       if (!db.users) { db.users = []; changed = true; }
       if (!db.users.some(function(u){return u.role==='admin';})) {
@@ -2061,6 +2091,14 @@ function makeChip(latex){
   // "1^7^7^7" kabi tekis yozuv chiqadi. Bu tugmani ushlab, MathLive'ning o'z
   // "daraja"ga o'tish buyrug'ini bajaramiz (oddiy '^' tugmasidek).
   mf.addEventListener('keydown', function(ev){
+    // 2026-10-03: daraja/indeks TUGMASIDAN keyin klaviaturada yozilgan belgi
+    // darajaning ichiga emas, YONIGA (asosiy qatorga) tushadi: 2⁴ va 5 -> 2^{4}5.
+    if(mf._scriptJust){
+      mf._scriptJust=false;
+      if(ev.key && ev.key.length===1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey && ev.key!=='^' && ev.key!=='_'){
+        try{ mf.executeCommand('moveToMathfieldEnd'); }catch(e){}
+      }
+    }
     if(ev.key==='Dead' && ev.shiftKey && ev.code==='Digit6'){
       ev.preventDefault(); ev.stopPropagation();
       try{ mf.executeCommand('moveToSuperscript'); }catch(e){}
@@ -2190,6 +2228,30 @@ function insScriptChar(mf, ch){
   // turgan darajaning ICHIGA qo'shiladi (MathLive odatiy xulqi).
   mf.executeCommand(isSup?'moveToSuperscript':'moveToSubscript');
   mf.executeCommand(['insert', plain]);
+  mf._scriptJust=true;
+}
+// Oddiy matnda (formula tashqarisida) ⁰-⁹/₀-₉ bosilsa: oldingi son yoki harf
+// formula ichiga olinadi (2 + ⁴ -> 2^{4}), shunda keyingi bosish ichma-ich daraja,
+// klaviatura esa yoniga yozadi. Avval oddiy "⁴" belgisi qo'shilib, ustma-ust
+// daraja qilib bo'lmas edi.
+function insScriptAsFormula(s){
+  var isSup=SUP_MAP.hasOwnProperty(s), plain=(isSup?SUP_MAP:SUB_MAP)[s];
+  var el=currentEditorEl(), sel=window.getSelection(), base='';
+  try{
+    var r=(sel.rangeCount&&editorContains(sel.getRangeAt(0).startContainer))?sel.getRangeAt(0):(_aqSavedRange&&editorContains(_aqSavedRange.startContainer)?_aqSavedRange:null);
+    var tn=r&&r.collapsed?r.startContainer:null, to=r?r.startOffset:0;
+    if(tn&&tn.nodeType===1&&to>0&&tn.childNodes[to-1]&&tn.childNodes[to-1].nodeType===3){ tn=tn.childNodes[to-1]; to=tn.textContent.length; r=document.createRange(); r.setStart(tn,to); r.collapse(true); }
+    if(r&&r.collapsed&&r.startContainer.nodeType===3){
+      var tx=r.startContainer.textContent.slice(0,r.startOffset), m=tx.match(/[0-9]+$/)||tx.match(/[A-Za-z]$/);
+      if(m){ base=m[0]; var dr=document.createRange(); dr.setStart(r.startContainer,r.startOffset-base.length); dr.setEnd(r.startContainer,r.startOffset); dr.deleteContents(); dr.collapse(true); _aqSavedRange=dr.cloneRange(); }
+    }
+  }catch(e){ base=''; }
+  var chip=insLatexTemplate((base||'\\placeholder{}')+(isSup?'^':'_')+'{\\placeholder{}}');
+  if(!chip) return;
+  try{
+    if(base){ chip.executeCommand(['insert',plain]); chip._scriptJust=true; }  // kursor daraja kvadratida
+    else { chip.executeCommand('moveToNextPlaceholder'); chip.executeCommand(['insert',plain]); chip.executeCommand('moveToMathfieldStart'); chip.executeCommand('moveToNextPlaceholder'); }
+  }catch(e){}
 }
 function insSym(s){
   // Agar kursor hozir biror formula maydonining (<math-field>) ICHIDA
@@ -2203,6 +2265,7 @@ function insSym(s){
     }
     try{ af.executeCommand(['insert', s]); return; }catch(e){}
   }
+  if((SUP_MAP.hasOwnProperty(s)||SUB_MAP.hasOwnProperty(s)) && customElements.get('math-field')){ insScriptAsFormula(s); return; }
   var el=currentEditorEl(); el.focus();
   var range=(_aqSavedRange && editorContains(_aqSavedRange.startContainer)) ? _aqSavedRange.cloneRange() : getEndRange(el);
   try{ range.deleteContents(); }catch(e){}
@@ -2341,10 +2404,11 @@ function genRandomPassword(){
   return s;
 }
 function defDB() {
+  // 2026-10-03: avval bu yerda tasodifiy parollar alert() bilan ko'rsatilardi - lekin
+  // defDB() har bir YANGI brauzerda (bo'sh xotira) ishlaydi va bu parollar faqat lokal,
+  // haqiqiy server bazasi ularni darhol almashtiradi. Har tashrif buyuruvchiga
+  // "login/parol" ko'rsatish chalg'itardi - oyna olib tashlandi.
   var tPass=genRandomPassword(), aPass=genRandomPassword();
-  setTimeout(function(){
-    alert('Birinchi marta ishga tushirilyapti - avtomatik yaratilgan hisoblar:\n\nUstoz: admin / '+tPass+'\nAdmin: superadmin / '+aPass+'\n\nBu parollarni saqlab qoying - keyinchalik "Mening hisobim" bolimidan ozgartirishingiz mumkin.');
-  },500);
   return { users: [
       {id:'t1',role:'teacher',name:'Admin',login:'admin',pass:tPass,cls:''},
       {id:'a1',role:'admin',name:'Bosh Admin',login:'superadmin',pass:aPass,cls:''}
