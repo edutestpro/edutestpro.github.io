@@ -7981,6 +7981,33 @@ document.addEventListener('webkitfullscreenchange', function() {
 
 // Sahifadan ketsa (browser tab yopilsa, boshqa saytga o'tsa)
 // 2026-10-04: F5 da test endi tiklanadi (yuqoridagi _saveRun) — "test tugaydi" ogohlantirishi olib tashlandi.
+// ═══ F5: KIRISHDAN OLDINGI HOLAT (2026-10-04) — kirish/ro'yxat oynasi, rol, tab va
+// yozilgan maydonlar (PAROLLARSIZ) saqlanadi; yangilansa bosh sahifaga qaytib qolmaydi.
+function savePreLogin(){
+  try{
+    if(ME){ sessionStorage.removeItem('et_pre'); return; }
+    var pg=document.querySelector('.pg.on'); if(!pg){ return; }
+    var v={pg:pg.id, role:(typeof authRole!=='undefined')?authRole:null, tab:null, f:{}};
+    var fr=document.getElementById('form-rg'); if(fr) v.tab=fr.style.display==='block'?'rg':'li';
+    if(pg.id==='pg-auth') [].forEach.call(pg.querySelectorAll('input,select,textarea'),function(x){
+      if(!x.id||x.type==='password'||x.type==='file') return; v.f[x.id]=(x.type==='checkbox'||x.type==='radio')?(x.checked?1:0):x.value; });
+    sessionStorage.setItem('et_pre',JSON.stringify(v));
+  }catch(e){}
+}
+window.addEventListener('pagehide',savePreLogin);
+window.addEventListener('beforeunload',savePreLogin);
+document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') savePreLogin(); });
+function restorePreLogin(){
+  try{
+    if(ME) return; var s=null; try{ s=sessionStorage.getItem('et_sess'); }catch(e){} if(s) return;
+    var v=JSON.parse(sessionStorage.getItem('et_pre')||'null'); if(!v||v.pg!=='pg-auth'||!v.role) return;
+    goAuth(v.role); if(v.tab&&typeof showAuthTab==='function') showAuthTab(v.tab);
+    Object.keys(v.f||{}).forEach(function(id){ var x=document.getElementById(id); if(!x) return;
+      if(x.type==='checkbox'||x.type==='radio') x.checked=!!v.f[id]; else { x.value=v.f[id]; try{ x.dispatchEvent(new Event('change')); }catch(e){} } });
+  }catch(e){ console.warn('restorePreLogin',e); }
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',restorePreLogin); else restorePreLogin();
+
 
 // Sahifa ochilganda history stack ga push qilamiz
 history.pushState(null, '', location.href);
