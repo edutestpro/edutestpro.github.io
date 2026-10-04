@@ -2074,6 +2074,13 @@ function makeChip(latex){
   try{ mf.value=latex; }catch(e){}
   mf.setAttribute('virtual-keyboard-mode','off');
   mf.setAttribute('math-virtual-keyboard-policy','manual');
+  // TUZATISH (2026-10-04): telefonda kasr/daraja tugmasidan keyin klaviatura yo'qolardi.
+  // MathLive 0.111 atributni o'qimaydi (siyosat 'auto' qoladi) va sensorli ekranda yashirin
+  // kiritish elementiga inputmode=none qo'yadi - telefon klaviaturasi yopiladi, MathLive'ning
+  // o'z klaviaturasi esa o'chiq. Endi telefonning oddiy klaviaturasi ochiladi.
+  try{ mf.mathVirtualKeyboardPolicy='manual'; }catch(e){}
+  function nativeKbd(){ try{ var sk=mf.shadowRoot&&mf.shadowRoot.querySelector('.ML__keyboard-sink'); if(sk&&sk.getAttribute('inputmode')!=='text') sk.setAttribute('inputmode','text'); }catch(e){} }
+  mf.addEventListener('focusin', nativeKbd); mf.addEventListener('mount', nativeKbd); setTimeout(nativeKbd,0);
   mf.setAttribute('smart-fence','on');
   mf.setAttribute('smart-superscript','on');
   function exitField(dir){
@@ -3096,6 +3103,8 @@ function startTest(mode){
   var _t=resolveTimer(_meta);
   var timerOn=_t.on, timerMins=_t.mins;
   S.timeLeft=timerOn?timerMins*60:0;showDet=false;
+  // 2026-10-04: oldingi urinishning 'Batafsil' bloki ochiq/eski qolmasin
+  (function(){ var d=document.getElementById('r-det'), b=document.getElementById('r-det-body'); if(d) d.style.display='none'; if(b) b.innerHTML=''; })();
   document.getElementById('tb-name').textContent=ME.name;
   document.getElementById('tb-cls').textContent=ME.cls;
   document.getElementById('tb-topic').textContent=selTopic;
