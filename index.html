@@ -269,6 +269,8 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         <div class="fg"><label>Login</label><input type="text" id="li-u" placeholder="Login" autocomplete="off" data-lpignore="true" data-1p-ignore readonly onfocus="this.removeAttribute('readonly')"></div>
         <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="li-p" placeholder="Parol" style="padding-right:38px" autocomplete="new-password" data-lpignore="true" data-1p-ignore onkeydown="if(event.key==='Enter')doLogin()" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('li-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
         <button class="btn bp bfw blg mt8" onclick="doLogin()">Kirish</button>
+        <button class="btn bfw mt8" style="background:#229ED9;color:#fff;font-weight:700" onclick="tgLogin()">&#x2708;&#xFE0F; Telegram orqali kirish</button>
+        <div id="tg-login-msg"></div>
         <p class="ts tm" style="margin-top:10px;text-align:center;line-height:1.5">&#x1F4A1; Umumiy/maktab kompyuteridan foydalansangiz, brauzer parolni saqlashni so'rasa <b>"Hech qachon"</b> yoki <b>"Yo'q, rahmat"</b> tugmasini bosing - shunda boshqa o'quvchi sizning hisobingizdan foydalana olmaydi.</p>
       </div>
       <div id="form-rg" style="display:none">
@@ -442,6 +444,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
     <div class="fg"><label>Yangi parol (ixtiyoriy)</label><div style="position:relative"><input type="password" id="spw-new" autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="Yangi parol" style="padding-right:38px" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('spw-new',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
     <button class="btn bpu bsm" onclick="changeMyPassword('spw')">Saqlash</button>
     <div id="spw-msg"></div>
+      <div class="tg-link-box" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr,#e2e8f0)"></div>
   </div>
   <div class="card">
     <h3 style="margin-bottom:8px">&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467; Ota-onani ulash</h3>
@@ -682,6 +685,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <div class="fg"><label>Yangi parol (ixtiyoriy)</label><div style="position:relative"><input type="password" id="pw-new" autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="Yangi parol" style="padding-right:38px" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('pw-new',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
       <button class="btn bpu bsm" onclick="changeMyPassword()">Saqlash</button>
       <div id="pw-msg"></div>
+      <div class="tg-link-box" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr,#e2e8f0)"></div>
     </div>
     <div class="card">
       <h3 style="margin-bottom:12px">O'quvchilar ro'yxati</h3>
@@ -808,6 +812,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <div class="fg"><label>Yangi parol (ixtiyoriy)</label><div style="position:relative"><input type="password" id="apw-new" autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="Yangi parol" style="padding-right:38px" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('apw-new',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
       <button class="btn bpu bsm" onclick="changeMyPassword('apw')">Saqlash</button>
       <div id="apw-msg"></div>
+      <div class="tg-link-box" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr,#e2e8f0)"></div>
     </div>
     <div class="card">
       <h3 style="margin-bottom:12px">&#x1F465; Barcha foydalanuvchilar</h3>
@@ -981,7 +986,7 @@ var _sb = null;
 // rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
 var _authToken=null;
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -2864,6 +2869,7 @@ async function doRegister(){
 }
 function afterLogin(){
   try{ sessionStorage.setItem('et_sess', JSON.stringify({id:ME.id, t:_authToken||null})); }catch(e){}
+  setTimeout(function(){ try{ renderTgLink(); }catch(e){} }, 300);
   // Agar oldingi sessiyada test yarim qolgan bo'lsa (masalan brauzer yopilgan,
   // blur eventi ishlamagan) - kirish paytida holat to'liq tozalansin.
   if(S.iv) clearInterval(S.iv);
@@ -7829,6 +7835,78 @@ document.addEventListener('visibilitychange',function(){ if(document.visibilityS
 // javoblar, joriy savol, qolgan vaqt), natija sahifasi ("Batafsil" ochiqligi
 // bilan), o'quvchi bo'limi va sertifikat tanlovlari ham saqlanadi.
 // ═══════════════════════════════════════════════════════════════════════
+
+// ═══ TELEGRAM ORQALI KIRISH (2026-10-04) ═══════════════════════════════════
+// Sayt bir martalik kod oladi -> Telegram'da botni ochadi -> foydalanuvchi "Start" va
+// "Tasdiqlayman" bosadi -> sayt holatni so'rab turadi va avtomatik kiradi.
+// Avval hisob "Mening hisobim" bo'limida Telegram'ga ulanadi (bir marta).
+var _tgPoll = null;
+function _tgOpen(url){
+  var w = null; try { w = window.open(url, '_blank'); } catch (e) {}
+  if (!w) location.href = url; // ba'zi telefon brauzerlari yangi oynani bloklaydi
+}
+async function _tgFlow(purpose, msgEl, onOk){
+  if (_tgPoll) { clearTimeout(_tgPoll); _tgPoll = null; }
+  var show = function(h){ if (msgEl) msgEl.innerHTML = h; };
+  show('<div class="alt ai">&#x23F3; Telegram tayyorlanmoqda...</div>');
+  var j;
+  try { var r = await fetchVM(DB_SERVER, '/tg_login_start', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({purpose: purpose})});
+    j = await r.json(); if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status)); }
+  catch (e) { show('<div class="alt ar">&#x274C; ' + _qEsc(e.message || 'Server bilan bog\'lanib bo\'lmadi') + '</div>'); return; }
+  show('<div class="alt ai">&#x2708;&#xFE0F; Telegram ochildi: botda <b>Start</b>, keyin <b>Tasdiqlayman</b> tugmasini bosing va shu sahifaga qayting.' +
+       '<div class="mt8"><a href="' + j.url + '" target="_blank" rel="noopener" class="btn bsm" style="background:#229ED9;color:#fff">Telegram ochilmadimi? Shu yerni bosing</a> ' +
+       '<button class="btn bsm" onclick="tgCancel(this)">Bekor qilish</button></div></div>');
+  _tgOpen(j.url);
+  var until = Date.now() + (j.ttl || 600) * 1000;
+  var tick = async function(){
+    _tgPoll = null;
+    if (Date.now() > until) { show('<div class="alt aw">Vaqt tugadi. Qaytadan bosing.</div>'); return; }
+    var st = null;
+    try { st = await (await fetchVM(DB_SERVER, '/tg_login_status?code=' + encodeURIComponent(j.code))).json(); } catch (e) {}
+    var s2 = st && st.status;
+    if (s2 === 'ok') { onOk(st); return; }
+    if (s2 === 'not_linked') { show('<div class="alt aw">Bu Telegram hisob hali EduTest Pro\'ga ulanmagan. Avval login va parol bilan kiring, keyin <b>Mening hisobim</b> bo\'limida <b>Telegram\'ni ulash</b> tugmasini bosing.</div>'); return; }
+    if (s2 === 'denied') { show('<div class="alt aw">Telegram\'da bekor qilindi.</div>'); return; }
+    if (s2 === 'expired') { show('<div class="alt aw">Havola eskirdi. Qaytadan bosing.</div>'); return; }
+    if (s2 === 'error') { show('<div class="alt ar">' + (st.error === 'not_approved' ? 'Hisobingiz hali admin tomonidan tasdiqlanmagan.' : _qEsc(st.error || 'Xato')) + '</div>'); return; }
+    _tgPoll = setTimeout(tick, 2000);
+  };
+  _tgPoll = setTimeout(tick, 2500);
+}
+function tgCancel(btn){ if (_tgPoll) { clearTimeout(_tgPoll); _tgPoll = null; } var b = btn && btn.closest('.alt'); if (b) b.outerHTML = ''; }
+function tgLogin(){
+  var el = document.getElementById('tg-login-msg');
+  _tgFlow('login', el, async function(st){
+    el.innerHTML = '<div class="alt ai">&#x23F3; Kirilmoqda...</div>';
+    try { await syncFromCloud(); } catch (e) {}
+    var u = (getDB().users || []).filter(function(x){ return String(x.id) === String(st.uid); })[0];
+    if (!u) { el.innerHTML = '<div class="alt ar">Ma\'lumotlar yuklanmadi. Internetni tekshirib, qaytadan urinib ko\'ring.</div>'; return; }
+    el.innerHTML = '';
+    _authToken = st.token || null; ME = u; afterLogin();
+  });
+}
+async function renderTgLink(){
+  var boxes = document.querySelectorAll('.tg-link-box'); if (!boxes.length || !ME) return;
+  var linked = null;
+  if (_authToken) { try { var r = await fetchVM(DB_SERVER, '/tg_link_info'); if (r.ok) linked = (await r.json()).linked; } catch (e) {} }
+  var h = '<div style="font-weight:700;margin-bottom:6px">&#x2708;&#xFE0F; Telegram orqali kirish</div>' +
+    (linked === true ? '<div class="ts" style="color:var(--ok,#16a34a);margin-bottom:8px">&#x2705; Hisobingiz Telegram\'ga ulangan — kirish oynasida "Telegram orqali kirish"ni bosing.</div>' +
+        '<button class="btn bsm" onclick="tgUnlink()">Uzish</button>'
+     : linked === false ? '<div class="ts tm" style="margin-bottom:8px">Ulasangiz, keyingi safar parolsiz — Telegram orqali kirasiz.</div>' +
+        '<button class="btn bsm" style="background:#229ED9;color:#fff" onclick="tgLinkStart(this)">&#x2708;&#xFE0F; Telegram\'ni ulash</button>'
+     : '<div class="ts tm">Telegram\'ni ulash uchun tizimdan chiqib, login va parol bilan qayta kiring.</div>') +
+    '<div class="tg-link-msg mt8"></div>';
+  boxes.forEach(function(b){ b.innerHTML = h; });
+}
+function tgLinkStart(btn){
+  var el = btn.parentNode.querySelector('.tg-link-msg');
+  _tgFlow('link', el, function(){ el.innerHTML = '<div class="alt as">&#x2705; Ulandi!</div>'; setTimeout(renderTgLink, 1200); });
+}
+async function tgUnlink(){
+  if (!confirm('Telegram orqali kirish o\'chirilsinmi?')) return;
+  try { await fetchVM(DB_SERVER, '/tg_link_info', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({unlink:true})}); } catch (e) {}
+  renderTgLink();
+}
 function _gv(n){ try{ return window[n]; }catch(e){ return undefined; } }
 function _saveRun(v){
   var pg=document.querySelector('.pg.on'); v.pg=pg?pg.id:null;
