@@ -5422,7 +5422,7 @@ async function startBookGeneration(file, mode, count){
     // borishi kerak - shu sabab pickServer() BIR MARTA chaqirilib, natija
     // o'zgaruvchiga saqlanadi (har safar qayta chaqirilsa, round-robin
     // keyingi VM'ga o'tib ketib, "job not found" xatosiga olib kelardi).
-    var server=pickServer();
+    var server=DB_SERVER; // 2026-10-04: AI (Cloudflare/Groq) faqat yangilangan asosiy serverda
     var startRes=await fetchVM(server,'/generate_test_start',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({data:base64, filename:file.name, mode:mode, total_questions:count})
@@ -6599,7 +6599,7 @@ function sendDocumentToServer(file){
     reader.onload=function(e){
       var dataUrl=e.target.result;
       var base64=dataUrl.substring(dataUrl.indexOf(',')+1);
-      var server=pickServer();
+      var server=DB_SERVER; // 2026-10-04: AI faqat asosiy serverda
       fetchVM(server,'/parse_document', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -6651,7 +6651,9 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
         var pMsg={set innerHTML(html){status[i]=html.replace(/<[^>]+>/g,'');renderStatus();}};
         await saveImportedQs({qs:qs, topic:res.data.topic, questionsToAsk:res.data.questionsToAsk}, pMsg);
         okTotal++;
-        status[i]='&#x2705; "'+files[i].name+'" tayyor';
+        var _w=qs.filter(function(q){return q.aiWarn;});
+        status[i]='&#x2705; "'+files[i].name+'" tayyor'+(_w.length?' — &#x26A0;&#xFE0F; '+_w.length+' ta savol AI tekshiruvida shubhali, javobini tekshiring: '+
+          _w.slice(0,3).map(function(q){ return '"'+String(q.text||'').replace(/<[^>]+>/g,'').slice(0,40)+'…" ('+q.aiWarn+')'; }).join('; ')+(_w.length>3?' …':''):'');
       } else {
         errTotal++;
         failedNames.push(res.filename+' ('+res.error+')');
@@ -6683,7 +6685,7 @@ function sendImageToServer(file){
     reader.onload=function(e){
       var dataUrl=e.target.result;
       var base64=dataUrl.substring(dataUrl.indexOf(',')+1);
-      var server=pickServer();
+      var server=DB_SERVER; // 2026-10-04: AI faqat asosiy serverda
       fetchVM(server,'/parse_image', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -6735,7 +6737,9 @@ async function importImageFiles(files, suggestedFolder, unsupportedNote){
         var pMsg={set innerHTML(html){status[i]=html.replace(/<[^>]+>/g,'');renderStatus();}};
         await saveImportedQs({qs:qs, topic:res.data.topic, questionsToAsk:res.data.questionsToAsk}, pMsg);
         okTotal++;
-        status[i]='&#x2705; "'+files[i].name+'" tayyor';
+        var _w=qs.filter(function(q){return q.aiWarn;});
+        status[i]='&#x2705; "'+files[i].name+'" tayyor'+(_w.length?' — &#x26A0;&#xFE0F; '+_w.length+' ta savol AI tekshiruvida shubhali, javobini tekshiring: '+
+          _w.slice(0,3).map(function(q){ return '"'+String(q.text||'').replace(/<[^>]+>/g,'').slice(0,40)+'…" ('+q.aiWarn+')'; }).join('; ')+(_w.length>3?' …':''):'');
       } else {
         errTotal++;
         failedNames.push(res.filename+' ('+res.error+')');
