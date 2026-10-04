@@ -7755,7 +7755,9 @@ sbInit();
 // shunda "bosh" qurilmada ham, avval haqiqiy bulutdagi malumot localStorage
 // ga yozib bolinadi, initMeta() esa endi HAQIQIY malumot ustida ishlaydi
 // (bosh standart baza ustida emas) va bekorga bulutga hech narsa yozmaydi.
-restoreSession();
+// 2026-10-04: keyingi <script> bloklaridagi funksiyalar (masalan fcDecks) hali yuklanmagan bo'lishi
+// mumkin edi — o'quvchi F5 da afterLogin xato berib, ish joyi tiklanmasdi. Endi hammasi yuklangach.
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ restoreSession(); }); else restoreSession();
 syncFromCloud().then(function(){ initMeta(); restoreSession(); document.documentElement.classList.remove('et-restoring'); });
 // Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash. sessionStorage
 // tab yopilganda o'chadi - umumiy kompyuterda keyingi odam hisobda qolmaydi.
@@ -7767,7 +7769,7 @@ syncFromCloud().then(function(){ initMeta(); restoreSession(); document.document
 function _vis(id){ var e=document.getElementById(id); return !!(e&&e.style.display!=='none'&&e.offsetParent!==null); }
 function saveViewState(){
   try{
-    if(!ME||ME.role==='student') return;
+    if(!ME) return;
     var v={folder:(typeof _curQFolder!=='undefined')?_curQFolder:null, scroll:window.scrollY||0};
     if(_vis('q-detail-view')&&typeof _curTopicDetail!=='undefined'&&_curTopicDetail) v.topic=_curTopicDetail;
     var eq=document.getElementById('eq-modal');
@@ -7785,16 +7787,65 @@ function saveViewState(){
       var qt=document.getElementById('aq-qtype'); if(qt) v.aq.qtype=qt.value;
       if(typeof _aqFill!=='undefined'){ v.aq.fill={sent:g('aq-fill-sent'), sel:_aqFill.sel, alts:_aqFill.alts}; v.aq.pairs=_aqPairs; v.aq.items=_aqItems; }
     }
+    try{ _saveRun(v); }catch(e){}
     sessionStorage.setItem('et_view',JSON.stringify(v));
   }catch(e){}
 }
 window.addEventListener('pagehide',saveViewState);
 window.addEventListener('beforeunload',saveViewState);
 document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') saveViewState(); });
+
+// ═══════════════════════════════════════════════════════════════════════
+// F5 — HAMMA JOYDA AYNAN SHU HOLAT (2026-10-04): ishlanayotgan test (savollar,
+// javoblar, joriy savol, qolgan vaqt), natija sahifasi ("Batafsil" ochiqligi
+// bilan), o'quvchi bo'limi va sertifikat tanlovlari ham saqlanadi.
+// ═══════════════════════════════════════════════════════════════════════
+function _gv(n){ try{ return window[n]; }catch(e){ return undefined; } }
+function _saveRun(v){
+  var pg=document.querySelector('.pg.on'); v.pg=pg?pg.id:null;
+  var runs={ms:_gv('_msRun')||null, cert:_gv('_certRun')||null, mock:_gv('_mockRun')||null, mockScripts:_gv('_mockScripts')||null, review:_gv('_reviewQs')||null};
+  if(typeof CERT!=='undefined') v.certSel=CERT;
+  if(S.mode&&v.pg==='pg-test'&&S.test&&S.test.length){
+    v.test={test:S.test, idx:S.idx, answers:S.answers, mode:S.mode, timeLeft:S.timeLeft, at:Date.now(), topic:selTopic, runs:runs,
+      hdr:['tb-name','tb-cls','tb-topic','tb-mode'].map(function(id){ var e=document.getElementById(id); return e?[e.textContent,e.className]:null; })};
+  } else if(v.pg==='pg-res'&&S.lastRes){
+    var d=document.getElementById('r-det');
+    v.res={res:S.lastRes, test:S.test, topic:selTopic, runs:runs, det:!!(d&&d.style.display==='block')};
+  }
+}
+function _setRuns(r){
+  if(!r) return;
+  try{ _msRun=r.ms; }catch(e){} try{ _certRun=r.cert; }catch(e){} try{ _mockRun=r.mock; }catch(e){}
+  try{ if(r.mockScripts) _mockScripts=r.mockScripts; }catch(e){} try{ _reviewQs=r.review; }catch(e){}
+}
+function _restoreRun(v){
+  if(v.certSel&&typeof CERT!=='undefined'){ try{ Object.assign(CERT,v.certSel); if(typeof renderCert==='function'&&document.getElementById('cert-body')) renderCert(); }catch(e){} }
+  if(v.test){
+    var t=v.test; _setRuns(t.runs); selTopic=t.topic;
+    S.test=t.test; S.idx=t.idx||0; S.answers=t.answers||{}; S.mode=t.mode;
+    S.timeLeft=t.timeLeft>0?Math.max(1,t.timeLeft-Math.round((Date.now()-(t.at||Date.now()))/1000)):0;
+    _backWarned=false; showDet=false;
+    (t.hdr||[]).forEach(function(h,i){ var e=document.getElementById(['tb-name','tb-cls','tb-topic','tb-mode'][i]); if(e&&h){ e.textContent=h[0]; e.className=h[1]; } });
+    try{ history.pushState(null,'',location.href); }catch(e){}
+    renderQ(); showPg('pg-test'); startTimer();
+    return true;
+  }
+  if(v.res){
+    var r=v.res; _setRuns(r.runs); selTopic=r.topic; S.test=r.test||[]; S.lastRes=r.res; S.mode='';
+    showPg('pg-res'); showResult(r.res);
+    if(r.det){ showDet=false; toggleDetail(); }
+    return true;
+  }
+  if(v.pg&&v.pg!=='pg-test'&&v.pg!=='pg-res'&&document.getElementById(v.pg)&&!document.getElementById(v.pg).classList.contains('on')&&v.pg!=='pg-home'&&v.pg!=='pg-login'){
+    try{ showPg(v.pg); }catch(e){}
+  }
+  return false;
+}
 function restoreViewState(){
   var v=null; try{ v=JSON.parse(sessionStorage.getItem('et_view')||'null'); }catch(e){}
-  if(!v||!ME||ME.role==='student') return;
+  if(!v||!ME) return;
   try{
+    if(_restoreRun(v)){ setTimeout(function(){ window.scrollTo(0,v.scroll||0); },120); return; }
     if(v.folder&&typeof renderQT==='function'){ _curQFolder=v.folder; renderQT(); }
     if(v.topic&&typeof openTopicDetail==='function'&&getMyQs().some(function(q){return q.topic===v.topic;})) openTopicDetail(v.topic);
     if(v.eq&&typeof editQ==='function'){
@@ -7929,13 +7980,7 @@ document.addEventListener('webkitfullscreenchange', function() {
 });
 
 // Sahifadan ketsa (browser tab yopilsa, boshqa saytga o'tsa)
-window.addEventListener('beforeunload', function(e) {
-  if(S.mode) {
-    e.preventDefault();
-    e.returnValue = 'Test davom etmoqda. Sahifani yopsangiz test tugaydi!';
-    return e.returnValue;
-  }
-});
+// 2026-10-04: F5 da test endi tiklanadi (yuqoridagi _saveRun) — "test tugaydi" ogohlantirishi olib tashlandi.
 
 // Sahifa ochilganda history stack ga push qilamiz
 history.pushState(null, '', location.href);
