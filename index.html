@@ -153,8 +153,8 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
 .ts{font-size:13px}.tm{color:var(--mut)}
 .mt8{margin-top:8px}.mt12{margin-top:12px}
 </style>
-<script>try{if(sessionStorage.getItem('et_sess'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},5000);</script>
-<style>html.et-restoring #pg-home{visibility:hidden}</style>
+<script>try{var _p=JSON.parse(sessionStorage.getItem('et_pre')||'null');if(sessionStorage.getItem('et_sess')||(_p&&_p.pg==='pg-auth'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},3000);</script>
+<style>html.et-restoring .pg{visibility:hidden}</style>
 </head>
 <body>
 <div id="mathBg"></div>
@@ -7758,7 +7758,7 @@ sbInit();
 // 2026-10-04: keyingi <script> bloklaridagi funksiyalar (masalan fcDecks) hali yuklanmagan bo'lishi
 // mumkin edi — o'quvchi F5 da afterLogin xato berib, ish joyi tiklanmasdi. Endi hammasi yuklangach.
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ restoreSession(); }); else restoreSession();
-syncFromCloud().then(function(){ initMeta(); restoreSession(); document.documentElement.classList.remove('et-restoring'); });
+syncFromCloud().then(function(){ initMeta(); restoreSession(); if(!ME) _endRestore(); });
 // Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash. sessionStorage
 // tab yopilganda o'chadi - umumiy kompyuterda keyingi odam hisobda qolmaydi.
 // ═══════════════════════════════════════════════════════════════════════
@@ -7841,7 +7841,12 @@ function _restoreRun(v){
   }
   return false;
 }
+// 2026-10-04: sahifalar tiklash TUGAGUNCHA yashirin (bosh menyu bir lahza ko'rinib qolmasin)
+function _endRestore(){ document.documentElement.classList.remove('et-restoring'); }
 function restoreViewState(){
+  try{ _restoreViewState(); } finally { _endRestore(); }
+}
+function _restoreViewState(){
   var v=null; try{ v=JSON.parse(sessionStorage.getItem('et_view')||'null'); }catch(e){}
   if(!v||!ME) return;
   try{
@@ -7886,8 +7891,7 @@ function restoreSession(){
   setTimeout(function(){ try{ var t=sessionStorage.getItem('et_tab'); if(!t||!document.getElementById(t)) return;
     if(typeof openStSection==='function'&&/^st-/.test(t)) { openStSection(t); return; }
     var bt=document.querySelector('.tab[onclick*="\''+t+'\'"]'); if(bt&&bt.offsetParent!==null) bt.click(); }catch(e){} },60);
-  setTimeout(restoreViewState,250);
-  document.documentElement.classList.remove('et-restoring');
+  setTimeout(restoreViewState,120);
 }
 
 // ── ORQAGA TUGMA VA SAHIFADAN CHIQISH ──────────────────────────────
@@ -8000,11 +8004,12 @@ document.addEventListener('visibilitychange',function(){ if(document.visibilityS
 function restorePreLogin(){
   try{
     if(ME) return; var s=null; try{ s=sessionStorage.getItem('et_sess'); }catch(e){} if(s) return;
-    var v=JSON.parse(sessionStorage.getItem('et_pre')||'null'); if(!v||v.pg!=='pg-auth'||!v.role) return;
+    var v=JSON.parse(sessionStorage.getItem('et_pre')||'null'); if(!v||v.pg!=='pg-auth'||!v.role){ _endRestore(); return; }
     goAuth(v.role); if(v.tab&&typeof showAuthTab==='function') showAuthTab(v.tab);
     Object.keys(v.f||{}).forEach(function(id){ var x=document.getElementById(id); if(!x) return;
       if(x.type==='checkbox'||x.type==='radio') x.checked=!!v.f[id]; else { x.value=v.f[id]; try{ x.dispatchEvent(new Event('change')); }catch(e){} } });
   }catch(e){ console.warn('restorePreLogin',e); }
+  if(!ME&&!(function(){ try{ return sessionStorage.getItem('et_sess'); }catch(e){ return null; } })()) _endRestore();
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',restorePreLogin); else restorePreLogin();
 
