@@ -7920,8 +7920,54 @@ window.addEventListener('popstate', function(e) {
       _backWarned = false;
       submitTest(true); // force - unanswered tekshirilmasin
     }
+  } else {
+    // test emas: ilova ichida orqaga; qaytadigan joy qolmasa — saytdan chiqiladi
+    if(appBack()) history.pushState(null,'',location.href); else history.back();
   }
 });
+// ═══ TELEFONNING "ORQAGA" TUGMASI (2026-10-04) — saytdan chiqib ketmay, ilova ichida orqaga:
+// ochiq oyna → yopiladi; ustoz mavzu/papkasi → ro'yxat; o'quvchi papkasi / sertifikat tanlovi →
+// orqaga; aks holda oldingi sahifa/tab. Boshlang'ich joyda bo'lsa — saytdan chiqiladi.
+var _navStack=[], _navBusy=false;
+function _navSnap(){ var pg=document.querySelector('.pg.on'); if(!pg) return null; var tc=pg.querySelector('.tc.on'); return {pg:pg.id, tab:tc?tc.id:null}; }
+function _navPush(){ if(_navBusy) return; var s=_navSnap(); if(!s||s.pg==='pg-test') return;
+  var top=_navStack[_navStack.length-1]; if(top&&top.pg===s.pg&&top.tab===s.tab) return;
+  _navStack.push(s); if(_navStack.length>30) _navStack.shift(); }
+(function(){
+  var oShow=showPg; showPg=function(id){ var c=document.querySelector('.pg.on'); if(c&&c.id!==id) _navPush(); return oShow.apply(this,arguments); };
+  var oTab=switchTab; switchTab=function(id){ var c=_navSnap(); if(c&&c.tab!==id) _navPush(); return oTab.apply(this,arguments); };
+  var oAL=afterLogin; afterLogin=function(){ var r=oAL.apply(this,arguments); _navStack=[]; return r; };
+  var oLO=logout; logout=function(){ var r=oLO.apply(this,arguments); _navStack=[]; return r; };
+})();
+function _openModal(){
+  var ms=[].filter.call(document.querySelectorAll('.mbg'),function(m){ return getComputedStyle(m).display!=='none'; });
+  return ms.length?ms[ms.length-1]:null;
+}
+function appBack(){
+  var m=_openModal();
+  if(m){ var b=[].filter.call(m.querySelectorAll('button'),function(x){ return /close|✕|×/i.test((x.getAttribute('onclick')||'')+x.textContent); })[0];
+    if(b) b.click(); else m.style.display='none'; return true; }
+  var vis=function(id){ var e=document.getElementById(id); return !!(e&&e.offsetParent!==null); };
+  if(vis('q-detail-view')&&typeof backToTopics==='function'){ backToTopics(); return true; }
+  if(typeof _curQFolder!=='undefined'&&_curQFolder&&vis('pg-teacher')){ _curQFolder=null; renderQT(); return true; }
+  if(typeof _curFolder!=='undefined'&&_curFolder&&vis('pg-topic')){ _curFolder=null; renderTopics(); return true; }
+  if(typeof MOCK!=='undefined'&&MOCK.exam&&vis('st-cert')){ mockSet('exam',null); return true; }
+  var prev=_navStack.pop();
+  if(prev&&document.getElementById(prev.pg)){
+    _navBusy=true;
+    try{
+      showPg(prev.pg);
+      if(prev.tab&&document.getElementById(prev.tab)){
+        if(/^st-/.test(prev.tab)&&typeof openStSection==='function') openStSection(prev.tab);
+        else { var bt=document.querySelector('.tab[onclick*="\''+prev.tab+'\'"]'); if(bt) bt.click(); }
+      }
+      window.scrollTo(0,0);
+    } finally { _navBusy=false; }
+    return true;
+  }
+  return false;
+}
+
 
 // Sahifa yopilsa yoki boshqa tabga o'tsa
 var _visWarnCount = 0;
