@@ -6949,16 +6949,28 @@ function toggleAiDetail(idx) {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-function aiCheckTopic(topic) {
+// ═══ AI TEKSHIRUV XOTIRASI (2026-10-04): natija har savol bo'yicha (matn+variant+javob imzosi
+// bilan) shu qurilmada saqlanadi. Qayta bosilsa — saqlangani darhol chiqadi, faqat yangi/o'zgargan
+// savollar tekshiriladi; chala qolgan tekshiruv to'xtagan joyidan davom etadi.
+var _aiRun = null; // {topic, show:function} — ayni paytda ketayotgan tekshiruv
+function _aiKey(topic){ return 'et_aichk_' + (ME && ME.id) + '_' + topic; }
+function _aiSig(q){ var s = JSON.stringify([q.text || '', q.options || [], q.correct || [], q.image || '']), h = 0;
+  for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; } return String(h); }
+function _aiLoad(topic){ try { return JSON.parse(localStorage.getItem(_aiKey(topic)) || '{}') || {}; } catch (e) { return {}; } }
+function _aiSave(topic, c){ try { localStorage.setItem(_aiKey(topic), JSON.stringify(c)); } catch (e) {} }
+function aiCheckTopic(topic, force) {
   var qs = getMyQsByTopic(topic);
   if (!qs.length) { alert('Savollar topilmadi!'); return; }
 
   var modal = document.getElementById('ai-modal');
   var body = document.getElementById('ai-modal-body');
   modal.style.display = 'flex';
+  // shu mavzu allaqachon tekshirilyapti — oyna qayta ochiladi, jarayon davom etadi
+  if (_aiRun && _aiRun.topic === topic && !force) { _aiRun.show(); return; }
   body.innerHTML = '<div style="text-align:center;padding:20px">AI tekshirmoqda... 0/' + qs.length + '</div>';
 
   _aiResults = [];
+  var _cache = force ? {} : _aiLoad(topic);
 
   // Rasm/formula asosidagi savollar AI'ga yuborilmaydi - matn bo'lmagani uchun
   // AI ularni baholay olmaydi, shunga "qo'lda tekshiring" deb belgilanadi
@@ -6972,9 +6984,13 @@ function aiCheckTopic(topic) {
     if (isImgQuestion(q)) {
       _aiResults[origIdx] = { q: q, result: 'Rasm/formula savoli - AI tekshira olmaydi, qo\'lda ko\'ring', ok: true, skipped: true };
     } else {
-      textQs.push({ q: q, origIdx: origIdx });
+      var c = _cache[String(q.id)];
+      if (c && c.sig === _aiSig(q) && c.result !== 'Tekshirib bolmadi' && !/^Xato: /.test(c.result)) _aiResults[origIdx] = { q: q, result: c.result, ok: c.ok, cached: true };
+      else textQs.push({ q: q, origIdx: origIdx });
     }
   });
+  function _remember(item){ var r = _aiResults[item.origIdx]; if (!r || r.skipped) return;
+    _cache[String(item.q.id)] = { sig: _aiSig(item.q), result: r.result, ok: r.ok }; _aiSave(topic, _cache); }
 
   var BATCH = 3;
   var batches = [];
@@ -6985,7 +7001,9 @@ function aiCheckTopic(topic) {
   var batchIdx = 0;
   var doneCount = qs.length - textQs.length;
 
+  _aiRun = { topic: topic, show: function(){ if (batchIdx >= batches.length) showResults(); else updateProgress(); } };
   function updateProgress() {
+    if (!_aiRun || _aiRun.topic !== topic) return;
     var pct = Math.round((doneCount / qs.length) * 100);
     body.innerHTML = '<div style="text-align:center;padding:20px">AI ' + doneCount + ' / ' + qs.length + ' tekshirdi<br><div style="background:#e0e0e0;border-radius:10px;height:8px;margin-top:10px"><div style="background:#1565c0;border-radius:10px;height:8px;width:' + pct + '%"></div></div></div>';
   }
@@ -7022,7 +7040,14 @@ function aiCheckTopic(topic) {
     if (skipped > 0) parts.push(skipped + ' ta rasm/formula savoli (qo\'lda tekshiring)');
     out += parts.length ? parts.join(', ') : 'Barcha matnli savollar togri korinadi';
     out += '</div><div style="font-size:11px;color:#888;margin-top:6px">AI 100% togri emas. Savolga bosib tafsilotini kolring.</div>';
+    var nc = qs.filter(function(q, i){ return _aiResults[i] && _aiResults[i].cached; }).length;
+    var tEsc = String(topic).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    out += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+      (nc ? '<span style="font-size:12px;color:#64748b">' + nc + ' ta savol natijasi avvalgi tekshiruvdan olindi.</span>' : '') +
+      '<button class="btn bsm" style="background:#e8f4fd;color:#1565c0" onclick="aiCheckTopic(\'' + tEsc + '\', true)">&#x1F504; Qayta tekshirish</button></div>';
+    if (_aiRun && _aiRun.topic === topic) _aiRun.done = true;
     body.innerHTML = out;
+    if (_aiRun && _aiRun.topic === topic) _aiRun = null;
   }
 
   function checkBatch(retryCount) {
@@ -7051,7 +7076,6 @@ function aiCheckTopic(topic) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: lines.join('\n') }],
         max_tokens: 1000,
         temperature: 0.1
@@ -7093,6 +7117,7 @@ function aiCheckTopic(topic) {
           _aiResults[item.origIdx] = { q: item.q, result: line, ok: isOk };
         });
       }
+      batch.forEach(_remember);
       doneCount += batch.length;
       batchIdx++;
       setTimeout(function(){ checkBatch(0); }, 1500);
