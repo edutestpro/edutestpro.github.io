@@ -269,8 +269,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         <div class="fg"><label>Login</label><input type="text" id="li-u" placeholder="Login" autocomplete="off" data-lpignore="true" data-1p-ignore readonly onfocus="this.removeAttribute('readonly')"></div>
         <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="li-p" placeholder="Parol" style="padding-right:38px" autocomplete="new-password" data-lpignore="true" data-1p-ignore onkeydown="if(event.key==='Enter')doLogin()" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('li-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
         <button class="btn bp bfw blg mt8" onclick="doLogin()">Kirish</button>
-        <button class="btn bfw mt8" style="background:#229ED9;color:#fff;font-weight:700" onclick="tgLogin()">&#x2708;&#xFE0F; Telegram orqali kirish</button>
-        <div id="tg-login-msg"></div>
         <p class="ts tm" style="margin-top:10px;text-align:center;line-height:1.5">&#x1F4A1; Umumiy/maktab kompyuteridan foydalansangiz, brauzer parolni saqlashni so'rasa <b>"Hech qachon"</b> yoki <b>"Yo'q, rahmat"</b> tugmasini bosing - shunda boshqa o'quvchi sizning hisobingizdan foydalana olmaydi.</p>
       </div>
       <div id="form-rg" style="display:none">
@@ -444,7 +442,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
     <div class="fg"><label>Yangi parol (ixtiyoriy)</label><div style="position:relative"><input type="password" id="spw-new" autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="Yangi parol" style="padding-right:38px" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('spw-new',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
     <button class="btn bpu bsm" onclick="changeMyPassword('spw')">Saqlash</button>
     <div id="spw-msg"></div>
-      <div class="tg-link-box" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr,#e2e8f0)"></div>
   </div>
   <div class="card">
     <h3 style="margin-bottom:8px">&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467; Ota-onani ulash</h3>
@@ -685,7 +682,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <div class="fg"><label>Yangi parol (ixtiyoriy)</label><div style="position:relative"><input type="password" id="pw-new" autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="Yangi parol" style="padding-right:38px" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('pw-new',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
       <button class="btn bpu bsm" onclick="changeMyPassword()">Saqlash</button>
       <div id="pw-msg"></div>
-      <div class="tg-link-box" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr,#e2e8f0)"></div>
     </div>
     <div class="card">
       <h3 style="margin-bottom:12px">O'quvchilar ro'yxati</h3>
@@ -812,7 +808,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <div class="fg"><label>Yangi parol (ixtiyoriy)</label><div style="position:relative"><input type="password" id="apw-new" autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="Yangi parol" style="padding-right:38px" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('apw-new',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
       <button class="btn bpu bsm" onclick="changeMyPassword('apw')">Saqlash</button>
       <div id="apw-msg"></div>
-      <div class="tg-link-box" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr,#e2e8f0)"></div>
     </div>
     <div class="card">
       <h3 style="margin-bottom:12px">&#x1F465; Barcha foydalanuvchilar</h3>
