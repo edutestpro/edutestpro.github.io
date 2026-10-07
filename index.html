@@ -297,9 +297,16 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
             <option value="">-- Fan tanlang --</option>
           </select>
         </div>
+        <div class="fg">
+          <label>Telefon raqam</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="rg-phone" readonly placeholder="Telegram orqali tasdiqlanadi" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-phone-btn" onclick="rgPhoneStart()">&#x1F4F1; Telegram orqali tasdiqlash</button></div>
+          <p class="ts tm" id="rg-phone-st" style="margin-top:5px">Tugmani bosing &#8594; Telegram bot ochiladi &#8594; "Telefon raqamni yuborish" ni bosing &#8594; saytga qayting. Raqam o'zi tushadi.</p>
+        </div>
         <div id="rg-email-fg" class="fg" style="display:none">
           <label>Email</label>
-          <input type="email" id="rg-email" placeholder="masalan@gmail.com" autocomplete="off">
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="email" id="rg-email" placeholder="masalan@gmail.com" autocomplete="off" oninput="rgEmailChanged()" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-email-btn" onclick="rgEmailSend()">Kod yuborish</button></div>
+          <div id="rg-ecode-row" style="display:none;gap:8px;margin-top:8px;flex-wrap:wrap"><input type="text" id="rg-ecode" inputmode="numeric" maxlength="6" placeholder="Emailga kelgan 6 xonali kod" style="flex:1;min-width:150px"><button type="button" class="btn bp bsm" onclick="rgEmailCheck()">Tasdiqlash</button></div>
+          <p class="ts" id="rg-email-st" style="margin-top:5px"></p>
           <p class="ts tm" style="margin-top:5px">Parolni unutsangiz, tiklash kodi shu emailga yuboriladi. Ustozlarga admin qarori ham shu yerga keladi. (Email'ning o'z parolini so'ramaymiz.)</p>
         </div>
         <div id="rg-tcls-fg" class="fg" style="display:none">
@@ -2841,6 +2848,8 @@ async function doRegister(){
   if(authRole==='teacher'&&!tclasses.length){showErr("Kamida bitta sinfni belgilang!");return;}
   if(!email){showErr("Email kiriting! Parolni unutsangiz, tiklash kodi shu emailga yuboriladi.");return;}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr("Email noto'g'ri formatda!");return;}
+  if(!_rgV.ptok){showErr("Telefon raqamni Telegram orqali tasdiqlang (\"Telegram orqali tasdiqlash\" tugmasi).");return;}
+  if(!_rgV.etok||_rgV.email!==email.toLowerCase()){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting.");return;}
   var db=getDB();
   var dup=db.users.filter(function(x){return x.login===user;});
   if(dup.length){showErr("Bu login band! Boshqa login tanlang.");return;}
@@ -2849,6 +2858,7 @@ async function doRegister(){
   // admin uni "Tasdiqlanishi kerak" royxatida korib (ism/maktab/sinflar orqali)
   // tekshirib, keyin tasdiqlaydi. Shu payGacha ustoz kira olmaydi.
   var nu={id:'u'+Date.now(),role:authRole,name:name,login:user,pass:pass,cls:cls,subject:subj,email:email,teachClasses:tclasses,viloyat:vil,tuman:tum,maktab:maktab,plan:'free',approved:(authRole!=='teacher'),usage:{month:curMonthKey(),images:0,pages:0,questions:0}};
+  nu.phone=_rgV.phone; nu.tgId=_rgV.tg; nu.email=_rgV.email;
   db.users.push(nu);
   saveDB(db);
   if(authRole==='teacher' && !nu.approved){
@@ -8272,27 +8282,28 @@ function openForgot(){
     ov.addEventListener('click',function(e){ if(e.target===ov) closeForgot(); }); }
   var lu=document.getElementById('li-u'); _fp.login=(lu&&lu.value.trim())||'';
   ov.innerHTML='<div class="tour-modal"><h3 style="margin:0 0 6px">&#x1F511; Parolni tiklash</h3>'+
-    '<p class="ts tm" style="margin:0 0 12px">Loginingiz va ro\'yxatdan o\'tishda kiritgan emailingizni yozing. Ikkalasi mos kelsa, emailga 6 xonali kod yuboriladi.</p>'+
+    '<p class="ts tm" style="margin:0 0 12px">Loginingizni yozing va kodni qayerga olishni tanlang: Telegram\'ga (ro\'yxatdan o\'tishda ulangan) yoki emailga.</p>'+
     '<div class="fg"><label>Login</label><input type="text" id="fp-login" value="'+_cEsc(_fp.login)+'" autocomplete="username" enterkeyhint="next"></div>'+
-    '<div class="fg"><label>Email</label><input type="email" id="fp-email" placeholder="masalan@gmail.com" autocomplete="email" enterkeyhint="send"></div>'+
+    '<div class="fg"><label>Email <span class="tm" style="font-weight:400">(faqat email orqali olish uchun)</span></label><input type="email" id="fp-email" placeholder="masalan@gmail.com" autocomplete="email" enterkeyhint="send"></div>'+
     '<div id="fp-msg" class="ts" style="min-height:18px;margin:6px 0"></div>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button><button type="button" class="btn bp" id="fp-send" onclick="fpSend()">Kod yuborish</button></div></div>';
+    '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button><button type="button" class="btn bpu" id="fp-send-tg" onclick="fpSend(\'tg\')">&#x1F4F2; Telegram\'ga kod</button><button type="button" class="btn bp" id="fp-send" onclick="fpSend(\'email\')">&#x2709;&#xFE0F; Emailga kod</button></div></div>';
   ov.style.display='flex'; setTimeout(function(){ var f=document.getElementById(_fp.login?'fp-email':'fp-login'); if(f) f.focus(); },50);
 }
 function closeForgot(){ var ov=document.getElementById('fp-ov'); if(ov) ov.style.display='none'; }
 function _fpMsg(t,ok){ var m=document.getElementById('fp-msg'); if(m){ m.style.color=ok?'var(--ok)':'var(--err)'; m.textContent=t; } }
-async function fpSend(){
+async function fpSend(via){
   var login=document.getElementById('fp-login').value.trim(), email=document.getElementById('fp-email').value.trim();
-  if(!login||!email){ _fpMsg('Login va emailni kiriting'); return; }
-  var b=document.getElementById('fp-send'); b.disabled=true; _fpMsg('⏳ Yuborilmoqda...',true);
+  if(!login){ _fpMsg('Loginni kiriting'); return; }
+  if(via!=='tg'&&!email){ _fpMsg('Email orqali olish uchun emailni kiriting'); return; }
+  var b=document.getElementById(via==='tg'?'fp-send-tg':'fp-send'); b.disabled=true; _fpMsg('⏳ Yuborilmoqda...',true);
   try{
-    var r=await fetch(DB_SERVER+'/auth/forgot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:login,email:email})});
+    var r=await fetch(DB_SERVER+'/auth/forgot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:login,email:email,via:via})});
     var j={}; try{ j=await r.json(); }catch(e){}
     if(!r.ok){ _fpMsg(j.error||('Xato: '+r.status)); b.disabled=false; return; }
     _fp.login=login;
     var box=document.querySelector('#fp-ov .tour-modal');
-    box.innerHTML='<h3 style="margin:0 0 6px">&#x2709;&#xFE0F; Emailingizni tekshiring</h3>'+
-      '<p class="ts tm" style="margin:0 0 12px">'+_cEsc(email)+' manziliga 6 xonali kod yuborildi (10 daqiqa amal qiladi). Xat ko\'rinmasa, "Spam" papkasini ham tekshiring.</p>'+
+    box.innerHTML='<h3 style="margin:0 0 6px">'+(via==='tg'?'&#x1F4F2; Telegram\'ni tekshiring':'&#x2709;&#xFE0F; Emailingizni tekshiring')+'</h3>'+
+      '<p class="ts tm" style="margin:0 0 12px">'+(via==='tg'?'Telegram\'ingizga (botga) 6 xonali kod yuborildi':_cEsc(email)+' manziliga 6 xonali kod yuborildi. Xat ko\'rinmasa, "Spam" papkasini ham tekshiring')+' (10 daqiqa amal qiladi).</p>'+
       '<div class="fg"><label>Kod</label><input type="text" id="fp-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" enterkeyhint="next" style="letter-spacing:4px;font-weight:700;text-align:center;font-size:20px"></div>'+
       '<div class="fg"><label>Yangi parol</label><input type="password" id="fp-pass" autocomplete="new-password" enterkeyhint="done"></div>'+
       '<div id="fp-msg" class="ts" style="min-height:18px;margin:6px 0"></div>'+
@@ -8432,6 +8443,53 @@ window.addEventListener('resize',function(){ if(_tour) _tourShow(); });
 </style>
 
 <script>document.addEventListener('DOMContentLoaded',function(){ try{ initGoogleLogin(); }catch(e){} });</script>
+<script>
+// ── 2026-10-07: ro'yxatda telefon (Telegram) va email (kod) tasdiqlash ──
+var _rgV={ptok:'',phone:'',tg:'',etok:'',email:'',poll:null};
+function _rgSt(id,t,ok){ var e=document.getElementById(id); if(e){ e.style.color=ok===true?'var(--ok)':ok===false?'var(--err)':''; e.innerHTML=t; } }
+async function rgPhoneStart(){
+  var b=document.getElementById('rg-phone-btn'); b.disabled=true;
+  var w=null; try{ w=window.open('about:blank','_blank'); }catch(e){}
+  try{
+    var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST'}); var j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    if(w&&!w.closed) w.location.href=j.url; else location.href=j.url;
+    _rgSt('rg-phone-st','&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng shu sahifaga qayting. Kutilmoqda...');
+    clearInterval(_rgV.poll); var t0=Date.now();
+    _rgV.poll=setInterval(async function(){
+      if(Date.now()-t0>15*60*1000){ clearInterval(_rgV.poll); b.disabled=false; _rgSt('rg-phone-st','Vaqt tugadi. Tugmani qayta bosing.',false); return; }
+      try{ var s=await (await fetch(DB_SERVER+'/tg_phone_status?code='+encodeURIComponent(j.code))).json();
+        if(s.st==='ok'){ clearInterval(_rgV.poll); _rgV.ptok=s.ptok; _rgV.phone=s.phone; _rgV.tg=s.tg;
+          document.getElementById('rg-phone').value=s.phone; b.disabled=false; b.innerHTML='&#x1F504; Boshqa raqam';
+          _rgSt('rg-phone-st','&#x2705; Telefon tasdiqlandi. Shu Telegram orqali parolni tiklash ham mumkin bo\'ladi.',true); }
+        else if(s.st==='expired'){ clearInterval(_rgV.poll); b.disabled=false; _rgSt('rg-phone-st','Havola eskirdi. Tugmani qayta bosing.',false); }
+      }catch(e){}
+    },2000);
+  }catch(e){ if(w&&!w.closed) w.close(); b.disabled=false; _rgSt('rg-phone-st','&#x274C; '+e.message,false); }
+}
+function rgEmailChanged(){ var v=document.getElementById('rg-email').value.trim().toLowerCase(); if(_rgV.etok&&v!==_rgV.email){ _rgV.etok=''; _rgSt('rg-email-st','Email o\'zgardi — qayta tasdiqlang.'); } }
+async function rgEmailSend(){
+  var em=document.getElementById('rg-email').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ _rgSt('rg-email-st','Email noto\'g\'ri formatda',false); return; }
+  var b=document.getElementById('rg-email-btn'); b.disabled=true; _rgSt('rg-email-st','&#x23F3; Yuborilmoqda...');
+  try{ var r=await fetch(DB_SERVER+'/email_code_start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})}); var j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    document.getElementById('rg-ecode-row').style.display='flex'; document.getElementById('rg-ecode').focus();
+    _rgSt('rg-email-st','&#x2709;&#xFE0F; Kod yuborildi. Xat ko\'rinmasa, "Spam" papkasini tekshiring.');
+    setTimeout(function(){ b.disabled=false; b.textContent='Qayta yuborish'; },30000);
+  }catch(e){ b.disabled=false; _rgSt('rg-email-st','&#x274C; '+e.message,false); }
+}
+async function rgEmailCheck(){
+  var em=document.getElementById('rg-email').value.trim().toLowerCase(), code=document.getElementById('rg-ecode').value.trim();
+  if(!/^\d{6}$/.test(code)){ _rgSt('rg-email-st','6 xonali kodni kiriting',false); return; }
+  try{ var r=await fetch(DB_SERVER+'/email_code_check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,code:code})}); var j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    _rgV.etok=j.etok; _rgV.email=em; document.getElementById('rg-ecode-row').style.display='none';
+    _rgSt('rg-email-st','&#x2705; Email tasdiqlandi.',true);
+  }catch(e){ _rgSt('rg-email-st','&#x274C; '+e.message,false); }
+}
+</script>
+
 <!-- MUAMMO YOZISH (2026-10-01): xabar shu saytning serveri orqali admin Telegram'i va emailiga ketadi -->
 <style>
 #rep-fab{position:fixed;left:14px;bottom:14px;z-index:900;background:#fff;color:var(--pri,#25316d);border:1px solid rgba(37,49,109,.18);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer}
