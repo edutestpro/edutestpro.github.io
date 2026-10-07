@@ -271,6 +271,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         <a class="fp-link" onclick="openForgot()">Parolni unutdingizmi?</a>
         <button class="btn bp bfw blg mt8" onclick="doLogin()">Kirish</button>
         <div id="g-signin-box" style="display:none"><div class="or">yoki</div><div id="g-signin"></div></div>
+        <div style="text-align:center;margin-top:10px"><button type="button" onclick="tgLoginBtn()" style="background:#229ED9;color:#fff;border:0;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer">&#x1F4F2; Telegram orqali kirish</button></div>
         <p class="ts tm" style="margin-top:10px;text-align:center;line-height:1.5">&#x1F4A1; Umumiy/maktab kompyuteridan foydalansangiz, brauzer parolni saqlashni so'rasa <b>"Hech qachon"</b> yoki <b>"Yo'q, rahmat"</b> tugmasini bosing - shunda boshqa o'quvchi sizning hisobingizdan foydalana olmaydi.</p>
       </div>
       <div id="form-rg" style="display:none">
@@ -452,6 +453,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
     <button class="btn bpu bsm" onclick="changeMyPassword('spw')">Saqlash</button>
     <div id="spw-msg"></div>
   </div>
+  <div class="card ct-box" data-p="spw"></div>
   <div class="card">
     <h3 style="margin-bottom:8px">&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467; Ota-onani ulash</h3>
     <p style="font-size:13px;color:var(--mut);margin-bottom:10px">Ota-onangiz shu havolani Telegram'da bossa, har hafta sizning progressingiz haqida avtomatik xabar oladi - hech qanday login/parol kerak emas.</p>
@@ -693,6 +695,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <button class="btn bpu bsm" onclick="changeMyPassword()">Saqlash</button>
       <div id="pw-msg"></div>
     </div>
+    <div class="card ct-box" data-p="pw"></div>
     <div class="card">
       <h3 style="margin-bottom:12px">O'quvchilar ro'yxati</h3>
       <div style="overflow-x:auto;margin-bottom:10px">
@@ -820,6 +823,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <button class="btn bpu bsm" onclick="changeMyPassword('apw')">Saqlash</button>
       <div id="apw-msg"></div>
     </div>
+    <div class="card ct-box" data-p="apw"></div>
     <div class="card">
       <h3 style="margin-bottom:12px">&#x1F465; Barcha foydalanuvchilar</h3>
       <p style="font-size:13px;color:var(--mut);margin-bottom:10px">Barcha o'quvchi va ustozlarning login va parollari. Kerak bo'lsa o'zgartirishingiz yoki o'chirishingiz mumkin.</p>
@@ -992,7 +996,7 @@ var _sb = null;
 // rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
 var _authToken=null;
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -2878,6 +2882,7 @@ async function doRegister(){
 }
 function afterLogin(){
   setTimeout(function(){ try{ maybeStartTour(); }catch(e){} },0);
+  setTimeout(function(){ try{ renderContactBoxes(); }catch(e){} },0);
   try{ sessionStorage.setItem('et_sess', JSON.stringify({id:ME.id, t:_authToken||null})); }catch(e){}
   setTimeout(function(){ try{ renderTgLink(); }catch(e){} }, 300);
   // Agar oldingi sessiyada test yarim qolgan bo'lsa (masalan brauzer yopilgan,
@@ -7933,6 +7938,26 @@ function _setRuns(r){
   try{ _msRun=r.ms; }catch(e){} try{ _certRun=r.cert; }catch(e){} try{ _mockRun=r.mock; }catch(e){}
   try{ if(r.mockScripts) _mockScripts=r.mockScripts; }catch(e){} try{ _reviewQs=r.review; }catch(e){}
 }
+// 2026-10-07: F5 dan keyin test tiklanganda brauzer to'liq ekranni o'zi yoqa olmaydi (foydalanuvchi bosishi shart).
+// Savollar parda bilan yopiladi — "Davom ettirish" bosilgach to'liq ekran yoqiladi va parda yo'qoladi.
+function _fsGate(){
+  var el=document.documentElement;
+  var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
+  if(!req||document.fullscreenElement||document.webkitFullscreenElement) return;
+  var g=document.getElementById('fs-gate');
+  if(!g){ g=document.createElement('div'); g.id='fs-gate';
+    g.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.96);display:flex;align-items:center;justify-content:center;padding:16px';
+    g.innerHTML='<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:360px;text-align:center;color:#0f172a">'+
+      '<div style="font-size:40px">&#x1F4DD;</div><h3 style="margin:8px 0">Test davom etmoqda</h3>'+
+      '<p style="font-size:14px;color:#475569;margin-bottom:16px">Sahifa yangilandi. Javoblaringiz saqlangan. Davom ettirish uchun tugmani bosing — test yana to\'liq ekranda ochiladi.</p>'+
+      '<button type="button" class="btn bpu" style="width:100%" id="fs-gate-btn">&#x25B6; Testni davom ettirish</button></div>';
+    document.body.appendChild(g); }
+  g.style.display='flex';
+  document.getElementById('fs-gate-btn').onclick=function(){
+    try{ var p=req.call(el); if(p&&p.catch) p.catch(function(){}); }catch(e){}
+    g.style.display='none';
+  };
+}
 function _restoreRun(v){
   if(v.certSel&&typeof CERT!=='undefined'){ try{ Object.assign(CERT,v.certSel); if(typeof renderCert==='function'&&document.getElementById('cert-body')) renderCert(); }catch(e){} }
   if(v.test){
@@ -7942,7 +7967,7 @@ function _restoreRun(v){
     _backWarned=false; showDet=false;
     (t.hdr||[]).forEach(function(h,i){ var e=document.getElementById(['tb-name','tb-cls','tb-topic','tb-mode'][i]); if(e&&h){ e.textContent=h[0]; e.className=h[1]; } });
     try{ history.pushState(null,'',location.href); }catch(e){}
-    renderQ(); showPg('pg-test'); startTimer();
+    renderQ(); showPg('pg-test'); startTimer(); _fsGate();
     return true;
   }
   if(v.res){
@@ -8491,6 +8516,78 @@ async function rgEmailCheck(){
 </script>
 
 <script>
+// ── 2026-10-07: "Aloqa ma'lumotlari" — telefon (Telegram) va email ni tasdiq bilan qo'shish/almashtirish ──
+var _ct={poll:null,sending:false};
+function renderContactBoxes(){
+  if(typeof ME==='undefined'||!ME) return;
+  document.querySelectorAll('.ct-box').forEach(function(box){
+    var p=box.getAttribute('data-p');
+    var ph=ME.phone?'<b style="text-transform:none">'+_cEsc(ME.phone)+'</b>':'<span style="color:var(--err);text-transform:none">kiritilmagan</span>';
+    var em=ME.email?'<b style="text-transform:none">'+_cEsc(ME.email)+'</b>':'<span style="color:var(--err);text-transform:none">kiritilmagan</span>';
+    box.innerHTML='<h3 style="margin-bottom:8px">&#x1F4C7; Aloqa ma\'lumotlari</h3>'+
+      '<p style="font-size:13px;color:var(--mut);margin-bottom:10px">Parolni unutsangiz shular orqali tiklaysiz. Telegram ulansa, "Telegram orqali kirish" ham ishlaydi.</p>'+
+      '<div class="fg"><label>&#x1F4F1; Telefon (Telegram): '+ph+'</label>'+
+      '<button type="button" class="btn bpu bsm" id="'+p+'-ct-ph" onclick="ctPhoneStart(\''+p+'\')">'+(ME.phone?'&#x1F504; Almashtirish':'&#x2795; Telegram orqali qo\'shish')+'</button>'+
+      '<div id="'+p+'-ct-phst" style="font-size:13px;margin-top:6px"></div></div>'+
+      '<div class="fg"><label>&#x2709;&#xFE0F; Email: '+em+'</label>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="email" id="'+p+'-ct-em" placeholder="'+(ME.email?'Yangi email':'masalan@gmail.com')+'" autocomplete="off" style="flex:1;min-width:150px">'+
+      '<button type="button" class="btn bpu bsm" id="'+p+'-ct-emb" onclick="ctEmailSend(\''+p+'\')">Kod yuborish</button></div>'+
+      '<div id="'+p+'-ct-coderow" style="display:none;gap:8px;margin-top:8px"><input type="text" id="'+p+'-ct-code" inputmode="numeric" maxlength="6" placeholder="6 xonali kod" style="flex:1">'+
+      '<button type="button" class="btn bpu bsm" onclick="ctEmailCheck(\''+p+'\')">Tasdiqlash</button></div>'+
+      '<div id="'+p+'-ct-emst" style="font-size:13px;margin-top:6px"></div></div>';
+  });
+}
+function _ctSt(id,t,ok){ var e=document.getElementById(id); if(e){ e.style.color=ok===true?'var(--ok)':ok===false?'var(--err)':''; e.innerHTML=t; } }
+async function _ctSave(body){
+  var r=await fetch(DB_SERVER+'/auth/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var j={}; try{ j=await r.json(); }catch(e){}
+  if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+  ME.phone=j.phone||''; ME.tgId=j.tgId||''; ME.email=j.email||'';
+  try{ var db=getDB(); db.users.forEach(function(u){ if(u.id===ME.id){ u.phone=ME.phone; u.tgId=ME.tgId; u.email=ME.email; } });
+    localStorage.setItem(SK,JSON.stringify(db)); }catch(e){}
+}
+async function ctPhoneStart(p){
+  var b=document.getElementById(p+'-ct-ph'); b.disabled=true;
+  var w=null; try{ w=window.open('about:blank','_blank'); }catch(e){}
+  try{
+    var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST'}); var j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    if(w&&!w.closed) w.location.href=j.url; else location.href=j.url;
+    _ctSt(p+'-ct-phst','&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng shu sahifaga qayting. Kutilmoqda...');
+    clearInterval(_ct.poll); var t0=Date.now();
+    _ct.poll=setInterval(async function(){
+      if(Date.now()-t0>15*60*1000){ clearInterval(_ct.poll); b.disabled=false; _ctSt(p+'-ct-phst','Vaqt tugadi. Qayta bosing.',false); return; }
+      try{ var s=await (await fetch(DB_SERVER+'/tg_phone_status?code='+encodeURIComponent(j.code))).json();
+        if(s.st==='ok'){ clearInterval(_ct.poll);
+          try{ await _ctSave({ptok:s.ptok}); renderContactBoxes(); _ctSt(p+'-ct-phst','&#x2705; Telefon saqlandi.',true); }
+          catch(e){ b.disabled=false; _ctSt(p+'-ct-phst','&#x274C; '+e.message,false); } }
+        else if(s.st==='expired'){ clearInterval(_ct.poll); b.disabled=false; _ctSt(p+'-ct-phst','Havola eskirdi. Qayta bosing.',false); }
+      }catch(e){}
+    },2000);
+  }catch(e){ if(w&&!w.closed) w.close(); b.disabled=false; _ctSt(p+'-ct-phst','&#x274C; '+e.message,false); }
+}
+async function ctEmailSend(p){
+  var em=document.getElementById(p+'-ct-em').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ _ctSt(p+'-ct-emst','Email noto\'g\'ri formatda',false); return; }
+  if(ME.email&&em.toLowerCase()===String(ME.email).toLowerCase()){ _ctSt(p+'-ct-emst','Bu email allaqachon saqlangan',false); return; }
+  var b=document.getElementById(p+'-ct-emb'); b.disabled=true; _ctSt(p+'-ct-emst','&#x23F3; Yuborilmoqda...');
+  try{ var r=await fetch(DB_SERVER+'/email_code_start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})}); var j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    document.getElementById(p+'-ct-coderow').style.display='flex'; document.getElementById(p+'-ct-code').focus();
+    _ctSt(p+'-ct-emst','&#x2709;&#xFE0F; Kod yuborildi. Xat ko\'rinmasa, "Spam" papkasini tekshiring.');
+    setTimeout(function(){ b.disabled=false; b.textContent='Qayta yuborish'; },30000);
+  }catch(e){ b.disabled=false; _ctSt(p+'-ct-emst','&#x274C; '+e.message,false); }
+}
+async function ctEmailCheck(p){
+  var em=document.getElementById(p+'-ct-em').value.trim().toLowerCase(), code=document.getElementById(p+'-ct-code').value.trim();
+  if(!/^\d{6}$/.test(code)){ _ctSt(p+'-ct-emst','6 xonali kodni kiriting',false); return; }
+  try{ var r=await fetch(DB_SERVER+'/email_code_check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,code:code})}); var j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    await _ctSave({etok:j.etok}); renderContactBoxes(); _ctSt(p+'-ct-emst','&#x2705; Email saqlandi.',true);
+  }catch(e){ _ctSt(p+'-ct-emst','&#x274C; '+e.message,false); }
+}
+</script>
+<script>
 // ── 2026-10-07: Telegram orqali kirish (botda "Ruxsat berish") ──
 var _tga={poll:null};
 async function tgAuthLogin(){
@@ -8520,6 +8617,8 @@ async function tgAuthLogin(){
     },2000);
   }catch(e){ if(w&&!w.closed) w.close(); _fpMsg('❌ '+e.message); }
 }
+// 2026-10-07: kirish oynasidagi tugma — parol tiklash oynasidagi Telegram oqimini ochadi
+function tgLoginBtn(){ openForgot(); var h=document.querySelector('#fp-ov h3'); if(h) h.innerHTML='&#x1F4F2; Telegram orqali kirish'; tgAuthLogin(); }
 async function _tgaEnter(a){
   _authToken=a.token;
   try{ await syncFromCloud(); }catch(e){}
