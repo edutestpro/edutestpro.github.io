@@ -996,7 +996,7 @@ var _sb = null;
 // rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
 var _authToken=null;
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -2862,7 +2862,7 @@ async function doRegister(){
   // admin uni "Tasdiqlanishi kerak" royxatida korib (ism/maktab/sinflar orqali)
   // tekshirib, keyin tasdiqlaydi. Shu payGacha ustoz kira olmaydi.
   var nu={id:'u'+Date.now(),role:authRole,name:name,login:user,pass:pass,cls:cls,subject:subj,email:email,teachClasses:tclasses,viloyat:vil,tuman:tum,maktab:maktab,plan:'free',approved:(authRole!=='teacher'),usage:{month:curMonthKey(),images:0,pages:0,questions:0}};
-  nu.phone=_rgV.phone; nu.tgId=_rgV.tg; nu.email=_rgV.email;
+  nu.phone=_rgV.phone; nu.tgId=_rgV.tg; nu.email=_rgV.email; nu._ptok=_rgV.ptok; nu._etok=_rgV.etok;
   db.users.push(nu);
   saveDB(db);
   if(authRole==='teacher' && !nu.approved){
@@ -7943,7 +7943,7 @@ function _setRuns(r){
 function _fsGate(){
   var el=document.documentElement;
   var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
-  if(!req||document.fullscreenElement||document.webkitFullscreenElement) return;
+  if(document.fullscreenElement||document.webkitFullscreenElement) return;
   var g=document.getElementById('fs-gate');
   if(!g){ g=document.createElement('div'); g.id='fs-gate';
     g.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.96);display:flex;align-items:center;justify-content:center;padding:16px';
@@ -7952,9 +7952,10 @@ function _fsGate(){
       '<p style="font-size:14px;color:#475569;margin-bottom:16px">Sahifa yangilandi. Javoblaringiz saqlangan. Davom ettirish uchun tugmani bosing — test yana to\'liq ekranda ochiladi.</p>'+
       '<button type="button" class="btn bpu" style="width:100%" id="fs-gate-btn">&#x25B6; Testni davom ettirish</button></div>';
     document.body.appendChild(g); }
+  if(!req){ var pp=g.querySelector('p'); if(pp) pp.innerHTML='Sahifa yangilandi. Javoblaringiz saqlangan.<br><b>Diqqat:</b> test davomida boshqa ilovaga o\'tsangiz yoki ekranni o\'chirsangiz, 8 soniyadan keyin test yakunlanadi.'; }
   g.style.display='flex';
   document.getElementById('fs-gate-btn').onclick=function(){
-    try{ var p=req.call(el); if(p&&p.catch) p.catch(function(){}); }catch(e){}
+    if(req){ try{ var p=req.call(el); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
     g.style.display='none';
   };
 }
@@ -8125,15 +8126,20 @@ var AUTO_SUBMIT_GRACE_MS = 8000;
 function _scheduleAutoSubmit(){
   if(!S.mode || _ignoreBlur) return;
   if(_autoSubmitTimer) return; // allaqachon kutilmoqda
+  _awayAt = Date.now();
   _autoSubmitTimer = setTimeout(function(){
     _autoSubmitTimer = null;
     if(S.mode) submitTest(true);
   }, AUTO_SUBMIT_GRACE_MS);
 }
+// 2026-10-07: iPhone fonda taymerlarni to'xtatadi — qaytganda o'tgan vaqt tekshiriladi
+var _awayAt = 0;
 function _cancelAutoSubmit(){
+  var away = _awayAt ? Date.now() - _awayAt : 0; _awayAt = 0;
   if(_autoSubmitTimer){
     clearTimeout(_autoSubmitTimer);
     _autoSubmitTimer = null;
+    if(away > AUTO_SUBMIT_GRACE_MS && S.mode && !_ignoreBlur){ submitTest(true); }
   }
 }
 
