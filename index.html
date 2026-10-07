@@ -8628,7 +8628,7 @@ function tgLoginBtn(){
   openForgot();
   var box=document.querySelector('#fp-ov .tour-modal'); if(!box) return;
   box.innerHTML='<h3 style="margin:0 0 6px">&#x1F4F2; Telegram orqali kirish</h3><p class="ts tm" style="margin:0 0 12px">Qulay usulni tanlang. Hisobingiz Telegram\'ga ulangan bo\'lishi kerak.</p>'+
-    '<button type="button" class="btn bpu" style="width:100%;margin-bottom:8px;text-align:left" onclick="tgCodeForm()"><b>&#x1F522; Kod orqali</b><br><span style="font-size:12px;font-weight:400">Loginingizni yozasiz, bot 6 xonali kod yuboradi</span></button>'+
+    '<button type="button" class="btn bpu" style="width:100%;margin-bottom:8px;text-align:left" onclick="tgCodeForm()"><b>&#x1F522; Kod orqali</b><br><span style="font-size:12px;font-weight:400">Bot 6 xonali kod yuboradi — login kerak emas</span></button>'+
     '<button type="button" class="btn bpu" style="width:100%;margin-bottom:8px;text-align:left" onclick="tgBotAuto()"><b>&#x26A1; Bot orqali avtomatik</b><br><span style="font-size:12px;font-weight:400">Botda "&#x2705; Ruxsat berish" ni bosasiz — login kerak emas</span></button>'+
     '<div id="fp-msg" class="ts" style="min-height:18px"></div><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
 }
@@ -8638,35 +8638,53 @@ function tgBotAuto(){
     '<button type="button" class="btn bg" onclick="tgLoginBtn()">&#8592; Orqaga</button> <button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
   tgAuthLogin();
 }
+var _tgc={code:'',poll:null};
 function tgCodeForm(){
   var box=document.querySelector('#fp-ov .tour-modal');
-  var lu=document.getElementById('li-u');
   box.innerHTML='<h3 style="margin:0 0 6px">&#x1F522; Kod orqali kirish</h3>'+
-    '<div class="fg"><label>Login</label><input type="text" id="tgc-login" autocomplete="username" value="'+_cEsc((lu&&lu.value.trim())||'')+'"></div>'+
-    '<button type="button" class="btn bpu" style="width:100%" id="tgc-send" onclick="tgCodeSend()">Telegram\'ga kod yuborish</button>'+
-    '<div id="tgc-row" style="display:none;margin-top:10px"><div class="fg"><label>Telegram\'ga kelgan kod</label><input type="text" id="tgc-code" inputmode="numeric" maxlength="6" placeholder="6 xonali kod" onkeydown="if(event.key===\'Enter\')tgCodeLogin()"></div>'+
+    '<p class="ts tm" style="margin:0 0 10px">1) Tugmani bosing — Telegram\'da bot ochiladi, <b>Start</b> ni bosing.<br>2) Bot yuborgan 6 xonali kodni shu yerga yozing.</p>'+
+    '<button type="button" class="btn bpu" style="width:100%" id="tgc-open" onclick="tgCodeOpen()">&#x1F4F2; Telegram\'ni ochish</button>'+
+    '<div id="tgc-row" style="display:none;margin-top:10px"><div class="fg"><label>Bot yuborgan kod</label><input type="text" id="tgc-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6 xonali kod" onkeydown="if(event.key===\'Enter\')tgCodeLogin()"></div>'+
     '<button type="button" class="btn bpu" style="width:100%" onclick="tgCodeLogin()">Kirish</button></div>'+
     '<div id="fp-msg" class="ts" style="min-height:18px;margin-top:8px"></div>'+
-    '<button type="button" class="btn bg" onclick="tgLoginBtn()">&#8592; Orqaga</button> <button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
-  var li=document.getElementById('tgc-login'); if(li&&!li.value) li.focus();
+    '<button type="button" class="btn bg" onclick="clearInterval(_tgc.poll);tgLoginBtn()">&#8592; Orqaga</button> <button type="button" class="btn bg" onclick="clearInterval(_tgc.poll);closeForgot()">Bekor qilish</button>';
 }
-async function tgCodeSend(){
-  var login=document.getElementById('tgc-login').value.trim(); if(!login){ _fpMsg('Loginni kiriting'); return; }
-  var b=document.getElementById('tgc-send'); b.disabled=true; _fpMsg('⏳ Yuborilmoqda...',true);
-  try{ var r=await fetch(DB_SERVER+'/auth/tg_code_start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:login})}); var j={}; try{ j=await r.json(); }catch(e){}
+async function tgCodeOpen(){
+  var b=document.getElementById('tgc-open'); b.disabled=true;
+  var w=null; try{ w=window.open('about:blank','_blank'); }catch(e){}
+  _fpMsg('⏳ Telegram ochilmoqda...',true);
+  try{
+    var r=await fetch(DB_SERVER+'/tg_auth_start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'code'})}); var j=await r.json();
     if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    document.getElementById('tgc-row').style.display='block'; document.getElementById('tgc-code').focus();
-    _fpMsg('✅ Kod Telegram\'ga yuborildi (bot chatini oching).',true);
-    setTimeout(function(){ b.disabled=false; b.textContent='Qayta yuborish'; },30000);
-  }catch(e){ b.disabled=false; _fpMsg('❌ '+e.message); }
+    _tgc.code=j.code;
+    if(w&&!w.closed) w.location.href=j.url; else location.href=j.url;
+    document.getElementById('tgc-row').style.display='block';
+    _fpMsg('Telegram\'da Start ni bosing — bot kod yuboradi.',true);
+    setTimeout(function(){ b.disabled=false; b.innerHTML='&#x1F504; Qayta ochish'; },15000);
+    clearInterval(_tgc.poll); var t0=Date.now();
+    _tgc.poll=setInterval(async function(){
+      if(Date.now()-t0>10*60*1000){ clearInterval(_tgc.poll); return; }
+      try{ var s=await (await fetch(DB_SERVER+'/tg_auth_status?code='+encodeURIComponent(_tgc.code))).json();
+        if(s.st==='sent'){ clearInterval(_tgc.poll); _fpMsg('✅ Kod Telegram\'ga yuborildi. Uni yozing.',true); var c=document.getElementById('tgc-code'); if(c) c.focus(); }
+        else if(s.st==='none'){ clearInterval(_tgc.poll); _fpMsg('Bu Telegram hech qaysi hisobga ulanmagan. Login va parol bilan kiring, keyin "Aloqa ma\'lumotlari" dan ulang.'); }
+        else if(s.st==='expired'){ clearInterval(_tgc.poll); _fpMsg('Vaqt tugadi. Qayta oching.'); }
+      }catch(e){}
+    },2000);
+  }catch(e){ if(w&&!w.closed) w.close(); b.disabled=false; _fpMsg('❌ '+e.message); }
 }
 async function tgCodeLogin(){
-  var login=document.getElementById('tgc-login').value.trim(), code=document.getElementById('tgc-code').value.trim();
-  if(!/^\d{6}$/.test(code)){ _fpMsg('6 xonali kodni kiriting'); return; }
-  try{ var r=await fetch(DB_SERVER+'/auth/tg_code_login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:login,code:code})}); var j={}; try{ j=await r.json(); }catch(e){}
-    if(r.status===403&&j.error==='not_approved') throw new Error('Hisobingiz hali admin tomonidan tasdiqlanmagan');
+  var otp=document.getElementById('tgc-code').value.trim();
+  if(!/^\d{6}$/.test(otp)){ _fpMsg('6 xonali kodni kiriting'); return; }
+  try{ var r=await fetch(DB_SERVER+'/tg_auth_code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:_tgc.code,otp:otp})}); var j={}; try{ j=await r.json(); }catch(e){}
     if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    _fpMsg('✅ Kirilmoqda...',true); _tgaEnter({token:j.token,id:j.id});
+    clearInterval(_tgc.poll);
+    var accs=j.accounts||[];
+    if(accs.length===1){ _fpMsg('✅ Kirilmoqda...',true); _tgaEnter(accs[0]); return; }
+    _tga.accs=accs;
+    var box=document.querySelector('#fp-ov .tour-modal');
+    box.innerHTML='<h3 style="margin:0 0 6px">Qaysi hisobga kirasiz?</h3><p class="ts tm" style="margin:0 0 12px">Bu Telegram bir nechta hisobga ulangan.</p>'+
+      accs.map(function(a,i){ return '<button type="button" class="btn bg" style="width:100%;margin-bottom:8px;text-align:left" onclick="_tgaEnter(_tga.accs['+i+'])"><b>'+_cEsc(a.name||a.login)+'</b> <span class="tm">('+_cEsc(a.login)+' · '+({student:"o'quvchi",teacher:'ustoz',admin:'admin'}[a.role]||a.role)+')</span></button>'; }).join('')+
+      '<div id="fp-msg" class="ts" style="min-height:18px"></div><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
   }catch(e){ _fpMsg('❌ '+e.message); }
 }
 async function _tgaEnter(a){
