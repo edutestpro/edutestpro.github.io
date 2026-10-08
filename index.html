@@ -8085,7 +8085,9 @@ function restoreSession(){
 var _backWarned = false;
 
 // Android orqaga tugmasi
+window.addEventListener('pageshow', function(){ window._appExiting=false; });
 window.addEventListener('popstate', function(e) {
+  if(window._appExiting){ history.back(); return; } // ilovadan chiqilmoqda — tarix oxirigacha
   if(S.mode) {
     if(!_backWarned) {
       _backWarned = true;
@@ -8109,7 +8111,13 @@ window.addEventListener('popstate', function(e) {
     }
   } else {
     // test emas: ilova ichida orqaga; qaytadigan joy qolmasa — saytdan chiqiladi
-    if(appBack()) history.pushState(null,'',location.href); else history.back();
+    if(appBack()) history.pushState(null,'',location.href);
+    else if(ME){
+      // 2026-10-08: panel boshida — bosh menyu yoki kirish oynasiga emas; ikki marta bosilsa ilovadan chiqiladi
+      if(window._backExitAt&&Date.now()-window._backExitAt<2000){ window._backExitAt=0; window._appExiting=true; history.back(); return; }
+      window._backExitAt=Date.now(); history.pushState(null,'',location.href);
+      try{ showTestToast('Chiqish uchun yana bir marta "Orqaga" ni bosing'); }catch(e){}
+    } else history.back();
   }
 });
 // ═══ TELEFONNING "ORQAGA" TUGMASI (2026-10-04) — saytdan chiqib ketmay, ilova ichida orqaga:
@@ -8140,6 +8148,8 @@ function appBack(){
   if(typeof _curFolder!=='undefined'&&_curFolder&&vis('pg-topic')){ _curFolder=null; renderTopics(); return true; }
   if(typeof MOCK!=='undefined'&&MOCK.exam&&vis('st-cert')){ mockSet('exam',null); return true; }
   var prev=_navStack.pop();
+  // 2026-10-08: kirgan foydalanuvchi bosh menyu / kirish oynasiga qaytarilmaydi
+  while(prev&&ME&&(prev.pg==='pg-home'||prev.pg==='pg-auth')) prev=_navStack.pop();
   if(prev&&document.getElementById(prev.pg)){
     _navBusy=true;
     try{
