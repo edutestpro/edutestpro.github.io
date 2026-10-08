@@ -4389,7 +4389,8 @@ function renderReviewList(){
   var summary=document.getElementById('review-summary');
   var badge=document.getElementById('review-count-badge');
   var totalFlags=_reviewGroups.reduce(function(s,g){return s+g.flags.length;},0);
-  if(summary) summary.textContent=_reviewGroups.length+' ta savol, jami '+totalFlags+' ta xato javob';
+  if(summary) summary.innerHTML=_reviewGroups.length+' ta savol, jami '+totalFlags+' ta xato javob'+
+    (_reviewGroups.length>1?' <button type="button" class="btn bs bsm" style="margin-left:8px" onclick="resolveAllReviewCorrect()">&#x2705; Hammasini to\'g\'ri deb yopish</button>':'');
   if(badge){
     if(totalFlags>0){ badge.style.display='inline'; badge.textContent=totalFlags; }
     else badge.style.display='none';
@@ -4441,6 +4442,21 @@ function _flagSel(f,g){
   if(f.question_snapshot&&f.question_snapshot.orig) return sel.slice();
   if(!o||!s.options) return sel.slice();
   return sel.map(function(k){ var v=s.options[k], i=(o.options||[]).indexOf(v); return i>=0?i:k; });
+}
+// 2026-10-08: navbatdagi hamma savolni bir bosishda "savol durust" deb yopish (asl testdagi javob to'g'ri)
+async function resolveAllReviewCorrect(){
+  var gs=_reviewGroups.slice(); if(!gs.length) return;
+  var nf=gs.reduce(function(s,g){return s+g.flags.length;},0);
+  if(!confirm(gs.length+' ta savol ('+nf+' ta xato javob) "To\'g\'ri — savol durust" deb yopilsinmi?\nSavollarning to\'g\'ri javobi o\'zgarmaydi.')) return;
+  var db=getDB(), ids=[];
+  gs.forEach(function(g){
+    var q=(db.userQs||[]).find(function(x){return String(x.id)===String(g.question_id)&&x.teacherId===ME.id;});
+    if(q) q.trustVotes=(q.trustVotes||0)+g.flags.length;
+    g.flags.forEach(function(f){ ids.push(f.id); });
+  });
+  saveDB(db);
+  try{ for(var i=0;i<ids.length;i+=100) await _sb.from('answer_flags').delete().in('id', ids.slice(i,i+100)); }catch(e){ alert('Ba\'zilari o\'chirilmadi: '+e.message); }
+  _reviewGroups=[]; renderReviewList(); loadReviewQueue();
 }
 async function resolveReviewCorrect(gi){
   var g=_reviewGroups[gi];
