@@ -334,7 +334,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <div><h2 id="tp-gr"></h2><p class="ts tm" id="tp-sub"></p></div>
       <div style="display:flex;gap:8px">
         <button class="btn bs bsm" onclick="showPg('pg-profile')">&#x1F464; Mening profilim</button>
-        <button class="btn bg bsm" onclick="logout();showPg('pg-home')">Chiqish</button>
+        <button class="btn bg bsm" onclick="logout()">Chiqish</button>
       </div>
     </div>
   </div>
@@ -659,7 +659,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
   </div>
 
   <div class="tc" id="tc-s">
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>&#x1F9ED; Panel bilan tanishish</b><div class="ts tm">Har bir bo'lim nima uchun kerakligini qisqacha ko'rsatib beradi</div></div><button type="button" class="btn bp bsm" onclick="startTour()">Ko'rsatish</button></div>
     <div class="card" id="usage-card">
       <div class="ch"><h3 style="margin:0">&#x1F4CA; Oylik imkoniyatingiz</h3><span class="bdg bpu2" id="usage-plan-badge">Bepul</span></div>
       <div id="usage-body"></div>
@@ -809,7 +808,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
   </div>
 
   <div class="tc" id="ta-s">
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>&#x1F9ED; Panel bilan tanishish</b><div class="ts tm">Har bir bo'lim nima uchun kerakligini qisqacha ko'rsatib beradi</div></div><button type="button" class="btn bp bsm" onclick="startTour()">Ko'rsatish</button></div>
     <div class="card">
       <h3 style="margin-bottom:8px">&#x1F464; Tasdiqlanishi kerak bo'lgan ustozlar</h3>
       <p style="font-size:13px;color:var(--mut);margin-bottom:10px">Yangi ro'yxatdan o'tgan ustozlar shu yerda ko'rinadi va siz tasdiqlamaguncha tizimga kira olmaydi. Ism, maktab va sinflarni tekshirib (kerak bo'lsa maktab bilan bog'lanib), keyin tasdiqlang.</p>
@@ -1606,17 +1604,26 @@ document.addEventListener('click', function(e){
 // ─── TEST BOSHLANISHIDA RASMLARNI OLDINDAN KESHLASH (offline uchun) ────────
 // Shunda test davomida internet ochib qolsa ham, savol/javob rasmlari
 // allaqachon qurilmada saqlangan bolib, korsatilishda davom etadi.
-function precacheTestImages(qs){
+function _qImgUrls(q){
+  var urls=[]; if(!q) return urls;
+  if(isImgVal(q.img)) urls.push(imgSrcVal(q.img));
+  (q.options||[]).forEach(function(o){ if(isImgVal(o)) urls.push(imgSrcVal(o)); });
+  if(q.optImages) Object.keys(q.optImages).forEach(function(k){ var v=q.optImages[k]; if(v&&isImgVal(v)) urls.push(imgSrcVal(v)); });
+  return urls.filter(function(u){ return typeof u==='string'&&u.indexOf('http')===0; });
+}
+// 2026-10-08: service worker navbati (6 tadan); prio=true — test tartibida navbat boshiga
+function precacheTestImages(qs,prio){
   try{
     if(!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
-    var urls=[];
-    qs.forEach(function(q){
-      if(isImgVal(q.img)) urls.push(imgSrcVal(q.img));
-      (q.options||[]).forEach(function(o){ if(isImgVal(o)) urls.push(imgSrcVal(o)); });
-    });
-    urls=urls.filter(function(u){return u.indexOf('http')===0;});
-    if(urls.length) navigator.serviceWorker.controller.postMessage({type:'CACHE_IMAGES', urls:urls});
+    var urls=[]; qs.forEach(function(q){ urls=urls.concat(_qImgUrls(q)); });
+    if(urls.length) navigator.serviceWorker.controller.postMessage({type:'CACHE_IMAGES', urls:urls, prio:!!prio});
   }catch(e){}
+}
+// joriy savoldan keyingi 3 tasining rasmlari brauzer xotirasiga oldindan
+var _nextImgs=[];
+function _prefetchNextQImgs(){
+  try{ var out=[]; for(var k=1;k<=3;k++) out=out.concat(_qImgUrls(S.test[S.idx+k]));
+    _nextImgs=out.map(function(u){ var im=new Image(); im.decoding='async'; im.src=u; return im; }); }catch(e){}
 }
 
 // ─── LOCAL DB ─────────────────────────────────────────────────────────────────
@@ -2929,7 +2936,7 @@ function confirmLogoutWarn(){
   // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
   submitTest(true);
 }
-function logout(){ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
+function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
   // To'liq ekrandan chiqish - faqat haqiqatan fullscreen bolsa
   if(document.fullscreenElement||document.webkitFullscreenElement){
     if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
@@ -2939,7 +2946,7 @@ function logout(){ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess
   document.getElementById('nav-user').textContent='';document.getElementById('btn-out').style.display='none';
   var nbw=document.getElementById('notif-bell-wrap'); if(nbw) nbw.style.display='none';
   var ndd=document.getElementById('notif-dropdown'); if(ndd) ndd.style.display='none';
-  resetTheme();showPg('pg-home');}
+  resetTheme();if(_lr&&typeof goAuth==='function'){try{goAuth(_lr);if(typeof showAuthTab==='function')showAuthTab('li');}catch(e){showPg('pg-home');}}else showPg('pg-home');}
 
 var _curSubjFilter=null;
 var _curFolder=null;
@@ -3112,7 +3119,7 @@ function startTest(mode){
     if(q.optImages){orig.forEach(function(opt,oi){var ni=sh.indexOf(opt);if(q.optImages[String(oi)])newOptImg[String(ni)]=q.optImages[String(oi)];});}
     return Object.assign({},q,{options:sh,shuffledCorrect:nc,optImages:Object.keys(newOptImg).length?newOptImg:q.optImages});
   });
-  precacheTestImages(qs);
+  precacheTestImages(qs,true);
   var _cb=document.getElementById('conn-banner'); if(_cb) _cb.style.display='none';
   var _ov=document.getElementById('offline-overlay'); if(_ov) _ov.style.display='none';
   S.test=qs;S.idx=0;S.answers={};S.mode=mode;_backWarned=false;_visWarnCount=0;_blurWarnCount=0;S._blurWarnPending=false;_logoutWarned=false;_ignoreBlur=false;history.pushState(null,'',location.href);
@@ -3494,6 +3501,7 @@ function _eduCanvasClick(e, canvasId) {
 }
 
 function renderQ(){
+  setTimeout(_prefetchNextQImgs,0);
   var q=S.test[S.idx], ans=S.answers[S.idx]||[], isLast=S.idx===S.test.length-1;
   document.getElementById('t-qnum').textContent='Savol '+(S.idx+1)+' / '+S.test.length;
   document.getElementById('t-qans').textContent=Object.keys(S.answers).length+' ta javoblandi';
@@ -3631,7 +3639,8 @@ function preloadTopicImages(qs){
   var list=Object.keys(urls).filter(function(u){return u.indexOf('http')===0;});
   if(!list.length) return;
   try{ precacheTestImages(qs); }catch(e){}
-  _preImgs=list.map(function(u){ var im=new Image(); im.decoding='async'; im.src=u; return im; });
+  if(!('serviceWorker' in navigator) || !navigator.serviceWorker.controller)
+    _preImgs=list.slice(0,30).map(function(u){ var im=new Image(); im.decoding='async'; im.src=u; return im; });
 }
 
 function submitTest(forced){
@@ -8408,36 +8417,74 @@ var TOUR_TXT={
 var _tour=null;
 function _tVis(el){ try{ return !!(el&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'); }catch(e){ return false; } }
 function _tourKey(){ return 'tour_done_'+(ME&&ME.id||''); }
+// 2026-10-08: tanishtiruv faqat BIR MARTA — belgi hisobning o'ziga yoziladi (boshqa qurilmada ham chiqmaydi)
+function _tourSeen(){ if(!ME) return true; if(ME.tourDone) return true; try{ if(localStorage.getItem(_tourKey())) return true; }catch(e){} return false; }
+function _tourMarkSeen(){
+  if(!ME||ME.tourDone) return; ME.tourDone=Date.now();
+  try{ localStorage.setItem(_tourKey(),'1'); }catch(e){}
+  try{ var db=getDB(); db.users.forEach(function(u){ if(u.id===ME.id) u.tourDone=ME.tourDone; }); saveDB(db); }catch(e){}
+}
 function maybeStartTour(){
-  if(!ME) return; try{ if(localStorage.getItem(_tourKey())) return; }catch(e){ return; }
-  setTimeout(function(){ if(ME&&!(S&&S.mode)) startTour(); },900);
+  if(!ME||_tourSeen()) return;
+  setTimeout(function(){ if(ME&&!(S&&S.mode)&&!_tourSeen()) startTour(); },900);
+}
+function _tourTxt(el){ return el?String(el.textContent||'').replace(/\s+/g,' ').trim():''; }
+// Bo'lim ichidagi har bir ko'rinadigan karta — sarlavhasi (h2/h3/b) va birinchi izohi bilan
+function _tourInner(sec){
+  var out=[], c=document.getElementById(sec); if(!c) return out;
+  [].forEach.call(c.querySelectorAll('.card'),function(card){
+    if(!_tVis(card)||card.closest('.mbg')) return;
+    if(card.parentElement&&card.parentElement.closest('.card')) return;
+    var h=card.querySelector('h2,h3')||card.querySelector('b'), t=_tourTxt(h);
+    if(!t||t.length>80) return;
+    var p=card.querySelector('p,.ts'), d=_tourTxt(p);
+    if(d.length>240) d=d.slice(0,237)+'...';
+    out.push({el:card,t:_cEsc(t),d:_cEsc(d||('"'+t+'" — shu bo\'limning bir qismi.'))});
+    // karta ichida bir nechta tanlov kartasi bo'lsa (IELTS/Multilevel, Duel/Sinf jangi...) — har biri alohida
+    var subs=[].filter.call(card.querySelectorAll('.aqt-card,.rcard,.hub-card,.card'),function(x){ return x!==card&&_tVis(x); });
+    if(subs.length>=2) subs.forEach(function(x){
+      var hb=x.querySelector('b,strong,h3,h4'), st=_tourTxt(hb)||_tourTxt(x).slice(0,40), sd=_tourTxt(x.querySelector('small,p,.ts'));
+      if(st&&st.length<=80) out.push({el:x,t:_cEsc(st),d:_cEsc(sd||('"'+st+'" \u2014 shu yerni bosib ochasiz.'))});
+    });
+  });
+  return out;
 }
 function _tourSteps(){
   var st=[], role=ME.role, hello={student:"o'quvchi",teacher:'ustoz',admin:'admin'}[role]||'';
-  st.push({t:'&#x1F44B; Xush kelibsiz, '+_cEsc(ME.name||'')+'!',d:"Sizga "+hello+" panelini qisqacha tanishtiraman. Har bir bo'lim nima uchun kerakligini ko'rsataman. Istalgan payt \"O'tkazib yuborish\" ni bosishingiz mumkin."});
+  st.push({t:'&#x1F44B; Xush kelibsiz, '+_cEsc(ME.name||'')+'!',d:"Sizga "+hello+" panelini to'liq tanishtiraman: har bir bo'limni ochib, ichidagi imkoniyatlarni ko'rsataman. Bu faqat bir marta ko'rsatiladi. Istalgan payt \"O'tkazib yuborish\" ni bosishingiz mumkin."});
   var pg=document.querySelector('.pg.on');
-  if(role==='student'&&document.getElementById('st-hub')){
+  if(role==='student'&&document.getElementById('st-hub')&&typeof ST_SECTIONS!=='undefined'){
     [].forEach.call(document.querySelectorAll('#st-hub .hub-card'),function(c){
-      var b=c.querySelector('b'), s=c.querySelector('small'); st.push({el:c,t:b?b.textContent:'',d:(s?s.textContent:'')+'. Shu kartani bosib bo\'limga o\'tasiz.'}); });
+      var m=String(c.getAttribute('onclick')||'').match(/openStSection\('([^']+)'/), id=m&&m[1];
+      var b=c.querySelector('b'), s=c.querySelector('small');
+      st.push({el:c,sec:id,go:function(){ try{ openStSection(id); }catch(e){} },t:_tourTxt(b),d:(TOUR_TXT[id]||_tourTxt(s))+' Hozir shu bo\'limni ochib ko\'rsataman.'});
+    });
   } else if(pg){
     [].forEach.call(pg.querySelectorAll('.tab'),function(b){
       if(!_tVis(b)) return; var m=String(b.getAttribute('onclick')||'').match(/switchTab\('([^']+)'/), id=m&&m[1];
-      st.push({el:b,t:b.textContent.trim(),d:TOUR_TXT[id]||'Shu tugma orqali "'+b.textContent.trim()+'" bo\'limiga o\'tasiz.'}); });
+      st.push({el:b,sec:id,go:function(){ try{ b.click(); }catch(e){} },t:_tourTxt(b),d:(TOUR_TXT[id]||'"'+_tourTxt(b)+'" bo\'limi.')+' Hozir uni ochib, ichidagilarni ko\'rsataman.'});
+    });
   }
   var bell=document.getElementById('notif-bell-wrap'); if(_tVis(bell)) st.push({el:bell,t:'&#x1F514; Bildirishnomalar',d:"Yangi xabarlar, natijalar va so'rovlar shu yerda chiqadi."});
+  var inst=document.getElementById('btn-install'); if(_tVis(inst)) st.push({el:inst,t:'&#x2B07; O\'rnatish',d:"Saytni telefoningizga ilova qilib o'rnatish. Keyin bosh ekrandan bir bosishda ochasiz."});
   var rep=document.getElementById('rep-fab'); if(_tVis(rep)) st.push({el:rep,t:'&#x1F6E0; Muammo yozish',d:"Biror narsa ishlamasa yoki taklifingiz bo'lsa, shu tugma orqali to'g'ridan-to'g'ri dastur egasiga yozing."});
-  var out=document.getElementById('btn-out'); if(_tVis(out)) st.push({el:out,t:'Chiqish',d:"Hisobdan chiqish. Keyingi safar login va parol bilan qayta kirasiz."});
-  st.push({t:'&#x2705; Tayyor!',d:role==='student'?"Tanishtiruv tugadi. Omad! Savollaringiz bo'lsa, \"Muammo yozish\" tugmasidan foydalaning.":"Tanishtiruv tugadi. Uni qayta ko'rmoqchi bo'lsangiz, Sozlamalar ichidagi \"Panel bilan tanishish\" tugmasini bosing."});
+  var out=document.getElementById('btn-out'); if(_tVis(out)) st.push({el:out,t:'Chiqish',d:"Hisobdan chiqish. Kirish oynasiga qaytasiz va keyingi safar qayta kirasiz."});
+  st.push({t:'&#x2705; Tayyor!',d:"Tanishtiruv tugadi. Endi bemalol ishlashingiz mumkin. Savol yoki muammo bo'lsa, \"Muammo yozish\" tugmasidan foydalaning."});
   return st;
 }
 function startTour(){
   if(!ME) return; endTour(true);
-  _tour={steps:_tourSteps(),i:0};
+  var first=document.querySelector('.pg.on .tab.on')||document.querySelector('.pg.on .tab');
+  _tour={steps:_tourSteps(),i:0,first:first,firstSec:(typeof _curStSection==='function'&&ME.role==='student')?_curStSection():null};
   var ov=document.createElement('div'); ov.id='tour-ov'; ov.innerHTML='<div id="tour-hole"></div><div id="tour-tip"></div>'; document.body.appendChild(ov);
   _tourShow();
 }
 function _tourShow(){
-  var T=_tour; if(!T) return; var s=T.steps[T.i], hole=document.getElementById('tour-hole'), tip=document.getElementById('tour-tip');
+  var T=_tour; if(!T) return; var s=T.steps[T.i];
+  // bo'lim qadamiga kelinganda — uni ochamiz va ichidagi kartalarni keyingi qadamlar qilib qo'shamiz
+  if(s.go){ s.go(); if(!s.expanded){ s.expanded=true; var inner=_tourInner(s.sec); if(inner.length) T.steps.splice.apply(T.steps,[T.i+1,0].concat(inner)); } }
+  else if(s.el&&!_tVis(s.el)&&T.steps.length>1){ T.steps.splice(T.i,1); if(T.i>=T.steps.length) T.i=T.steps.length-1; return _tourShow(); }
+  var hole=document.getElementById('tour-hole'), tip=document.getElementById('tour-tip');
   var last=T.i===T.steps.length-1;
   tip.innerHTML='<div class="ts tm" style="margin-bottom:4px">'+(T.i+1)+' / '+T.steps.length+'</div><h3 style="margin:0 0 6px">'+s.t+'</h3><p style="margin:0 0 12px;line-height:1.5">'+s.d+'</p>'+
     '<div style="display:flex;gap:8px;justify-content:space-between;align-items:center">'+(last?'<span></span>':'<button type="button" class="btn bg bsm" onclick="endTour()">O\'tkazib yuborish</button>')+
@@ -8445,17 +8492,32 @@ function _tourShow(){
     '<button type="button" class="btn bp bsm" onclick="'+(last?'endTour()':'_tourGo(1)')+'">'+(last?'Boshlash':'Keyingi &#8594;')+'</button></div></div>';
   if(s.el&&s.el.getBoundingClientRect){
     try{ s.el.scrollIntoView({block:'center',behavior:'instant'}); }catch(e){ s.el.scrollIntoView(); }
-    var r=s.el.getBoundingClientRect(), p=6;
-    hole.style.cssText='display:block;left:'+(r.left-p)+'px;top:'+(r.top-p)+'px;width:'+(r.width+2*p)+'px;height:'+(r.height+2*p)+'px';
-    var tw=Math.min(340,window.innerWidth-24), below=r.bottom+14+200<window.innerHeight;
-    tip.style.cssText='width:'+tw+'px;left:'+Math.max(12,Math.min(window.innerWidth-tw-12,r.left+r.width/2-tw/2))+'px;'+(below?'top:'+(r.bottom+14):'bottom:'+(window.innerHeight-r.top+14))+'px';
+    var r=s.el.getBoundingClientRect(), p=6, vh=window.innerHeight;
+    var top=Math.max(4,r.top-p), h=Math.min(r.height+2*p,vh-top-4);
+    hole.style.cssText='display:block;left:'+(r.left-p)+'px;top:'+top+'px;width:'+(r.width+2*p)+'px;height:'+h+'px';
+    var tw=Math.min(340,window.innerWidth-24), below=top+h+14+200<vh, above=top-14-200>0;
+    tip.style.cssText='width:'+tw+'px;left:'+Math.max(12,Math.min(window.innerWidth-tw-12,r.left+r.width/2-tw/2))+'px;'+
+      (below?'top:'+(top+h+14)+'px':above?'bottom:'+(vh-top+14)+'px':'bottom:12px');
   } else {
     hole.style.cssText='display:block;left:50%;top:50%;width:0;height:0';
     var w=Math.min(380,window.innerWidth-24); tip.style.cssText='width:'+w+'px;left:'+((window.innerWidth-w)/2)+'px;top:30%';
   }
 }
-function _tourGo(d){ if(!_tour) return; _tour.i=Math.max(0,Math.min(_tour.steps.length-1,_tour.i+d)); _tourShow(); }
-function endTour(silent){ var ov=document.getElementById('tour-ov'); if(ov) ov.remove(); if(!silent&&ME){ try{ localStorage.setItem(_tourKey(),'1'); }catch(e){} } _tour=null; }
+function _tourGo(d){
+  if(!_tour) return; var T=_tour, i=Math.max(0,Math.min(T.steps.length-1,T.i+d));
+  // orqaga yurganda ichki karta qaysi bo'limda bo'lsa, o'sha bo'lim ochiladi
+  if(d<0){ for(var k=i;k>=0;k--){ if(T.steps[k].go){ if(k!==i) T.steps[k].go(); break; } } }
+  T.i=i; _tourShow();
+}
+function endTour(silent){
+  var ov=document.getElementById('tour-ov'); if(ov) ov.remove();
+  var T=_tour; _tour=null;
+  if(!silent&&ME){
+    _tourMarkSeen();
+    try{ if(T&&T.firstSec&&typeof openStSection==='function') openStSection(T.firstSec); else if(T&&T.first) T.first.click(); }catch(e){}
+    window.scrollTo(0,0);
+  }
+}
 window.addEventListener('resize',function(){ if(_tour) _tourShow(); });
 </script>
 <style>
@@ -8669,6 +8731,24 @@ async function tgCodeLogin(){
     _fpMsg('✅ Kirilmoqda...',true); _tgaEnter({token:j.token,id:j.id});
   }catch(e){ _fpMsg('❌ '+e.message); }
 }
+// 2026-10-08: botdagi "🌐 Saytga kirish" tugmasi saytni ?tga=<kod> bilan ochadi — avtomatik kirish
+async function _tgaFromUrl(){
+  var code=''; try{ code=new URLSearchParams(location.search).get('tga')||''; }catch(e){}
+  if(!code) return;
+  try{ var u=new URL(location.href); u.searchParams.delete('tga'); history.replaceState(history.state,'',u.pathname+(u.search||'')+u.hash); }catch(e){}
+  if(ME) return;
+  try{
+    var s=await (await fetch(DB_SERVER+'/tg_auth_status?code='+encodeURIComponent(code.replace(/[^A-Za-z0-9]/g,'')))).json();
+    if(s.st!=='ok'||!s.accounts||!s.accounts.length){ openForgot(); _fpMsg(s.st==='used'?'Bu havola allaqachon ishlatilgan. Qaytadan "Telegram orqali kirish" ni bosing.':'Havola eskirgan. Qaytadan "Telegram orqali kirish" ni bosing.'); return; }
+    if(s.accounts.length===1){ _tgaEnter(s.accounts[0]); return; }
+    openForgot(); _tga.accs=s.accounts;
+    var box=document.querySelector('#fp-ov .tour-modal');
+    box.innerHTML='<h3 style="margin:0 0 6px">Qaysi hisobga kirasiz?</h3><p class="ts tm" style="margin:0 0 12px">Bu Telegram bir nechta hisobga ulangan.</p>'+
+      s.accounts.map(function(a,i){ return '<button type="button" class="btn bg" style="width:100%;margin-bottom:8px;text-align:left" onclick="_tgaEnter(_tga.accs['+i+'])"><b>'+_cEsc(a.name||a.login)+'</b> <span class="tm">('+_cEsc(a.login)+' · '+({student:"o'quvchi",teacher:'ustoz',admin:'admin'}[a.role]||a.role)+')</span></button>'; }).join('')+
+      '<div id="fp-msg" class="ts" style="min-height:18px"></div><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
+  }catch(e){}
+}
+document.addEventListener('DOMContentLoaded',function(){ setTimeout(_tgaFromUrl,300); });
 async function _tgaEnter(a){
   _authToken=a.token;
   try{ await syncFromCloud(); }catch(e){}

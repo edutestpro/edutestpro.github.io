@@ -1,4 +1,4 @@
-const CACHE = 'edutest-v149';
+const CACHE = 'edutest-v150';
 const IMG_CACHE = 'edutest-img-v1';
 const FILES = ['./', './index.html'];
 
@@ -49,6 +49,41 @@ function isImageRequest(url) {
          /\.(png|jpe?g|webp|gif)(\?|$)/i.test(url);
 }
 
+var _imgQ = [], _imgBusy = 0, _imgDone = {}, _imgWait = [], _imgTrimT = null, IMG_MAX = 400;
+function _imgTrimSoon() {
+  if (_imgTrimT) return;
+  _imgTrimT = setTimeout(function() {
+    _imgTrimT = null;
+    caches.open(IMG_CACHE).then(function(cache) {
+      return cache.keys().then(function(keys) {
+        var extra = keys.length - IMG_MAX;
+        return Promise.all(keys.slice(0, Math.max(0, extra)).map(function(k) { return cache.delete(k); }));
+      });
+    }).catch(function(){});
+  }, 3000);
+}
+function _imgPump() {
+  return new Promise(function(resolve) {
+    _imgWait.push(resolve);
+    caches.open(IMG_CACHE).then(function(cache) {
+      function next() {
+        if (!_imgQ.length) { if (!_imgBusy) { _imgTrimSoon(); var w = _imgWait; _imgWait = []; w.forEach(function(f){ f(); }); } return; }
+        if (_imgBusy >= 6) return;
+        var u = _imgQ.shift();
+        if (_imgDone[u]) return next();
+        _imgBusy++;
+        cache.match(u).then(function(hit) {
+          if (hit) return;
+          return fetch(u, { mode: 'cors' }).catch(function(){ return fetch(u, { mode: 'no-cors' }); }).then(function(res) {
+            if (res && (res.status === 200 || res.type === 'opaque')) return cache.put(u, res);
+          });
+        }).catch(function(){}).then(function() { _imgDone[u] = 1; _imgBusy--; next(); });
+        next();
+      }
+      next();
+    });
+  });
+}
 self.addEventListener('fetch', function(e) {
   if (e.request.method !== 'GET') return;
   var url = e.request.url;
@@ -56,12 +91,13 @@ self.addEventListener('fetch', function(e) {
   if (isImageRequest(url)) {
     e.respondWith(
       caches.open(IMG_CACHE).then(function(cache) {
+        // 2026-10-08: rasm nomlari noyob va o'zgarmaydi — keshda bo'lsa qayta yuklanmaydi
         return cache.match(e.request).then(function(cached) {
-          var fetchPromise = fetch(e.request).then(function(res) {
-            if (res && res.status === 200) cache.put(e.request, res.clone());
+          if (cached) return cached;
+          return fetch(e.request).then(function(res) {
+            if (res && (res.status === 200 || res.type === 'opaque')) { cache.put(e.request, res.clone()).then(_imgTrimSoon, function(){}); }
             return res;
-          }).catch(function() { return cached; });
-          return cached || fetchPromise;
+          });
         });
       })
     );
@@ -87,16 +123,12 @@ self.addEventListener('fetch', function(e) {
 
 self.addEventListener('message', function(e) {
   var data = e.data || {};
+  // 2026-10-08: navbat — bir vaqtda 6 tadan; prio=true bo'lsa (test boshlandi) navbat boshiga, test tartibida
   if (data.type === 'CACHE_IMAGES' && Array.isArray(data.urls)) {
-    e.waitUntil(
-      caches.open(IMG_CACHE).then(function(cache) {
-        return Promise.all(data.urls.map(function(u) {
-          return fetch(u).then(function(res) {
-            if (res && res.status === 200) return cache.put(u, res);
-          }).catch(function(){});
-        }));
-      })
-    );
+    var urls = data.urls.filter(function(u){ return typeof u === 'string' && u; });
+    if (data.prio) _imgQ = urls.concat(_imgQ.filter(function(u){ return urls.indexOf(u) < 0; }));
+    else urls.forEach(function(u){ if (_imgQ.indexOf(u) < 0) _imgQ.push(u); });
+    e.waitUntil(_imgPump());
   }
   // Eski keshni to'liq tozalash buyrug'i (admin/debug uchun)
   if (data.type === 'CLEAR_CACHE') {
