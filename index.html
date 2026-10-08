@@ -3699,16 +3699,19 @@ async function flagWrongAnswersForReview(res){
     var q=S.test[i];
     if(!q || !q.id || !q.teacherId) return;
     if((q.trustVotes||0) >= 5) return; // ishonchli - navbatga qoshilmaydi (2026-09-06: 10->5)
+    var oq=(getDB().userQs||[]).find(function(x){return String(x.id)===String(q.id);})||null;
+    var origSel=(d.userAns||[]).map(function(k){ var v=(q.options||[])[k], ii=oq?(oq.options||[]).indexOf(v):-1; return ii>=0?ii:k; });
     toFlag.push({
       teacher_id: q.teacherId,
       topic: selTopic,
       question_id: String(q.id),
-      question_snapshot: {text:q.text, options:q.options, correct:q.correct, image:q.img||q.image||''},
+      question_snapshot: oq?{text:oq.text, options:oq.options, correct:oq.correct, image:oq.img||oq.image||'', orig:true}
+                          :{text:q.text, options:q.options, correct:q.shuffledCorrect||q.correct, image:q.img||q.image||''},
       student_login: ME.login,
       student_name: ME.name,
       result_id: res.id,
       detail_index: i,
-      student_selected: d.userAns
+      student_selected: oq?origSel:d.userAns
     });
   });
   if(!toFlag.length) return 0;
@@ -4396,10 +4399,10 @@ function renderReviewList(){
     return;
   }
   list.innerHTML=_reviewGroups.map(function(g,gi){
-    var q=g.snapshot;
+    var q=_flagView(g);
     var optsHtml=(q.options||[]).map(function(o,oi){
       var isCorrect=(q.correct||[]).indexOf(oi)>=0;
-      var pickedByN=g.flags.filter(function(f){return (f.student_selected||[]).indexOf(oi)>=0;}).length;
+      var pickedByN=g.flags.filter(function(f){return _flagSel(f,g).indexOf(oi)>=0;}).length;
       var isImg=isImgVal(o);
       return '<div style="padding:6px 8px;margin-bottom:4px;border-radius:6px;'+(isCorrect?'background:#dcfce7;border:1px solid #86efac':'background:#fff;border:1px solid #e2e8f0')+'">'+
         String.fromCharCode(65+oi)+'. '+(isImg?'<img src="'+imgSrcVal(o)+'" style="max-height:70px;vertical-align:middle;margin-left:4px">':o)+
@@ -4421,6 +4424,24 @@ function renderReviewList(){
   }).join('');
   renderMathIn(list);
 }
+// 2026-10-08: navbatdagi savol ASL testdagi savoldan olinadi (snapshot'da variantlar aralashgan
+// tartibda, correct esa asl raqamda edi — ustozga noto'g'ri variant "to'g'ri" deb ko'rinardi).
+// O'quvchi tanlovi snapshot variantlari matni bo'yicha asl tartibga o'giriladi.
+function _flagOrigQ(g){
+  var db=getDB();
+  return (db.userQs||[]).find(function(x){return String(x.id)===String(g.question_id)&&x.teacherId===ME.id;})||null;
+}
+function _flagView(g){
+  var o=_flagOrigQ(g), s=g.snapshot||{};
+  if(!o) return {options:s.options||[], correct:s.correct||[], image:s.image||'', text:s.text, orig:false};
+  return {options:o.options||[], correct:o.correct||[], image:o.img||o.image||'', text:o.text, orig:true};
+}
+function _flagSel(f,g){
+  var sel=f.student_selected||[], s=(f.question_snapshot||g.snapshot||{}), o=_flagOrigQ(g);
+  if(f.question_snapshot&&f.question_snapshot.orig) return sel.slice();
+  if(!o||!s.options) return sel.slice();
+  return sel.map(function(k){ var v=s.options[k], i=(o.options||[]).indexOf(v); return i>=0?i:k; });
+}
 async function resolveReviewCorrect(gi){
   var g=_reviewGroups[gi];
   if(!g) return;
@@ -4440,8 +4461,8 @@ function openReviewFix(gi){
   if(!g||!el) return;
   el.style.display='block';
   el.innerHTML='<label style="font-size:12px;font-weight:700;margin-bottom:6px;display:block">To\'g\'ri javob(lar)ni belgilang:</label>'+
-    (g.snapshot.options||[]).map(function(o,oi){
-      var checked=(g.snapshot.correct||[]).indexOf(oi)>=0?'checked':'';
+    (_flagView(g).options||[]).map(function(o,oi){
+      var checked=(_flagView(g).correct||[]).indexOf(oi)>=0?'checked':'';
       var isImg=isImgVal(o);
       return '<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer"><input type="checkbox" class="review-fix-chk-'+gi+'" value="'+oi+'" '+checked+'><span>'+String.fromCharCode(65+oi)+'. '+(isImg?'[rasm]':_aiEsc(o))+'</span></label>';
     }).join('')+
@@ -4461,7 +4482,7 @@ async function saveReviewFix(gi){
   // topib, ballini +1 qilib tuzatamiz.
   var fixedStudents=[];
   g.flags.forEach(function(f){
-    var sel=(f.student_selected||[]).slice().sort();
+    var sel=_flagSel(f,g).slice().sort();
     var nc=newCorrect.slice().sort();
     var matches=sel.length===nc.length && sel.every(function(v,idx){return v===nc[idx];});
     if(!matches) return;
