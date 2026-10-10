@@ -993,6 +993,8 @@ var _sb = null;
 // FAQAT bizning serverlarga va faqat himoyalangan endpointlarga (AI, import,
 // rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
 var _authToken=null;
+try{ var _es0=JSON.parse(sessionStorage.getItem('et_sess')||'null'); if(_es0&&_es0.t) _authToken=_es0.t; }catch(e){}
+if(!_authToken){ try{ var _lp0=JSON.parse(localStorage.getItem('et_sess_persist')||'null'); if(_lp0&&_lp0.t&&_lp0.exp&&Date.now()<_lp0.exp) _authToken=_lp0.t; }catch(e){} }
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
 var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
 (function(){
@@ -1014,6 +1016,7 @@ var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|pars
     return p.then(function(res){
       if(res.status===401){
         _authToken=null;
+        try{ sessionStorage.removeItem('et_sess'); localStorage.removeItem('et_sess_persist'); }catch(e){}
         try{ showSyncNotice('Sessiya muddati tugadi. Iltimos, chiqib qayta kiring.'); }catch(e){}
       }
       return res;
@@ -1036,6 +1039,7 @@ async function serverLogin(login,pass,role){
 }
 
 var _sbReady = false;
+var _dbReady = true;
 var _realtimeCh = null;
 
 // ── RASMLARNI YUKLASH (R2 birinchi, Supabase zaxira) ───────────────────────
@@ -1117,8 +1121,8 @@ function sbInit() {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'sb_edu_'+SB_URL.slice(-8) }
     });
     _sbReady = true;
-    startDbPolling();
   } catch(e) { _sbReady = false; }
+  startDbPolling();
 }
 
 // Avval Supabase Realtime (postgres_changes) orqali kuzatilgan edi - lekin bu
@@ -1188,7 +1192,7 @@ var DB_SERVER='https://130-61-74-112.nip.io'; // 2026-10-02: VM1 (Micro, 500MB) 
 // force=true - o'tkazib yuborilmaydi (kutilayotgan natijalarni yuborish uchun).
 var _pushChain=Promise.resolve(true), _pushSeq=0, _pushLatestDb=null, _lastOkV=0;
 function sbPush(db, force) {
-  if (!_sbReady) return Promise.resolve(false);
+  if (!_dbReady) return Promise.resolve(false);
   var mySeq=++_pushSeq;
   _pushLatestDb=db;
   var p=_pushChain.then(function(){
@@ -1294,7 +1298,7 @@ function showSyncNotice(msg){
 }
 
 async function sbPull() {
-  if (!_sbReady) return null;
+  if (!_dbReady) return null;
   try {
     var res = await fetch(DB_SERVER+'/db_get');
     if(!res.ok){ markConnLost(); return null; }
@@ -1310,7 +1314,7 @@ async function sbPull() {
 // avval har 20 soniyada BUTUN baza qayta yuklanardi, hatto ozgarish
 // bolmasa ham; bu ayni traffik limitidan oshib ketishning sababi edi.
 async function sbPullVersion() {
-  if (!_sbReady) return null;
+  if (!_dbReady) return null;
   try {
     var res = await fetch(DB_SERVER+'/db_version');
     if(!res.ok){ markConnLost(); return null; }
@@ -2890,7 +2894,7 @@ async function doRegister(){
 function afterLogin(){
   setTimeout(function(){ try{ maybeStartTour(); }catch(e){} },0);
   setTimeout(function(){ try{ renderContactBoxes(); }catch(e){} },0);
-  try{ sessionStorage.setItem('et_sess', JSON.stringify({id:ME.id, t:_authToken||null})); }catch(e){}
+  try{ var _sessData={id:ME.id, t:_authToken||null, exp:Date.now()+7*24*60*60*1000}; sessionStorage.setItem('et_sess', JSON.stringify(_sessData)); localStorage.setItem('et_sess_persist', JSON.stringify(_sessData)); }catch(e){}
   setTimeout(function(){ try{ renderTgLink(); }catch(e){} }, 300);
   // Agar oldingi sessiyada test yarim qolgan bo'lsa (masalan brauzer yopilgan,
   // blur eventi ishlamagan) - kirish paytida holat to'liq tozalansin.
@@ -2936,7 +2940,7 @@ function confirmLogoutWarn(){
   // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
   submitTest(true);
 }
-function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
+function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess');}catch(e){}try{localStorage.removeItem('et_sess_persist');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
   // To'liq ekrandan chiqish - faqat haqiqatan fullscreen bolsa
   if(document.fullscreenElement||document.webkitFullscreenElement){
     if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
@@ -7901,8 +7905,18 @@ document.addEventListener('visibilitychange',function(){ if(document.visibilityS
 // Avval hisob "Mening hisobim" bo'limida Telegram'ga ulanadi (bir marta).
 var _tgPoll = null;
 function _tgOpen(url){
-  var w = null; try { w = window.open(url, '_blank'); } catch (e) {}
-  if (!w) location.href = url; // ba'zi telefon brauzerlari yangi oynani bloklaydi
+  var tgUri=null;
+  try{
+    var m=url.match(/^https?:\/\/t\.me\/([^?]+)\??(.*)$/);
+    if(m) tgUri='tg://resolve?domain='+m[1]+(m[2]?'&'+m[2]:'');
+  }catch(e){}
+  if(tgUri){
+    var a=document.createElement('a'); a.href=tgUri; a.style.display='none'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ if(!document.hidden){ var w=null; try{ w=window.open(url,'_blank'); }catch(e){} if(!w) location.href=url; } },2000);
+  } else {
+    var w=null; try{ w=window.open(url,'_blank'); }catch(e){}
+    if(!w) location.href=url;
+  }
 }
 async function _tgFlow(purpose, msgEl, onOk){
   if (_tgPoll) { clearTimeout(_tgPoll); _tgPoll = null; }
@@ -8069,7 +8083,9 @@ function _restoreViewState(){
 function restoreSession(){
   if(ME) return;
   var s=null; try{ s=JSON.parse(sessionStorage.getItem('et_sess')||'null'); }catch(e){}
+  if(!s||!s.id){ try{ s=JSON.parse(localStorage.getItem('et_sess_persist')||'null'); }catch(e){} }
   if(!s||!s.id) return;
+  if(s.exp && Date.now()>s.exp){ try{ localStorage.removeItem('et_sess_persist'); }catch(e){} return; }
   var u=(getDB().users||[]).filter(function(x){return x.id===s.id;})[0];
   if(!u) return;
   if(u.role==='teacher'&&u.approved===false){ try{sessionStorage.removeItem('et_sess');}catch(e){} document.documentElement.classList.remove('et-restoring'); return; }
@@ -8589,11 +8605,10 @@ var _rgV={ptok:'',phone:'',tg:'',etok:'',email:'',poll:null};
 function _rgSt(id,t,ok){ var e=document.getElementById(id); if(e){ e.style.color=ok===true?'var(--ok)':ok===false?'var(--err)':''; e.innerHTML=t; } }
 async function rgPhoneStart(){
   var b=document.getElementById('rg-phone-btn'); b.disabled=true;
-  var w=null; try{ w=window.open('about:blank','_blank'); }catch(e){}
   try{
     var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST'}); var j=await r.json();
     if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    if(w&&!w.closed) w.location.href=j.url; else location.href=j.url;
+    _tgOpen(j.url);
     _rgSt('rg-phone-st','&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng shu sahifaga qayting. Kutilmoqda...');
     clearInterval(_rgV.poll); var t0=Date.now();
     _rgV.poll=setInterval(async function(){
@@ -8663,11 +8678,10 @@ async function _ctSave(body){
 }
 async function ctPhoneStart(p){
   var b=document.getElementById(p+'-ct-ph'); b.disabled=true;
-  var w=null; try{ w=window.open('about:blank','_blank'); }catch(e){}
   try{
     var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST'}); var j=await r.json();
     if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    if(w&&!w.closed) w.location.href=j.url; else location.href=j.url;
+    _tgOpen(j.url);
     _ctSt(p+'-ct-phst','&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng shu sahifaga qayting. Kutilmoqda...');
     clearInterval(_ct.poll); var t0=Date.now();
     _ct.poll=setInterval(async function(){
@@ -8706,12 +8720,11 @@ async function ctEmailCheck(p){
 // ── 2026-10-07: Telegram orqali kirish (botda "Ruxsat berish") ──
 var _tga={poll:null};
 async function tgAuthLogin(){
-  var w=null; try{ w=window.open('about:blank','_blank'); }catch(e){}
   _fpMsg('⏳ Telegram ochilmoqda...',true);
   try{
     var r=await fetch(DB_SERVER+'/tg_auth_start',{method:'POST'}); var j=await r.json();
     if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    if(w&&!w.closed) w.location.href=j.url; else location.href=j.url;
+    _tgOpen(j.url);
     _fpMsg('Telegram\'da "✅ Ruxsat berish" ni bosing va shu sahifaga qayting. Kutilmoqda...',true);
     clearInterval(_tga.poll); var t0=Date.now();
     _tga.poll=setInterval(async function(){
@@ -8730,7 +8743,7 @@ async function tgAuthLogin(){
           '<div id="fp-msg" class="ts" style="min-height:18px"></div><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
       }catch(e){}
     },2000);
-  }catch(e){ if(w&&!w.closed) w.close(); _fpMsg('❌ '+e.message); }
+  }catch(e){ _fpMsg('❌ '+e.message); }
 }
 // 2026-10-07: kirish oynasidagi tugma — parol tiklash oynasidagi Telegram oqimini ochadi
 function tgLoginBtn(){
