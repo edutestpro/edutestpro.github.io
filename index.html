@@ -300,8 +300,8 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         </div>
         <div class="fg">
           <label>Telefon raqam</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="rg-phone" readonly placeholder="Telegram orqali tasdiqlanadi" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-phone-btn" onclick="rgPhoneStart()">&#x1F4F1; Telegram orqali tasdiqlash</button></div>
-          <p class="ts tm" id="rg-phone-st" style="margin-top:5px">Tugmani bosing &#8594; Telegram bot ochiladi &#8594; "Telefon raqamni yuborish" ni bosing &#8594; saytga qayting. Raqam o'zi tushadi.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="tel" id="rg-phone" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" oninput="rgPhoneChanged()" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-phone-btn" onclick="rgPhoneStart()">&#x1F4F1; Telegram orqali tasdiqlash</button></div>
+          <p class="ts tm" id="rg-phone-st" style="margin-top:5px">Telegram raqamingizni yozing &#8594; tugmani bosing &#8594; botda "Telefon raqamni yuborish" ni bosing &#8594; "Saytga qaytish". Raqamlar mos bo'lsa tasdiqlanadi.</p>
         </div>
         <div id="rg-email-fg" class="fg" style="display:none">
           <label>Email</label>
@@ -506,7 +506,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
     <div class="fx center fxw" style="margin-top:14px;gap:8px">
       <button class="btn bp" onclick="showPg('pg-topic');loadMyHist()">&#x1F504; Yana test</button>
       <button class="btn bg bsm" onclick="toggleDetail()">&#x1F4CB; Batafsil</button>
-      <button class="btn bg bsm" onclick="logout();showPg('pg-home')">&#x1F3E0; Bosh sahifa</button>
+      <button class="btn bg bsm" onclick="goMyPanel()">&#x1F3E0; Bosh sahifa</button>
     </div>
   </div>
   <div class="card" id="r-det" style="display:none">
@@ -2508,7 +2508,7 @@ function getAllQs() {
   // oldindan tayyorlab qoyamiz.
   var acceptedByOwner={}; // ownerId -> [requesterTeacher, ...]
   (db.collaborations||[]).forEach(function(c){
-    if(c.status!=='accepted') return;
+    if(c.status!=='accepted' || c.copiedAt) return; // nusxa olingan bo'lsa 2-ustoz o'z nusxasidan beradi
     if(!acceptedByOwner[c.toId]) acceptedByOwner[c.toId]=[];
     var reqT=teacherMap[c.fromId];
     if(reqT) acceptedByOwner[c.toId].push(reqT);
@@ -2521,14 +2521,14 @@ function getAllQs() {
     var tSchool=normSchool(t.maktab);
     var schoolOk=!(mySchool && tSchool && mySchool!==tSchool);
     // 2) Ustoz aynan shu oquvchining sinfiga dars berishi kerak
-    var classOk=!(t.teachClasses && t.teachClasses.length) || (ME.cls && t.teachClasses.indexOf(ME.cls)>=0);
+    var classOk=tTeachesCls(t,q.subject,ME.cls);
     if(schoolOk && classOk) return true;
     // 3) Yoki - shu savol egasi bilan hamkorlik qilgan (ruxsat olgan)
     // ustozlardan biri ANIQ shu o'quvchining sinfiga dars berayotgan bolsa
     var collabTeachers=acceptedByOwner[q.teacherId]||[];
     return collabTeachers.some(function(rt){
       var rtSchoolOk=!(mySchool && normSchool(rt.maktab) && mySchool!==normSchool(rt.maktab));
-      var rtClassOk=!(rt.teachClasses && rt.teachClasses.length) || (ME.cls && rt.teachClasses.indexOf(ME.cls)>=0);
+      var rtClassOk=tTeachesCls(rt,q.subject,ME.cls);
       return rtSchoolOk && rtClassOk;
     });
   });
@@ -2542,6 +2542,17 @@ function getTopics() { var qs=getAllQs(),t=[]; qs.forEach(function(q){if(q.topic
 // ozgartirar va ochira olardi. Endi har bir ustoz FAQAT ozining maktabi VA
 // ozi dars beradigan sinflaridagi oquvchilarni/natijalarni koradi - xuddi
 // oquvchi tomonidagi getAllQs() dagi mantiq bilan bir xil tarzda.
+// 2026-10-12: ustoz har fan uchun alohida sinflar belgilashi mumkin (teachClassesBySubj).
+// Fan bo'yicha ro'yxat bo'lmasa — umumiy teachClasses (eski hisoblar shunday ishlaydi).
+function tClasses(t,subj){ var m=t&&t.teachClassesBySubj; if(subj&&m&&m[subj]&&m[subj].length) return m[subj]; return (t&&t.teachClasses)||[]; }
+function tTeachesCls(t,subj,cls){ var c=tClasses(t,subj); return !c.length || !!(cls && c.indexOf(cls)>=0); }
+function myTeacherSubjects(){
+  if(!ME||ME.role!=='teacher') return [];
+  var out=[]; function add(v){ if(v&&out.indexOf(v)<0) out.push(v); }
+  add(ME.subject); Object.keys(ME.teachClassesBySubj||{}).forEach(add);
+  (getDB().userQs||[]).forEach(function(q){ if(q.teacherId===ME.id) add(q.subject); });
+  return out;
+}
 function myTeachClasses(){
   if(!ME || ME.role!=='teacher') return null; // admin - cheklovsiz
   return (ME.teachClasses && ME.teachClasses.length) ? ME.teachClasses : null;
@@ -2891,6 +2902,8 @@ async function doRegister(){
   }
   ME=nu;afterLogin();
 }
+// 2026-10-12: natija sahifasidagi "Bosh sahifa" — hisobdan chiqarmaydi, o'z paneliga qaytaradi
+function goMyPanel(){ if(typeof ME!=='undefined'&&ME){ afterLogin(); } else showPg('pg-home'); }
 function afterLogin(){
   setTimeout(function(){ try{ maybeStartTour(); }catch(e){} },0);
   setTimeout(function(){ try{ renderContactBoxes(); }catch(e){} },0);
@@ -3990,9 +4003,12 @@ function deleteStorageImagesFor(questions){
     if(idx<0) return null;
     return url.slice(idx+marker.length);
   }
+  // 2026-10-12: hamkorlik nusxalari bir xil rasmni ishlatadi — boshqa savolda bor rasm o'chirilmaydi
+  var del={}; (questions||[]).forEach(function(q){ del[q.id]=1; });
+  var keep={}; (getDB().userQs||[]).forEach(function(q){ if(del[q.id]) return; if(q.img) keep[q.img]=1; (q.options||[]).forEach(function(o){ if(o) keep[o]=1; }); });
   (questions||[]).forEach(function(q){
-    var p1=extractPath(q.img); if(p1) paths.push(p1);
-    (q.options||[]).forEach(function(opt){ var p2=extractPath(opt); if(p2) paths.push(p2); });
+    if(!keep[q.img]){ var p1=extractPath(q.img); if(p1) paths.push(p1); }
+    (q.options||[]).forEach(function(opt){ if(keep[opt]) return; var p2=extractPath(opt); if(p2) paths.push(p2); });
   });
   if(!paths.length) return;
   // Katta miqdordagi rasm bolganda (masalan "Barchasini tozalash" bosilganda,
@@ -4330,9 +4346,10 @@ function loadCollaborations(){
     var other=teacherMap[isOwner?c.fromId:c.toId];
     var qCount=(db.userQs||[]).filter(function(q){return q.teacherId===(isOwner?ME.id:c.toId);}).length;
     return '<div class="pd fx between" style="align-items:center"><div>'+
-      (isOwner?'<strong>'+(other?other.name:'?')+'</strong> sizning savollaringizdan foydalanmoqda':'Siz <strong>'+(other?other.name:'?')+'</strong>ning savollaridan foydalanyapsiz')+
+      (c.copiedAt?(isOwner?'<strong>'+(other?other.name:'?')+'</strong>ga savollaringiz nusxasi berilgan ('+(c.copiedCount||0)+' ta). U endi ularni o\'zinikidek boshqaradi.':'<strong>'+(other?other.name:'?')+'</strong>ning '+(c.copiedCount||0)+' ta savoli sizga ko\'chirilgan — ular "Savollar" bo\'limida, sizniki.'):
+       (isOwner?'<strong>'+(other?other.name:'?')+'</strong> sizning savollaringizdan foydalanmoqda':'Siz <strong>'+(other?other.name:'?')+'</strong>ning savollaridan foydalanyapsiz'))+
       '</div><div class="fx" style="gap:6px">'+
-      (isOwner?'<button class="btn bd bsm" onclick="revokeCollab(\''+c.id+'\')">Bekor qilish</button>':'<button class="btn bpu bsm" onclick="viewCollabQuestions(\''+c.toId+'\')">&#x1F441;&#xFE0F; Korish</button>')+
+      (c.copiedAt?'':(isOwner?'<button class="btn bd bsm" onclick="revokeCollab(\''+c.id+'\')">Bekor qilish</button>':'<button class="btn bpu bsm" onclick="collabTakeCopy(\''+c.id+'\')">&#x1F4E5; O\'zimga olish</button><button class="btn bg bsm" onclick="viewCollabQuestions(\''+c.toId+'\')">&#x1F441;&#xFE0F; Korish</button>'))+
       '</div></div>';
   }).join(''):'<p class="ts tm">Hozircha faol hamkorlik yoq.</p>';
 }
@@ -4341,11 +4358,42 @@ function respondCollab(cid, accept){
   var c=(db.collaborations||[]).find(function(x){return x.id===cid;});
   if(!c) return;
   c.status=accept?'accepted':'declined';
+  if(accept) _collabCopyQs(db,c);
   var teacherMap={}; (db.users||[]).forEach(function(u){teacherMap[u.id]=u;});
   var reqT=teacherMap[c.fromId];
   addNotification(db, c.fromId, accept?'\u2705 Hamkorlik qabul qilindi':'\u274C Hamkorlik rad etildi', ME.name+' sizning hamkorlik sorovingizni '+(accept?'qabul qildi':'rad etdi')+'.');
   saveDB(db);
   loadCollaborations();
+}
+// 2026-10-12: hamkorlik qabul qilinganda 1-ustozning (toId) hamma savollari va mavzu sozlamalari
+// 2-ustozga (fromId) BIR MARTA nusxa qilib beriladi — 2-ustoz ularni o'zinikidek boshqaradi,
+// 1-ustoz keyin o'chirib yuborsa ham 2-ustozdagi nusxa qoladi.
+function _collabCopyQs(db,c){
+  if(!c||c.copiedAt) return 0;
+  var owner=c.toId, to=c.fromId; db.userQs=db.userQs||[]; db.topicsMeta=db.topicsMeta||[];
+  var used={};
+  db.userQs.forEach(function(q){ if(q.teacherId===to&&q.topic) used[q.topic]=1; });
+  db.topicsMeta.forEach(function(m){ if(m.teacherId===to&&m.topic) used[m.topic]=1; });
+  var src=db.userQs.filter(function(q){ return q.teacherId===owner; }), ren={}, t0=Date.now();
+  src.forEach(function(q){ var t=q.topic||''; if(ren[t]===undefined){ var n=t,k=2; while(t&&used[n]) n=t+' ('+(k++)+')'; ren[t]=n; used[n]=1; } });
+  src.forEach(function(q,i){
+    var x=JSON.parse(JSON.stringify(q));
+    x.id='cp'+t0+'_'+i+'_'+Math.random().toString(36).slice(2,7); x.teacherId=to; x.topic=ren[q.topic||'']; x.copiedFrom=q.id; x.trustVotes=0;
+    db.userQs.push(x);
+  });
+  db.topicsMeta.filter(function(m){ return m.teacherId===owner&&ren[m.topic]!==undefined; }).forEach(function(m){
+    var x=JSON.parse(JSON.stringify(m)); x.teacherId=to; x.topic=ren[m.topic]; db.topicsMeta.push(x);
+  });
+  c.copiedAt=t0; c.copiedCount=src.length;
+  return src.length;
+}
+// Avval qabul qilingan (nusxasiz) hamkorliklar uchun — 2-ustoz bir marta o'zi oladi
+function collabTakeCopy(cid){
+  var db=getDB(), c=(db.collaborations||[]).find(function(x){return x.id===cid;});
+  if(!c||c.copiedAt||c.fromId!==ME.id) return;
+  if(!confirm("Hamkor ustozning hozirgi barcha savollari sizga nusxa qilib beriladi. Ular sizniki bo'ladi: tahrirlash, o'chirish, test berish mumkin. Davom etasizmi?")) return;
+  var n=_collabCopyQs(db,c); saveDB(db); loadCollaborations(); try{ renderQT(); }catch(e){}
+  alert(n+' ta savol sizga ko\'chirildi.');
 }
 function revokeCollab(cid){
   if(!confirm('Bu hamkorlikni bekor qilasizmi? Boshqa ustoz endi sizning savollaringizni ishlata olmaydi.'))return;
@@ -5111,12 +5159,7 @@ function initSettings(){
   ['timer-label','timer-label-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=tOn?'Yoqiq':'O\'chiq';});
   ['timer-time-row'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=tOn?'flex':'none';});
   ['timer-minutes','timer-minutes-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=String(tMins);});
-  var myClasses=ME.teachClasses||[];
-  document.getElementById('settings-tcls-list').innerHTML=(db.classes||[]).map(function(c){
-    var cEsc=c.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    var checked=myClasses.indexOf(c)>=0?'checked':'';
-    return '<label style="display:flex;align-items:center;gap:5px;padding:5px 9px;background:#f1f5f9;border-radius:7px;cursor:pointer;font-size:13px"><input type="checkbox" class="settings-tcls-chk" value="'+cEsc+'" '+checked+'> '+c+'</label>';
-  }).join('');
+  renderMyClassesBySubj();
   // Load saved Supabase config
   var savedUrl=localStorage.getItem('sb_url')||'';
   var savedKey=localStorage.getItem('sb_key')||'';
@@ -5130,14 +5173,36 @@ function initSettings(){
   }
 }
 
+function renderMyClassesBySubj(){
+  var box=document.getElementById('settings-tcls-list'); if(!box||!ME) return;
+  var db=getDB(), subs=myTeacherSubjects(); if(!subs.length) subs=[''];
+  var by=ME.teachClassesBySubj||{};
+  box.style.display='block'; box.style.maxHeight='none';
+  box.innerHTML=subs.map(function(sb){
+    var mine=(sb&&by[sb]&&by[sb].length)?by[sb]:(ME.teachClasses||[]);
+    var chips=(db.classes||[]).map(function(c){
+      var cEsc=String(c).replace(/"/g,'&quot;');
+      return '<label style="display:flex;align-items:center;gap:5px;padding:5px 9px;background:#f1f5f9;border-radius:7px;cursor:pointer;font-size:13px"><input type="checkbox" class="settings-tcls-chk" data-s="'+sb+'" value="'+cEsc+'" '+(mine.indexOf(c)>=0?'checked':'')+'> '+_cEsc(c)+'</label>';
+    }).join('');
+    return (subs.length>1?'<div style="font-weight:700;margin:8px 0 6px">'+subjEmoji(sb)+' '+_cEsc(subjName(sb))+'</div>':'')+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto">'+chips+'</div>';
+  }).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:10px 0">');
+}
 function saveMyClasses(){
-  var selected=Array.prototype.slice.call(document.querySelectorAll('.settings-tcls-chk:checked')).map(function(c){return c.value;});
-  if(!selected.length){document.getElementById('tcls-msg').innerHTML='<div class="alt ar mt8">Kamida bitta sinfni belgilang!</div>';return;}
+  var subs=myTeacherSubjects(); if(!subs.length) subs=[''];
+  var by={}, all=[], empty=[];
+  subs.forEach(function(sb){
+    var sel=Array.prototype.slice.call(document.querySelectorAll('.settings-tcls-chk[data-s="'+sb+'"]:checked')).map(function(c){return c.value;});
+    if(!sel.length) empty.push(sb?subjName(sb):'');
+    if(sb) by[sb]=sel;
+    sel.forEach(function(c){ if(all.indexOf(c)<0) all.push(c); });
+  });
+  if(empty.length){ document.getElementById('tcls-msg').innerHTML='<div class="alt ar mt8">Har bir fan uchun kamida bitta sinfni belgilang'+(empty[0]?': '+empty.join(', '):'')+'</div>'; return; }
   var db=getDB();
-  db.users.forEach(function(u){if(u.id===ME.id)u.teachClasses=selected;});
+  db.users.forEach(function(u){ if(u.id===ME.id){ u.teachClasses=all; u.teachClassesBySubj=by; } });
   saveDB(db);
-  ME.teachClasses=selected;
-  document.getElementById('tcls-msg').innerHTML='<div class="alt as mt8">Saqlandi! Endi faqat '+selected.join(', ')+' sinflari sizning testlaringizni koradi.</div>';
+  ME.teachClasses=all; ME.teachClassesBySubj=by;
+  document.getElementById('tcls-msg').innerHTML='<div class="alt as mt8">Saqlandi!'+(subs.length>1?' Har bir fan testlarini faqat o\'sha fan uchun belgilangan sinflar ko\'radi.':' Endi faqat '+all.join(', ')+' sinflari sizning testlaringizni koradi.')+'</div>';
 }
 function saveSbConfig(){
   var url=(document.getElementById('sb-url-inp').value||'').trim();
@@ -8448,7 +8513,7 @@ async function onGoogleCredential(resp){
   var err=function(t){ document.getElementById('auth-err').innerHTML='<div class="alt ar mt8">'+t+'</div>'; };
   document.getElementById('auth-err').innerHTML='<div class="alt ai">&#x23F3; Tekshirilmoqda...</div>';
   try{
-    var r=await fetch(DB_SERVER+'/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:resp.credential})});
+    var r=await fetch(DB_SERVER+'/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:resp.credential, role:(typeof authRole!=='undefined'&&authRole)?authRole:''})});
     var j={}; try{ j=await r.json(); }catch(e){}
     if(!r.ok){ err(j.error==='not_approved'?"Hisobingiz hali admin tomonidan tasdiqlanmagan.":(j.error||'Kirib bo\'lmadi')); return; }
     _authToken=j.token;
@@ -8603,25 +8668,63 @@ window.addEventListener('resize',function(){ if(_tour) _tourShow(); });
 // ── 2026-10-07: ro'yxatda telefon (Telegram) va email (kod) tasdiqlash ──
 var _rgV={ptok:'',phone:'',tg:'',etok:'',email:'',poll:null};
 function _rgSt(id,t,ok){ var e=document.getElementById(id); if(e){ e.style.color=ok===true?'var(--ok)':ok===false?'var(--err)':''; e.innerHTML=t; } }
-async function rgPhoneStart(){
-  var b=document.getElementById('rg-phone-btn'); b.disabled=true;
-  try{
-    var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST'}); var j=await r.json();
-    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    _tgOpen(j.url);
-    _rgSt('rg-phone-st','&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng shu sahifaga qayting. Kutilmoqda...');
-    clearInterval(_rgV.poll); var t0=Date.now();
-    _rgV.poll=setInterval(async function(){
-      if(Date.now()-t0>15*60*1000){ clearInterval(_rgV.poll); b.disabled=false; _rgSt('rg-phone-st','Vaqt tugadi. Tugmani qayta bosing.',false); return; }
-      try{ var s=await (await fetch(DB_SERVER+'/tg_phone_status?code='+encodeURIComponent(j.code))).json();
-        if(s.st==='ok'){ clearInterval(_rgV.poll); _rgV.ptok=s.ptok; _rgV.phone=s.phone; _rgV.tg=s.tg;
-          document.getElementById('rg-phone').value=s.phone; b.disabled=false; b.innerHTML='&#x1F504; Boshqa raqam';
-          _rgSt('rg-phone-st','&#x2705; Telefon tasdiqlandi. Shu Telegram orqali parolni tiklash ham mumkin bo\'ladi.',true); }
-        else if(s.st==='expired'){ clearInterval(_rgV.poll); b.disabled=false; _rgSt('rg-phone-st','Havola eskirdi. Tugmani qayta bosing.',false); }
-      }catch(e){}
-    },2000);
-  }catch(e){ if(w&&!w.closed) w.close(); b.disabled=false; _rgSt('rg-phone-st','&#x274C; '+e.message,false); }
+// Umumiy: saytda yozilgan raqamni Telegram raqami bilan tasdiqlash. Kutish sessionStorage'da
+// saqlanadi — Telegram'dan qaytganda sahifa qayta yuklansa ham tekshiruv davom etadi.
+function _phNorm(v){ var d=String(v||'').replace(/\D/g,''); if(d.length===9) d='998'+d; return (d.length>=11&&d.length<=15)?'+'+d:''; }
+function _tgpGet(){ try{ var o=JSON.parse(sessionStorage.getItem('et_tgp')||'null'); return (o&&o.exp>Date.now())?o:null; }catch(e){ return null; } }
+function _tgpSet(o){ try{ if(o) sessionStorage.setItem('et_tgp',JSON.stringify(o)); else sessionStorage.removeItem('et_tgp'); }catch(e){} }
+var _tgpTimer=null;
+// o={code,want,ctx,exp}; ui={st(html,ok), done(btnText)}; onOk(s) — tasdiqlangach
+function _tgpPoll(o,ui,onOk){
+  clearInterval(_tgpTimer);
+  _tgpTimer=setInterval(async function(){
+    if(Date.now()>o.exp){ clearInterval(_tgpTimer); _tgpSet(null); ui.st('Vaqt tugadi. Tugmani qayta bosing.',false); ui.done(); return; }
+    try{ var s=await (await fetch(DB_SERVER+'/tg_phone_status?code='+encodeURIComponent(o.code))).json();
+      if(s.st==='ok'){ clearInterval(_tgpTimer); _tgpSet(null); await onOk(s); }
+      else if(s.st==='mismatch'){ clearInterval(_tgpTimer); _tgpSet(null);
+        ui.st('&#x274C; Siz kiritgan raqam <b>'+_cEsc(s.want)+'</b> Telegram raqamingiz <b>'+_cEsc(s.phone)+'</b> bilan mos tushmadi. Telegram\'dagi raqamni yozib, qayta urinib ko\'ring.',false); ui.done(); }
+      else if(s.st==='expired'){ clearInterval(_tgpTimer); _tgpSet(null); ui.st('Havola eskirdi. Tugmani qayta bosing.',false); ui.done(); }
+    }catch(e){}
+  },2000);
 }
+async function _tgpStart(want,ctx,ui,onOk){
+  var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:want})});
+  var j={}; try{ j=await r.json(); }catch(e){}
+  if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+  var o={code:j.code,want:want,ctx:ctx,exp:Date.now()+14*60*1000}; _tgpSet(o);
+  ui.st('&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng <b>"Saytga qaytish"</b>. Kutilmoqda...');
+  _tgpPoll(o,ui,onOk);
+  _tgOpen(j.url);
+}
+function _rgPhoneUi(){ var b=document.getElementById('rg-phone-btn');
+  return {st:function(t,ok){ _rgSt('rg-phone-st',t,ok); }, done:function(){ if(b){ b.disabled=false; } }}; }
+async function _rgPhoneOk(s){
+  _rgV.ptok=s.ptok; _rgV.phone=s.phone; _rgV.tg=s.tg;
+  var inp=document.getElementById('rg-phone'); if(inp) inp.value=s.phone;
+  var b=document.getElementById('rg-phone-btn'); if(b){ b.disabled=false; b.innerHTML='&#x1F504; Boshqa raqam'; }
+  _rgSt('rg-phone-st','&#x2705; Telefon tasdiqlandi. Shu Telegram orqali parolni tiklash ham mumkin bo\'ladi.',true);
+}
+function rgPhoneChanged(){
+  var v=_phNorm(document.getElementById('rg-phone').value);
+  if(_rgV.ptok&&v!==_rgV.phone){ _rgV.ptok=''; _rgV.phone=''; _rgV.tg=''; _rgSt('rg-phone-st','Raqam o\'zgardi — qayta tasdiqlang.'); }
+}
+async function rgPhoneStart(){
+  var want=_phNorm(document.getElementById('rg-phone').value);
+  if(!want){ _rgSt('rg-phone-st','Telefon raqamni to\'liq yozing, masalan: +998 90 123 45 67',false); document.getElementById('rg-phone').focus(); return; }
+  _rgV.ptok=''; _rgV.phone=''; _rgV.tg='';
+  var b=document.getElementById('rg-phone-btn'); b.disabled=true;
+  try{ await _tgpStart(want,'rg',_rgPhoneUi(),_rgPhoneOk); }
+  catch(e){ b.disabled=false; _rgSt('rg-phone-st','&#x274C; '+e.message,false); }
+}
+// Telegram'dan qaytganda sahifa qayta yuklangan bo'lsa — ro'yxatdagi kutishni davom ettirish
+function _rgPhoneResume(){
+  var o=_tgpGet(); if(!o||o.ctx!=='rg'||_rgV.ptok) return;
+  var inp=document.getElementById('rg-phone'); if(inp&&!inp.value) inp.value=o.want;
+  var b=document.getElementById('rg-phone-btn'); if(b) b.disabled=true;
+  _rgSt('rg-phone-st','&#x23F3; Telegram tasdig\'i kutilmoqda...');
+  _tgpPoll(o,_rgPhoneUi(),_rgPhoneOk);
+}
+document.addEventListener('DOMContentLoaded',function(){ setTimeout(_rgPhoneResume,600); });
 function rgEmailChanged(){ var v=document.getElementById('rg-email').value.trim().toLowerCase(); if(_rgV.etok&&v!==_rgV.email){ _rgV.etok=''; _rgSt('rg-email-st','Email o\'zgardi — qayta tasdiqlang.'); } }
 async function rgEmailSend(){
   var em=document.getElementById('rg-email').value.trim();
@@ -8655,16 +8758,20 @@ function renderContactBoxes(){
     var ph=ME.phone?'<b style="text-transform:none">'+_cEsc(ME.phone)+'</b>':'<span style="color:var(--err);text-transform:none">kiritilmagan</span>';
     var em=ME.email?'<b style="text-transform:none">'+_cEsc(ME.email)+'</b>':'<span style="color:var(--err);text-transform:none">kiritilmagan</span>';
     box.innerHTML='<h3 style="margin-bottom:8px">&#x1F4C7; Aloqa ma\'lumotlari</h3>'+
-      '<p style="font-size:13px;color:var(--mut);margin-bottom:10px">Parolni unutsangiz shular orqali tiklaysiz. Telegram ulansa, "Telegram orqali kirish" ham ishlaydi.</p>'+
-      '<div class="fg"><label>&#x1F4F1; Telefon (Telegram): '+ph+'</label>'+
-      '<button type="button" class="btn bpu bsm" id="'+p+'-ct-ph" onclick="ctPhoneStart(\''+p+'\')">'+(ME.phone?'&#x1F504; Almashtirish':'&#x2795; Telegram orqali qo\'shish')+'</button>'+
-      '<div id="'+p+'-ct-phst" style="font-size:13px;margin-top:6px"></div></div>'+
-      '<div class="fg"><label>&#x2709;&#xFE0F; Email: '+em+'</label>'+
+      '<p style="font-size:13px;color:var(--mut);margin-bottom:12px">Parolni unutsangiz shular orqali tiklaysiz. Telegram ulansa, "Telegram orqali kirish" ham ishlaydi.</p>'+
+      '<div class="fg"><label>&#x1F4F1; Telefon (Telegram)</label>'+
+      '<div style="font-size:14px;margin:2px 0 8px;word-break:break-all">Hozirgi: '+ph+'</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="tel" id="'+p+'-ct-phin" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" style="flex:1;min-width:150px">'+
+      '<button type="button" class="btn bpu bsm" id="'+p+'-ct-ph" onclick="ctPhoneStart(\''+p+'\')">'+(ME.phone?'&#x1F504; Almashtirish':'&#x2795; Qo\'shish')+'</button></div>'+
+      '<div id="'+p+'-ct-phst" style="font-size:13px;margin-top:6px;color:var(--mut)">Telegram\'dagi raqamingizni yozing &#8594; tugmani bosing &#8594; botda "Telefon raqamni yuborish" &#8594; "Saytga qaytish".</div></div>'+
+      '<div class="fg"><label>&#x1F4E7; Email</label>'+
+      '<div style="font-size:14px;margin:2px 0 8px;word-break:break-all">Hozirgi: '+em+'</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="email" id="'+p+'-ct-em" placeholder="'+(ME.email?'Yangi email':'masalan@gmail.com')+'" autocomplete="off" style="flex:1;min-width:150px">'+
       '<button type="button" class="btn bpu bsm" id="'+p+'-ct-emb" onclick="ctEmailSend(\''+p+'\')">Kod yuborish</button></div>'+
       '<div id="'+p+'-ct-coderow" style="display:none;gap:8px;margin-top:8px"><input type="text" id="'+p+'-ct-code" inputmode="numeric" maxlength="6" placeholder="6 xonali kod" style="flex:1">'+
       '<button type="button" class="btn bpu bsm" onclick="ctEmailCheck(\''+p+'\')">Tasdiqlash</button></div>'+
       '<div id="'+p+'-ct-emst" style="font-size:13px;margin-top:6px"></div></div>';
+    var o=_tgpGet(); if(o&&o.ctx===p) setTimeout(function(){ _ctPhoneResume(p); },300);
   });
 }
 function _ctSt(id,t,ok){ var e=document.getElementById(id); if(e){ e.style.color=ok===true?'var(--ok)':ok===false?'var(--err)':''; e.innerHTML=t; } }
@@ -8676,24 +8783,25 @@ async function _ctSave(body){
   try{ var db=getDB(); db.users.forEach(function(u){ if(u.id===ME.id){ u.phone=ME.phone; u.tgId=ME.tgId; u.email=ME.email; } });
     localStorage.setItem(SK,JSON.stringify(db)); }catch(e){}
 }
+function _ctPhoneUi(p){ var b=document.getElementById(p+'-ct-ph');
+  return {st:function(t,ok){ _ctSt(p+'-ct-phst',t,ok); }, done:function(){ if(b) b.disabled=false; }}; }
+function _ctPhoneOk(p){ return async function(s){
+  try{ await _ctSave({ptok:s.ptok}); renderContactBoxes(); _ctSt(p+'-ct-phst','&#x2705; Telefon saqlandi: <b>'+_cEsc(s.phone)+'</b>',true); }
+  catch(e){ var b=document.getElementById(p+'-ct-ph'); if(b) b.disabled=false; _ctSt(p+'-ct-phst','&#x274C; '+e.message,false); } }; }
 async function ctPhoneStart(p){
+  var inp=document.getElementById(p+'-ct-phin'), want=_phNorm(inp&&inp.value);
+  if(!want){ _ctSt(p+'-ct-phst','Telefon raqamni to\'liq yozing, masalan: +998 90 123 45 67',false); if(inp) inp.focus(); return; }
+  if(ME.phone&&want===_phNorm(ME.phone)){ _ctSt(p+'-ct-phst','Bu raqam allaqachon saqlangan',false); return; }
   var b=document.getElementById(p+'-ct-ph'); b.disabled=true;
-  try{
-    var r=await fetch(DB_SERVER+'/tg_phone_start',{method:'POST'}); var j=await r.json();
-    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-    _tgOpen(j.url);
-    _ctSt(p+'-ct-phst','&#x23F3; Telegram\'da <b>"Telefon raqamni yuborish"</b> ni bosing, so\'ng shu sahifaga qayting. Kutilmoqda...');
-    clearInterval(_ct.poll); var t0=Date.now();
-    _ct.poll=setInterval(async function(){
-      if(Date.now()-t0>15*60*1000){ clearInterval(_ct.poll); b.disabled=false; _ctSt(p+'-ct-phst','Vaqt tugadi. Qayta bosing.',false); return; }
-      try{ var s=await (await fetch(DB_SERVER+'/tg_phone_status?code='+encodeURIComponent(j.code))).json();
-        if(s.st==='ok'){ clearInterval(_ct.poll);
-          try{ await _ctSave({ptok:s.ptok}); renderContactBoxes(); _ctSt(p+'-ct-phst','&#x2705; Telefon saqlandi.',true); }
-          catch(e){ b.disabled=false; _ctSt(p+'-ct-phst','&#x274C; '+e.message,false); } }
-        else if(s.st==='expired'){ clearInterval(_ct.poll); b.disabled=false; _ctSt(p+'-ct-phst','Havola eskirdi. Qayta bosing.',false); }
-      }catch(e){}
-    },2000);
-  }catch(e){ if(w&&!w.closed) w.close(); b.disabled=false; _ctSt(p+'-ct-phst','&#x274C; '+e.message,false); }
+  try{ await _tgpStart(want,p,_ctPhoneUi(p),_ctPhoneOk(p)); }
+  catch(e){ b.disabled=false; _ctSt(p+'-ct-phst','&#x274C; '+e.message,false); }
+}
+function _ctPhoneResume(p){
+  var o=_tgpGet(); if(!o||o.ctx!==p) return;
+  var inp=document.getElementById(p+'-ct-phin'); if(inp) inp.value=o.want;
+  var b=document.getElementById(p+'-ct-ph'); if(b) b.disabled=true;
+  _ctSt(p+'-ct-phst','&#x23F3; Telegram tasdig\'i kutilmoqda...');
+  _tgpPoll(o,_ctPhoneUi(p),_ctPhoneOk(p));
 }
 async function ctEmailSend(p){
   var em=document.getElementById(p+'-ct-em').value.trim();
