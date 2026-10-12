@@ -304,7 +304,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
           <p class="ts tm" id="rg-phone-st" style="margin-top:5px">Raqamni yozib tugmani bosing &#8594; Telegram ochiladi &#8594; botda "Telefon raqamni yuborish" &#8594; "Saytga qaytish". Telefon qo'shsangiz — parolni Telegram orqali tiklash mumkin.</p>
         </div>
         <div id="rg-email-fg" class="fg" style="display:none">
-          <label>Email <span class="ts tm">(ixtiyoriy)</span></label>
+          <label>Email <span class="ts tm" id="rg-email-hint">(ixtiyoriy)</span></label>
           <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="email" id="rg-email" placeholder="masalan@gmail.com" autocomplete="off" oninput="rgEmailChanged()" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-email-btn" onclick="rgEmailSend()">Kod yuborish</button></div>
           <div id="rg-ecode-row" style="display:none;gap:8px;margin-top:8px;flex-wrap:wrap"><input type="text" id="rg-ecode" inputmode="numeric" maxlength="6" placeholder="Emailga kelgan 6 xonali kod" style="flex:1;min-width:150px"><button type="button" class="btn bp bsm" onclick="rgEmailCheck()">Tasdiqlash</button></div>
           <p class="ts" id="rg-email-st" style="margin-top:5px"></p>
@@ -2830,6 +2830,7 @@ function goAuth(role){
   document.getElementById('rg-subj-fg').style.display=isT?'block':'none';
   document.getElementById('rg-tcls-fg').style.display=isT?'block':'none';
   document.getElementById('rg-email-fg').style.display='block';
+  var _eHint=document.getElementById('rg-email-hint'); if(_eHint) _eHint.textContent=isT?'(majburiy)':'(ixtiyoriy)';
   document.getElementById('tab-rg').style.display=isA?'none':'flex';
   document.getElementById('auth-err').innerHTML='';
   var db=getDB();
@@ -2946,8 +2947,9 @@ async function doRegister(){
   if(authRole==='student'&&!cls){showErr("Sinf tanlang!");return;}
   if(authRole==='teacher'&&!subj){showErr("Fan tanlang!");return;}
   if(authRole==='teacher'&&!tclasses.length){showErr("Kamida bitta sinf yozing (masalan: 5A, 5B)!");return;}
+  if(authRole==='teacher'&&!email){showErr("Ustoz uchun email majburiy! Admin qarori va parol tiklash emailga yuboriladi.");return;}
   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr("Email noto'g'ri formatda!");return;}
-  if(email&&!_rgV.etok){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting, yoki email maydonini bo'sh qoldiring.");return;}
+  if(email&&!_rgV.etok){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting"+(authRole!=='teacher'?", yoki email maydonini bo'sh qoldiring.":".")); return;}
   if(email&&_rgV.etok&&_rgV.email!==email.toLowerCase()){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting.");return;}
   var db=getDB();
   var dup=db.users.filter(function(x){return x.login===user;});
