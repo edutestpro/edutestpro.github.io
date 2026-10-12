@@ -2538,12 +2538,17 @@ function getTopics() { var qs=getAllQs(),t=[]; qs.forEach(function(q){if(q.topic
 // oquvchi tomonidagi getAllQs() dagi mantiq bilan bir xil tarzda.
 // 2026-10-12: ustoz har fan uchun alohida sinflar belgilashi mumkin (teachClassesBySubj).
 // Fan bo'yicha ro'yxat bo'lmasa — umumiy teachClasses (eski hisoblar shunday ishlaydi).
-function tClasses(t,subj){ var m=t&&t.teachClassesBySubj; if(subj&&m&&m[subj]&&m[subj].length) return m[subj]; return (t&&t.teachClasses)||[]; }
-function tTeachesCls(t,subj,cls){ var c=tClasses(t,subj); return !c.length || !!(cls && c.indexOf(cls)>=0); }
+// classesBySubj (2026-10-12): {fan:[sinflar]} — har fanning O'Z ro'yxati, aniq. Unda fan bo'lsa (bo'sh bo'lsa ham)
+// faqat shu ro'yxat ishlaydi. Eski hisoblarda yo'q — teachClassesBySubj/teachClasses bo'yicha (eskicha).
+function tClasses(t,subj){ var c=t&&t.classesBySubj; if(c&&subj&&Array.isArray(c[subj])) return c[subj];
+  var m=t&&t.teachClassesBySubj; if(subj&&m&&m[subj]&&m[subj].length) return m[subj]; return (t&&t.teachClasses)||[]; }
+function tTeachesCls(t,subj,cls){
+  var c=t&&t.classesBySubj; if(c&&subj&&Array.isArray(c[subj])) return !!(cls&&c[subj].indexOf(cls)>=0);
+  var l=tClasses(t,subj); return !l.length || !!(cls && l.indexOf(cls)>=0); }
 function myTeacherSubjects(){
   if(!ME||ME.role!=='teacher') return [];
   var out=[]; function add(v){ if(v&&out.indexOf(v)<0) out.push(v); }
-  add(ME.subject); Object.keys(ME.teachClassesBySubj||{}).forEach(add);
+  add(ME.subject); Object.keys(ME.classesBySubj||{}).forEach(add); Object.keys(ME.teachClassesBySubj||{}).forEach(add);
   (getDB().userQs||[]).forEach(function(q){ if(q.teacherId===ME.id) add(q.subject); });
   return out;
 }
@@ -2589,13 +2594,34 @@ function myVisibleResults(){
 // ularning dars beradigan sinflaridan olinadi.
 var STD_CLASSES=['5A','5B','5V','6A','6B','6V','7A','7B','7V','8A','8B','8V','9A','9B','9V','10A','10B','10V','11A','11B','11V'];
 function _clsSort(a){ return a.sort(function(x,y){ var nx=parseInt(x),ny=parseInt(y); if(!isNaN(nx)&&!isNaN(ny)&&nx!==ny) return nx-ny; if(isNaN(nx)!==isNaN(ny)) return isNaN(nx)?1:-1; return String(x).localeCompare(String(y),'uz'); }); }
+// Ustozning fanlar bo'yicha sinflari: {fan:[...]} (eski hisoblar uchun bir martalik o'tkazish bilan)
+function subjClassMap(u){
+  if(!u) return {};
+  if(u.classesBySubj&&typeof u.classesBySubj==='object') return JSON.parse(JSON.stringify(u.classesBySubj));
+  var subs=[]; function add(v){ if(v&&subs.indexOf(v)<0) subs.push(v); }
+  add(u.subject); Object.keys(u.teachClassesBySubj||{}).forEach(add);
+  (getDB().userQs||[]).forEach(function(q){ if(q.teacherId===u.id) add(q.subject); });
+  var m={}, tb=u.teachClassesBySubj||{};
+  subs.forEach(function(sb){ m[sb]=(tb[sb]&&tb[sb].length?tb[sb]:(u.teachClasses||[])).slice(); });
+  if(!subs.length) m[u.subject||'']=(u.teachClasses||[]).slice();
+  return m;
+}
 function userClassList(u){
   if(!u) return [];
-  if(Array.isArray(u.myClasses)) return u.myClasses.slice();
-  var out=[]; function add(c){ if(c&&out.indexOf(c)<0) out.push(c); }
-  (u.teachClasses||[]).forEach(add);
-  Object.keys(u.teachClassesBySubj||{}).forEach(function(k){ (u.teachClassesBySubj[k]||[]).forEach(add); });
+  var m=subjClassMap(u), out=[];
+  Object.keys(m).forEach(function(k){ (m[k]||[]).forEach(function(c){ if(c&&out.indexOf(c)<0) out.push(c); }); });
   return _clsSort(out);
+}
+// Ustozning fan->sinflar xaritasini saqlaydi; umumiy teachClasses/myClasses (o'quvchilar, natijalar uchun) — birlashma
+function _setMyClassMap(m){
+  var clean={}, all=[];
+  Object.keys(m).forEach(function(k){ var l=(m[k]||[]).map(function(c){ return String(c).trim(); }).filter(function(c,i,a){ return c&&a.indexOf(c)===i; });
+    clean[k]=_clsSort(l); l.forEach(function(c){ if(all.indexOf(c)<0) all.push(c); }); });
+  all=_clsSort(all);
+  var db=getDB();
+  db.users.forEach(function(u){ if(u.id===ME.id){ u.classesBySubj=clean; u.teachClassesBySubj=JSON.parse(JSON.stringify(clean)); u.teachClasses=all; u.myClasses=all;
+    ME.classesBySubj=u.classesBySubj; ME.teachClassesBySubj=u.teachClassesBySubj; ME.teachClasses=all; ME.myClasses=all; } });
+  saveDB(db);
 }
 function myClassList(){
   if(ME&&ME.role==='teacher') return userClassList(ME);
@@ -2616,24 +2642,21 @@ function fillStudentClassSel(){
   sel.innerHTML='<option value="">-- Sinf tanlang --</option>'+list.map(function(c){ return '<option'+(c===cur?' selected':'')+'>'+_cEsc(c)+'</option>'; }).join('');
 }
 function _saveMyClassList(list){
-  list=_clsSort(list.filter(function(c,i){ return c&&list.indexOf(c)===i; }));
-  var db=getDB();
-  db.users.forEach(function(u){ if(u.id===ME.id){
-    u.myClasses=list;
-    u.teachClasses=(u.teachClasses||[]).filter(function(c){ return list.indexOf(c)>=0; });
-    if(u.teachClassesBySubj) Object.keys(u.teachClassesBySubj).forEach(function(k){ u.teachClassesBySubj[k]=u.teachClassesBySubj[k].filter(function(c){ return list.indexOf(c)>=0; }); });
-    ME.myClasses=u.myClasses; ME.teachClasses=u.teachClasses; ME.teachClassesBySubj=u.teachClassesBySubj;
-  } });
-  saveDB(db);
+  // Sinflar bo'limidan o'chirilganda — hamma fanlardan olib tashlanadi
+  var m=subjClassMap(ME); Object.keys(m).forEach(function(k){ m[k]=m[k].filter(function(c){ return list.indexOf(c)>=0; }); });
+  _setMyClassMap(m);
 }
-function addMyClassesFrom(inputId){
+function _parseCls(v){ return String(v||'').split(',').map(function(c){ return c.trim(); }).filter(Boolean); }
+function addMyClassesFrom(inputId, subj){
   var inp=document.getElementById(inputId); if(!inp) return 0;
-  var typed=inp.value.split(',').map(function(c){ return c.trim(); }).filter(Boolean);
+  var typed=_parseCls(inp.value);
   if(!typed.length){ alert("Sinf nomini yozing (bir nechta bo'lsa vergul bilan)"); return 0; }
-  var list=myClassList(), n=0;
-  typed.forEach(function(c){ if(list.indexOf(c)<0){ list.push(c); n++; } });
-  if(ME&&ME.role==='teacher') _saveMyClassList(list);
-  else { var db=getDB(); db.classes=_clsSort(list); saveDB(db); }
+  var n=0;
+  if(ME&&ME.role==='teacher'){
+    var m=subjClassMap(ME), sb=(subj!==undefined)?subj:(ME.subject||Object.keys(m)[0]||''); m[sb]=m[sb]||[];
+    typed.forEach(function(c){ if(m[sb].indexOf(c)<0){ m[sb].push(c); n++; } });
+    _setMyClassMap(m);
+  } else { var db=getDB(); db.classes=db.classes||[]; typed.forEach(function(c){ if(db.classes.indexOf(c)<0){ db.classes.push(c); n++; } }); _clsSort(db.classes); saveDB(db); }
   inp.value='';
   return n;
 }
@@ -4684,8 +4707,16 @@ function showProg(enc){
 }
 function addCls(){
   var c=prompt("Yangi sinf nomi (bir nechta bo'lsa vergul bilan):"); if(!c||!c.trim()) return;
+  var sb;
+  if(ME&&ME.role==='teacher'){
+    var subs=myTeacherSubjects();
+    if(subs.length>1){
+      var k=prompt("Qaysi fan uchun? Raqamini yozing:\n"+subs.map(function(x,i){ return (i+1)+') '+subjName(x); }).join('\n'),'1');
+      if(k===null) return; sb=subs[(parseInt(k,10)||1)-1]; if(sb===undefined){ alert("Noto'g'ri raqam"); return; }
+    } else sb=subs[0]||ME.subject||'';
+  }
   var tmp=document.createElement('input'); tmp.id='_tmp_cls'; tmp.style.display='none'; tmp.value=c; document.body.appendChild(tmp);
-  addMyClassesFrom('_tmp_cls'); tmp.remove(); loadClasses(); try{ renderMyClassesBySubj(); }catch(e){}
+  addMyClassesFrom('_tmp_cls', sb); tmp.remove(); loadClasses(); try{ renderMyClassesBySubj(); }catch(e){}
 }
 function delCls(enc){
   var c=decodeURIComponent(enc); if(!confirm(c+" sinfini ro'yxatingizdan o'chirasizmi? (O'quvchilar va natijalar o'chmaydi)")) return;
@@ -5226,38 +5257,34 @@ function initSettings(){
 
 function renderMyClassesBySubj(){
   var box=document.getElementById('settings-tcls-list'); if(!box||!ME) return;
-  var db=getDB(), subs=myTeacherSubjects(); if(!subs.length) subs=[''];
-  var by=ME.teachClassesBySubj||{};
-  box.style.display='block'; box.style.maxHeight='none';
-  box.innerHTML=subs.map(function(sb){
-    var mine=(sb&&by[sb]&&by[sb].length)?by[sb]:(ME.teachClasses||[]);
-    var chips=myClassList().map(function(c){
-      var cEsc=String(c).replace(/"/g,'&quot;');
-      return '<label style="display:flex;align-items:center;gap:5px;padding:5px 9px;background:#f1f5f9;border-radius:7px;cursor:pointer;font-size:13px"><input type="checkbox" class="settings-tcls-chk" data-s="'+sb+'" value="'+cEsc+'" '+(mine.indexOf(c)>=0?'checked':'')+'> '+_cEsc(c)+'</label>';
+  var m=subjClassMap(ME), subs=myTeacherSubjects();
+  Object.keys(m).forEach(function(k){ if(subs.indexOf(k)<0) subs.push(k); }); if(!subs.length) subs=[ME.subject||''];
+  box.style.display='block'; box.style.maxHeight='none'; box.style.overflow='visible';
+  box.innerHTML=subs.map(function(sb,i){
+    var list=m[sb]||[];
+    var chips=list.map(function(c){
+      return '<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;background:#eef2ff;border-radius:8px;font-size:13px;font-weight:600">'+_cEsc(c)+
+        '<button type="button" title="O\'chirish" onclick="delClsSubj(\''+encodeURIComponent(sb)+'\',\''+encodeURIComponent(c)+'\')" style="border:none;background:#fee2e2;color:#b91c1c;border-radius:6px;width:22px;height:22px;cursor:pointer;line-height:1">&#x2715;</button></span>';
     }).join('');
-    return (subs.length>1?'<div style="font-weight:700;margin:8px 0 6px">'+subjEmoji(sb)+' '+_cEsc(subjName(sb))+'</div>':'')+
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto">'+chips+'</div>';
-  }).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:10px 0">')+
-    (myClassList().length?'':'<p class="ts tm">Hali sinf yo\'q — pastdan qo\'shing.</p>')+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><input type="text" id="my-cls-add" placeholder="Yangi sinf: masalan 7A yoki Fizika to\'garagi" style="flex:1;min-width:150px">'+
-    '<button type="button" class="btn bpu bsm" onclick="if(addMyClassesFrom(\'my-cls-add\')!==0){renderMyClassesBySubj();try{loadClasses();}catch(e){}}">+ Sinf qo\'shish</button></div>';
+    return (subs.length>1||sb?'<div style="font-weight:700;margin:6px 0 8px">'+subjEmoji(sb)+' '+_cEsc(subjName(sb)||'Fan')+' <span class="ts tm" style="font-weight:400">— '+list.length+' ta sinf</span></div>':'')+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">'+(chips||'<span class="ts" style="color:var(--err)">Sinf yo\'q — bu fan testlarini hech kim ko\'rmaydi. Pastdan qo\'shing.</span>')+'</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><input type="text" id="cls-add-'+i+'" placeholder="Masalan: 7A, 7B yoki '+(sb==='phys'?'Fizika to\'garagi':'to\'garak')+'" style="flex:1;min-width:150px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addClsSubj(\''+encodeURIComponent(sb)+'\','+i+');}">'+
+      '<button type="button" class="btn bpu bsm" onclick="addClsSubj(\''+encodeURIComponent(sb)+'\','+i+')">+ Qo\'shish</button></div>';
+  }).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:14px 0">');
+  var sv=document.querySelector('button[onclick="saveMyClasses()"]'); if(sv) sv.style.display='none';
 }
-function saveMyClasses(){
-  var subs=myTeacherSubjects(); if(!subs.length) subs=[''];
-  var by={}, all=[], empty=[];
-  subs.forEach(function(sb){
-    var sel=Array.prototype.slice.call(document.querySelectorAll('.settings-tcls-chk[data-s="'+sb+'"]:checked')).map(function(c){return c.value;});
-    if(!sel.length) empty.push(sb?subjName(sb):'');
-    if(sb) by[sb]=sel;
-    sel.forEach(function(c){ if(all.indexOf(c)<0) all.push(c); });
-  });
-  if(empty.length){ document.getElementById('tcls-msg').innerHTML='<div class="alt ar mt8">Har bir fan uchun kamida bitta sinfni belgilang'+(empty[0]?': '+empty.join(', '):'')+'</div>'; return; }
-  var db=getDB();
-  db.users.forEach(function(u){ if(u.id===ME.id){ u.teachClasses=all; u.teachClassesBySubj=by; } });
-  saveDB(db);
-  ME.teachClasses=all; ME.teachClassesBySubj=by;
-  document.getElementById('tcls-msg').innerHTML='<div class="alt as mt8">Saqlandi!'+(subs.length>1?' Har bir fan testlarini faqat o\'sha fan uchun belgilangan sinflar ko\'radi.':' Endi faqat '+all.join(', ')+' sinflari sizning testlaringizni koradi.')+'</div>';
+function addClsSubj(enc,i){
+  var sb=decodeURIComponent(enc), n=addMyClassesFrom('cls-add-'+i, sb);
+  renderMyClassesBySubj(); try{ loadClasses(); }catch(e){}
+  var msg=document.getElementById('tcls-msg'); if(msg&&n) msg.innerHTML='<div class="alt as mt8">'+n+' ta sinf '+_cEsc(subjName(sb))+' ga qo\'shildi va saqlandi.</div>';
 }
+function delClsSubj(enc,cenc){
+  var sb=decodeURIComponent(enc), c=decodeURIComponent(cenc);
+  if(!confirm(c+" sinfini "+subjName(sb)+" ro'yxatidan o'chirasizmi? Bu sinf o'quvchilari endi shu fan testlaringizni ko'rmaydi (o'quvchilar va natijalar o'chmaydi).")) return;
+  var m=subjClassMap(ME); m[sb]=(m[sb]||[]).filter(function(x){ return x!==c; }); _setMyClassMap(m);
+  renderMyClassesBySubj(); try{ loadClasses(); }catch(e){}
+}
+function saveMyClasses(){ _setMyClassMap(subjClassMap(ME)); var msg=document.getElementById('tcls-msg'); if(msg) msg.innerHTML='<div class="alt as mt8">Saqlandi!</div>'; }
 function saveSbConfig(){
   var url=(document.getElementById('sb-url-inp').value||'').trim();
   var key=(document.getElementById('sb-key-inp').value||'').trim();
