@@ -312,8 +312,8 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         </div>
         <div id="rg-tcls-fg" class="fg" style="display:none">
           <label>Qaysi sinf(lar)ga dars berasiz</label>
-          <div id="rg-tcls-list" style="display:flex;flex-wrap:wrap;gap:6px;padding:10px;border:1.5px solid var(--bdr);border-radius:9px;max-height:150px;overflow-y:auto"></div>
-          <p class="ts tm" style="margin-top:5px">Bir nechtasini belgilashingiz mumkin - shu sinflar sizning testlaringizni ko'radi.</p>
+          <input type="text" id="rg-tcls-inp" placeholder="Masalan: 5A, 5B, 7V" autocomplete="off">
+          <p class="ts tm" style="margin-top:5px">Sinflaringizni vergul bilan yozing. Ular faqat sizga ko'rinadi — keyin "Sinflar" bo'limida qo'shish/o'chirish mumkin.</p>
         </div>
         <div class="fg"><label>Login</label><input type="text" id="rg-u" placeholder="Foydalanuvchi nomi" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
         <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="rg-p" placeholder="Parol" style="padding-right:38px" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('rg-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
@@ -680,7 +680,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
     </div>
     <div class="card">
       <h3 style="margin-bottom:8px">&#x1F3EB; Qaysi sinflarga dars berasiz</h3>
-      <p style="font-size:13px;color:var(--mut);margin-bottom:10px">Faqat shu yerda belgilangan sinflardagi o'quvchilar sizning testlaringizni ko'radi. Boshqa sinflarga (va boshqa ustozlarning testlariga) ko'rinmaydi.</p>
+      <p style="font-size:13px;color:var(--mut);margin-bottom:10px">Sinflar ro'yxati faqat sizniki — boshqa ustozlar ko'rmaydi. Belgilangan sinflardagi o'quvchilar sizning testlaringizni ko'radi.</p>
       <div id="settings-tcls-list" style="display:flex;flex-wrap:wrap;gap:6px;padding:10px;border:1.5px solid var(--bdr);border-radius:9px;max-height:180px;overflow-y:auto"></div>
       <button class="btn bpu bsm mt8" onclick="saveMyClasses()">Saqlash</button>
       <div id="tcls-msg"></div>
@@ -702,12 +702,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
         <tbody id="users-tbody"></tbody></table>
       </div>
     </div>
-    <div class="card">
-      <h3 style="margin-bottom:8px">Sinf qo'shish</h3>
-      <p class="ts tm" style="margin-bottom:8px">Faqat O'ZINGIZGA kerakli sinflarni qo'shing — boshqa ustozlar ko'rmaydi. Bir nechta bo'lsa vergul bilan ajrating.</p>
-      <div class="fg"><input type="text" id="cls-inp" placeholder="Masalan: 10A,10B,11A"></div>
-      <button class="btn bpu bsm" onclick="saveClsList()">+ Qo'shish</button>
-      <div id="cls-msg"></div>
     </div>
     <div class="card">
       <h3 style="margin-bottom:6px">⏱ Timer sozlamalari (standart)</h3>
@@ -996,7 +990,7 @@ var _authToken=null;
 try{ var _es0=JSON.parse(sessionStorage.getItem('et_sess')||'null'); if(_es0&&_es0.t) _authToken=_es0.t; }catch(e){}
 if(!_authToken){ try{ var _lp0=JSON.parse(localStorage.getItem('et_sess_persist')||'null'); if(_lp0&&_lp0.t&&_lp0.exp&&Date.now()<_lp0.exp) _authToken=_lp0.t; }catch(e){} }
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|report_issue|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -2590,10 +2584,61 @@ function myVisibleResults(){
   var db=getDB();
   return (db.results||[]).filter(resultVisibleToMe);
 }
-function myVisibleClassNames(){
+// 2026-10-12: sinflar endi har ustozning O'ZINIKI (u.myClasses). Avval bitta umumiy db.classes
+// bo'lib, bir ustoz qo'shgan sinf butun saytga chiqardi. Eski hisoblarda myClasses yo'q —
+// ularning dars beradigan sinflaridan olinadi.
+var STD_CLASSES=['5A','5B','5V','6A','6B','6V','7A','7B','7V','8A','8B','8V','9A','9B','9V','10A','10B','10V','11A','11B','11V'];
+function _clsSort(a){ return a.sort(function(x,y){ var nx=parseInt(x),ny=parseInt(y); if(!isNaN(nx)&&!isNaN(ny)&&nx!==ny) return nx-ny; if(isNaN(nx)!==isNaN(ny)) return isNaN(nx)?1:-1; return String(x).localeCompare(String(y),'uz'); }); }
+function userClassList(u){
+  if(!u) return [];
+  if(Array.isArray(u.myClasses)) return u.myClasses.slice();
+  var out=[]; function add(c){ if(c&&out.indexOf(c)<0) out.push(c); }
+  (u.teachClasses||[]).forEach(add);
+  Object.keys(u.teachClassesBySubj||{}).forEach(function(k){ (u.teachClassesBySubj[k]||[]).forEach(add); });
+  return _clsSort(out);
+}
+function myClassList(){
+  if(ME&&ME.role==='teacher') return userClassList(ME);
+  var db=getDB(), out=(db.classes||[]).slice();
+  (db.users||[]).forEach(function(u){ if(u.role==='teacher') userClassList(u).forEach(function(c){ if(out.indexOf(c)<0) out.push(c); }); });
+  return _clsSort(out);
+}
+// O'quvchi ro'yxatdan o'tishda: shu maktab ustozlarining sinflari (maktab yozilmagan yoki
+// unda hali sinf yo'q bo'lsa — standart 5A..11V)
+function schoolClassList(maktab){
+  var ns=normSchool(maktab), out=[];
+  if(ns) (getDB().users||[]).forEach(function(u){ if(u.role==='teacher'&&normSchool(u.maktab)===ns) userClassList(u).forEach(function(c){ if(out.indexOf(c)<0) out.push(c); }); });
+  return out.length?_clsSort(out):STD_CLASSES.slice();
+}
+function fillStudentClassSel(){
+  var sel=document.getElementById('rg-cls'); if(!sel) return;
+  var cur=sel.value, list=schoolClassList((document.getElementById('rg-maktab')||{}).value);
+  sel.innerHTML='<option value="">-- Sinf tanlang --</option>'+list.map(function(c){ return '<option'+(c===cur?' selected':'')+'>'+_cEsc(c)+'</option>'; }).join('');
+}
+function _saveMyClassList(list){
+  list=_clsSort(list.filter(function(c,i){ return c&&list.indexOf(c)===i; }));
   var db=getDB();
-  var cls=myTeachClasses();
-  return cls ? (db.classes||[]).filter(function(c){return cls.indexOf(c)>=0;}) : (db.classes||[]);
+  db.users.forEach(function(u){ if(u.id===ME.id){
+    u.myClasses=list;
+    u.teachClasses=(u.teachClasses||[]).filter(function(c){ return list.indexOf(c)>=0; });
+    if(u.teachClassesBySubj) Object.keys(u.teachClassesBySubj).forEach(function(k){ u.teachClassesBySubj[k]=u.teachClassesBySubj[k].filter(function(c){ return list.indexOf(c)>=0; }); });
+    ME.myClasses=u.myClasses; ME.teachClasses=u.teachClasses; ME.teachClassesBySubj=u.teachClassesBySubj;
+  } });
+  saveDB(db);
+}
+function addMyClassesFrom(inputId){
+  var inp=document.getElementById(inputId); if(!inp) return 0;
+  var typed=inp.value.split(',').map(function(c){ return c.trim(); }).filter(Boolean);
+  if(!typed.length){ alert("Sinf nomini yozing (bir nechta bo'lsa vergul bilan)"); return 0; }
+  var list=myClassList(), n=0;
+  typed.forEach(function(c){ if(list.indexOf(c)<0){ list.push(c); n++; } });
+  if(ME&&ME.role==='teacher') _saveMyClassList(list);
+  else { var db=getDB(); db.classes=_clsSort(list); saveDB(db); }
+  inp.value='';
+  return n;
+}
+function myVisibleClassNames(){
+  return myClassList();
 }
 function getQsByTopic(t) { return getAllQs().filter(function(q){return q.topic===t;}); }
 // Ustoz panelida faqat OZ savollarini korsatish uchun (ustozlar orasida malumot ajratish)
@@ -2757,14 +2802,11 @@ function goAuth(role){
   document.getElementById('auth-err').innerHTML='';
   var db=getDB();
   var sel=document.getElementById('rg-cls');
-  sel.innerHTML='<option value="">-- Sinf tanlang --</option>'+db.classes.map(function(c){return '<option>'+c+'</option>';}).join('');
+  fillStudentClassSel();
+  var _mk=document.getElementById('rg-maktab'); if(_mk) _mk.oninput=fillStudentClassSel;
   var subjSel=document.getElementById('rg-subj');
   subjSel.innerHTML='<option value="">-- Fan tanlang --</option>'+SUBJECTS.map(function(s){return '<option value="'+s.v+'">'+s.n+'</option>';}).join('');
-  var tclsList=document.getElementById('rg-tcls-list');
-  tclsList.innerHTML=db.classes.map(function(c){
-    var cEsc=c.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    return '<label style="display:flex;align-items:center;gap:5px;padding:5px 9px;background:#f1f5f9;border-radius:7px;cursor:pointer;font-size:13px"><input type="checkbox" class="rg-tcls-chk" value="'+cEsc+'"> '+c+'</label>';
-  }).join('');
+
   var vilSel=document.getElementById('rg-vil');
   vilSel.innerHTML='<option value="">-- Belgilanmagan --</option>'+Object.keys(UZ_REGIONS).map(function(v){return '<option>'+v+'</option>';}).join('');
   document.getElementById('rg-tum').innerHTML='<option value="">-- Avval viloyatni tanlang --</option>';
@@ -2858,7 +2900,7 @@ async function doRegister(){
   var cls=authRole==='student'?document.getElementById('rg-cls').value:'';
   var subj=authRole==='teacher'?document.getElementById('rg-subj').value:'';
   var email=document.getElementById('rg-email').value.trim();
-  var tclasses=authRole==='teacher'?Array.prototype.slice.call(document.querySelectorAll('.rg-tcls-chk:checked')).map(function(c){return c.value;}):[];
+  var tclasses=authRole==='teacher'?(document.getElementById('rg-tcls-inp').value||'').split(',').map(function(c){return c.trim();}).filter(function(c,i,a){return c&&a.indexOf(c)===i;}):[];
   var vil=document.getElementById('rg-vil').value;
   var tum=document.getElementById('rg-tum').value;
   var maktab=document.getElementById('rg-maktab').value.trim();
@@ -2871,7 +2913,7 @@ async function doRegister(){
   if(!maktab){showErr("Maktab nomini kiriting!");return;}
   if(authRole==='student'&&!cls){showErr("Sinf tanlang!");return;}
   if(authRole==='teacher'&&!subj){showErr("Fan tanlang!");return;}
-  if(authRole==='teacher'&&!tclasses.length){showErr("Kamida bitta sinfni belgilang!");return;}
+  if(authRole==='teacher'&&!tclasses.length){showErr("Kamida bitta sinf yozing (masalan: 5A, 5B)!");return;}
   if(!email){showErr("Email kiriting! Parolni unutsangiz, tiklash kodi shu emailga yuboriladi.");return;}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr("Email noto'g'ri formatda!");return;}
   if(!_rgV.ptok){showErr("Telefon raqamni Telegram orqali tasdiqlang (\"Telegram orqali tasdiqlash\" tugmasi).");return;}
@@ -2883,7 +2925,7 @@ async function doRegister(){
   // egallaydi. Yangi ustoz hisobi darhol ISHLAY OLMAYDI (approved:false) -
   // admin uni "Tasdiqlanishi kerak" royxatida korib (ism/maktab/sinflar orqali)
   // tekshirib, keyin tasdiqlaydi. Shu payGacha ustoz kira olmaydi.
-  var nu={id:'u'+Date.now(),role:authRole,name:name,login:user,pass:pass,cls:cls,subject:subj,email:email,teachClasses:tclasses,viloyat:vil,tuman:tum,maktab:maktab,plan:'free',approved:(authRole!=='teacher'),usage:{month:curMonthKey(),images:0,pages:0,questions:0}};
+  var nu={id:'u'+Date.now(),role:authRole,name:name,login:user,pass:pass,cls:cls,subject:subj,email:email,teachClasses:tclasses,myClasses:tclasses,viloyat:vil,tuman:tum,maktab:maktab,plan:'free',approved:(authRole!=='teacher'),usage:{month:curMonthKey(),images:0,pages:0,questions:0}};
   nu.phone=_rgV.phone; nu.tgId=_rgV.tg; nu.email=_rgV.email; nu._ptok=_rgV.ptok; nu._etok=_rgV.etok;
   db.users.push(nu);
   saveDB(db);
@@ -4640,8 +4682,18 @@ function showProg(enc){
   }).join('');
   document.getElementById('prog-panel').scrollIntoView({behavior:'smooth'});
 }
-function addCls(){var c=prompt("Sinf nomini kiriting:");if(!c||!c.trim())return;var db=getDB();if(db.classes.indexOf(c.trim())<0){db.classes.push(c.trim());saveDB(db);loadClasses();}}
-function delCls(enc){var c=decodeURIComponent(enc);if(!confirm(c+" o'chirasizmi?"))return;var db=getDB();db.classes=db.classes.filter(function(x){return x!==c;});saveDB(db);loadClasses();document.getElementById('prog-panel').style.display='none';}
+function addCls(){
+  var c=prompt("Yangi sinf nomi (bir nechta bo'lsa vergul bilan):"); if(!c||!c.trim()) return;
+  var tmp=document.createElement('input'); tmp.id='_tmp_cls'; tmp.style.display='none'; tmp.value=c; document.body.appendChild(tmp);
+  addMyClassesFrom('_tmp_cls'); tmp.remove(); loadClasses(); try{ renderMyClassesBySubj(); }catch(e){}
+}
+function delCls(enc){
+  var c=decodeURIComponent(enc); if(!confirm(c+" sinfini ro'yxatingizdan o'chirasizmi? (O'quvchilar va natijalar o'chmaydi)")) return;
+  if(ME&&ME.role==='teacher') _saveMyClassList(myClassList().filter(function(x){ return x!==c; }));
+  else { var db=getDB(); db.classes=(db.classes||[]).filter(function(x){return x!==c;}); saveDB(db); }
+  loadClasses(); try{ renderMyClassesBySubj(); }catch(e){}
+  document.getElementById('prog-panel').style.display='none';
+}
 
 function changeMyPassword(prefix){
   prefix=prefix||'pw';
@@ -4691,7 +4743,7 @@ function renderAdminOverview(){
     '<div class="sc"><div class="sn">'+qs.length+'</div><div class="sl">Savollar</div></div>'+
     '<div class="sc"><div class="sn">'+exam.length+'</div><div class="sl">Imtihonlar</div></div>'+
     '<div class="sc"><div class="sn">'+avg+'%</div><div class="sl">O\'rtacha ball</div></div>'+
-    '<div class="sc"><div class="sn">'+(db.classes||[]).length+'</div><div class="sl">Sinflar</div></div>'+
+    '<div class="sc"><div class="sn">'+myClassList().length+'</div><div class="sl">Sinflar</div></div>'+
     '<div class="sc" style="border:2px solid var(--accent)"><div class="sn" style="color:var(--purd)">&#x2B50; '+proCount+'</div><div class="sl">Pro obunachi (ustoz)</div></div>'+
     '<div class="sc"><div class="sn">'+freeCount+'</div><div class="sl">Bepul rejadagi ustoz</div></div>';
   // Xotira holatini har safar "Umumiy" bo'limi ochilganda avtomatik yuklaymiz -
@@ -5144,7 +5196,6 @@ function toggleExamMode(on){
 function initSettings(){
   var db=getDB();
   renderUsageCard();
-  document.getElementById('cls-inp').value=(db.classes||[]).join(',');
   renderUsersT();
   var examOn=ME.examEnabled!==false;
   document.getElementById('exam-toggle').checked=examOn;
@@ -5180,13 +5231,16 @@ function renderMyClassesBySubj(){
   box.style.display='block'; box.style.maxHeight='none';
   box.innerHTML=subs.map(function(sb){
     var mine=(sb&&by[sb]&&by[sb].length)?by[sb]:(ME.teachClasses||[]);
-    var chips=(db.classes||[]).map(function(c){
+    var chips=myClassList().map(function(c){
       var cEsc=String(c).replace(/"/g,'&quot;');
       return '<label style="display:flex;align-items:center;gap:5px;padding:5px 9px;background:#f1f5f9;border-radius:7px;cursor:pointer;font-size:13px"><input type="checkbox" class="settings-tcls-chk" data-s="'+sb+'" value="'+cEsc+'" '+(mine.indexOf(c)>=0?'checked':'')+'> '+_cEsc(c)+'</label>';
     }).join('');
     return (subs.length>1?'<div style="font-weight:700;margin:8px 0 6px">'+subjEmoji(sb)+' '+_cEsc(subjName(sb))+'</div>':'')+
       '<div style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto">'+chips+'</div>';
-  }).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:10px 0">');
+  }).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:10px 0">')+
+    (myClassList().length?'':'<p class="ts tm">Hali sinf yo\'q — pastdan qo\'shing.</p>')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><input type="text" id="my-cls-add" placeholder="Yangi sinf: masalan 7A yoki Fizika to\'garagi" style="flex:1;min-width:150px">'+
+    '<button type="button" class="btn bpu bsm" onclick="if(addMyClassesFrom(\'my-cls-add\')!==0){renderMyClassesBySubj();try{loadClasses();}catch(e){}}">+ Sinf qo\'shish</button></div>';
 }
 function saveMyClasses(){
   var subs=myTeacherSubjects(); if(!subs.length) subs=[''];
@@ -8759,12 +8813,12 @@ function renderContactBoxes(){
     var em=ME.email?'<b style="text-transform:none">'+_cEsc(ME.email)+'</b>':'<span style="color:var(--err);text-transform:none">kiritilmagan</span>';
     box.innerHTML='<h3 style="margin-bottom:8px">&#x1F4C7; Aloqa ma\'lumotlari</h3>'+
       '<p style="font-size:13px;color:var(--mut);margin-bottom:12px">Parolni unutsangiz shular orqali tiklaysiz. Telegram ulansa, "Telegram orqali kirish" ham ishlaydi.</p>'+
-      '<div class="fg"><label>&#x1F4F1; Telefon (Telegram)</label>'+
+      '<div class="fg"><label>Telefon (Telegram)</label>'+
       '<div style="font-size:14px;margin:2px 0 8px;word-break:break-all">Hozirgi: '+ph+'</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="tel" id="'+p+'-ct-phin" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" style="flex:1;min-width:150px">'+
       '<button type="button" class="btn bpu bsm" id="'+p+'-ct-ph" onclick="ctPhoneStart(\''+p+'\')">'+(ME.phone?'&#x1F504; Almashtirish':'&#x2795; Qo\'shish')+'</button></div>'+
       '<div id="'+p+'-ct-phst" style="font-size:13px;margin-top:6px;color:var(--mut)">Telegram\'dagi raqamingizni yozing &#8594; tugmani bosing &#8594; botda "Telefon raqamni yuborish" &#8594; "Saytga qaytish".</div></div>'+
-      '<div class="fg"><label>&#x1F4E7; Email</label>'+
+      '<div class="fg"><label>Email</label>'+
       '<div style="font-size:14px;margin:2px 0 8px;word-break:break-all">Hozirgi: '+em+'</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="email" id="'+p+'-ct-em" placeholder="'+(ME.email?'Yangi email':'masalan@gmail.com')+'" autocomplete="off" style="flex:1;min-width:150px">'+
       '<button type="button" class="btn bpu bsm" id="'+p+'-ct-emb" onclick="ctEmailSend(\''+p+'\')">Kod yuborish</button></div>'+
