@@ -299,16 +299,16 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
           </select>
         </div>
         <div class="fg">
-          <label>Telefon raqam</label>
+          <label>Telefon raqam <span class="ts tm">(ixtiyoriy)</span></label>
           <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="tel" id="rg-phone" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" oninput="rgPhoneChanged()" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-phone-btn" onclick="rgPhoneStart()">&#x1F4F1; Telegram orqali tasdiqlash</button></div>
-          <p class="ts tm" id="rg-phone-st" style="margin-top:5px">Telegram raqamingizni yozing &#8594; tugmani bosing &#8594; botda "Telefon raqamni yuborish" ni bosing &#8594; "Saytga qaytish". Raqamlar mos bo'lsa tasdiqlanadi.</p>
+          <p class="ts tm" id="rg-phone-st" style="margin-top:5px">Raqamni yozib tugmani bosing &#8594; Telegram ochiladi &#8594; botda "Telefon raqamni yuborish" &#8594; "Saytga qaytish". Telefon qo'shsangiz — parolni Telegram orqali tiklash mumkin.</p>
         </div>
         <div id="rg-email-fg" class="fg" style="display:none">
-          <label>Email</label>
+          <label>Email <span class="ts tm">(ixtiyoriy)</span></label>
           <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="email" id="rg-email" placeholder="masalan@gmail.com" autocomplete="off" oninput="rgEmailChanged()" style="flex:1;min-width:150px"><button type="button" class="btn bpu bsm" id="rg-email-btn" onclick="rgEmailSend()">Kod yuborish</button></div>
           <div id="rg-ecode-row" style="display:none;gap:8px;margin-top:8px;flex-wrap:wrap"><input type="text" id="rg-ecode" inputmode="numeric" maxlength="6" placeholder="Emailga kelgan 6 xonali kod" style="flex:1;min-width:150px"><button type="button" class="btn bp bsm" onclick="rgEmailCheck()">Tasdiqlash</button></div>
           <p class="ts" id="rg-email-st" style="margin-top:5px"></p>
-          <p class="ts tm" style="margin-top:5px">Parolni unutsangiz, tiklash kodi shu emailga yuboriladi. Ustozlarga admin qarori ham shu yerga keladi. (Email'ning o'z parolini so'ramaymiz.)</p>
+          <p class="ts tm" style="margin-top:5px">Email qo'shsangiz — parolni unutganingizda tiklash kodi shu yerga keladi. Ustozlarga admin qarori ham emailga yuboriladi. (Email parolingizni so'ramaymiz.)</p>
         </div>
         <div id="rg-tcls-fg" class="fg" style="display:none">
           <label>Qaysi sinf(lar)ga dars berasiz</label>
@@ -2632,14 +2632,23 @@ function myClassList(){
 // O'quvchi ro'yxatdan o'tishda: shu maktab ustozlarining sinflari (maktab yozilmagan yoki
 // unda hali sinf yo'q bo'lsa — standart 5A..11V)
 function schoolClassList(maktab){
-  var ns=normSchool(maktab), out=[];
-  if(ns) (getDB().users||[]).forEach(function(u){ if(u.role==='teacher'&&normSchool(u.maktab)===ns) userClassList(u).forEach(function(c){ if(out.indexOf(c)<0) out.push(c); }); });
-  return out.length?_clsSort(out):STD_CLASSES.slice();
+  var ns=normSchool(maktab), out=[], labels={};
+  if(ns) (getDB().users||[]).forEach(function(u){
+    if(u.role==='teacher'&&normSchool(u.maktab)===ns) userClassList(u).forEach(function(c){
+      if(out.indexOf(c)<0) out.push(c);
+      var isStd=/^\d+[A-ZА-Яa-zа-я]?$/.test(c);
+      if(!isStd){ labels[c]=(u.name||u.login)+' — '+_cEsc(subjName(u.subject)||''); }
+    });
+  });
+  return {list:out.length?_clsSort(out):STD_CLASSES.slice(), labels:labels};
 }
 function fillStudentClassSel(){
   var sel=document.getElementById('rg-cls'); if(!sel) return;
-  var cur=sel.value, list=schoolClassList((document.getElementById('rg-maktab')||{}).value);
-  sel.innerHTML='<option value="">-- Sinf tanlang --</option>'+list.map(function(c){ return '<option'+(c===cur?' selected':'')+'>'+_cEsc(c)+'</option>'; }).join('');
+  var cur=sel.value, r=schoolClassList((document.getElementById('rg-maktab')||{}).value), list=r.list, labels=r.labels;
+  sel.innerHTML='<option value="">-- Sinf tanlang --</option>'+list.map(function(c){
+    var lbl=labels[c]?c+' ('+labels[c]+')':c;
+    return '<option value="'+_cEsc(c)+'"'+(c===cur?' selected':'')+'>'+_cEsc(lbl)+'</option>';
+  }).join('');
 }
 function _saveMyClassList(list){
   // Sinflar bo'limidan o'chirilganda — hamma fanlardan olib tashlanadi
@@ -2937,10 +2946,9 @@ async function doRegister(){
   if(authRole==='student'&&!cls){showErr("Sinf tanlang!");return;}
   if(authRole==='teacher'&&!subj){showErr("Fan tanlang!");return;}
   if(authRole==='teacher'&&!tclasses.length){showErr("Kamida bitta sinf yozing (masalan: 5A, 5B)!");return;}
-  if(!email){showErr("Email kiriting! Parolni unutsangiz, tiklash kodi shu emailga yuboriladi.");return;}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr("Email noto'g'ri formatda!");return;}
-  if(!_rgV.ptok){showErr("Telefon raqamni Telegram orqali tasdiqlang (\"Telegram orqali tasdiqlash\" tugmasi).");return;}
-  if(!_rgV.etok||_rgV.email!==email.toLowerCase()){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting.");return;}
+  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr("Email noto'g'ri formatda!");return;}
+  if(email&&!_rgV.etok){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting, yoki email maydonini bo'sh qoldiring.");return;}
+  if(email&&_rgV.etok&&_rgV.email!==email.toLowerCase()){showErr("Emailni tasdiqlang: \"Kod yuborish\" ni bosing va kelgan kodni kiriting.");return;}
   var db=getDB();
   var dup=db.users.filter(function(x){return x.login===user;});
   if(dup.length){showErr("Bu login band! Boshqa login tanlang.");return;}
@@ -2949,12 +2957,16 @@ async function doRegister(){
   // admin uni "Tasdiqlanishi kerak" royxatida korib (ism/maktab/sinflar orqali)
   // tekshirib, keyin tasdiqlaydi. Shu payGacha ustoz kira olmaydi.
   var nu={id:'u'+Date.now(),role:authRole,name:name,login:user,pass:pass,cls:cls,subject:subj,email:email,teachClasses:tclasses,myClasses:tclasses,viloyat:vil,tuman:tum,maktab:maktab,plan:'free',approved:(authRole!=='teacher'),usage:{month:curMonthKey(),images:0,pages:0,questions:0}};
-  nu.phone=_rgV.phone; nu.tgId=_rgV.tg; nu.email=_rgV.email; nu._ptok=_rgV.ptok; nu._etok=_rgV.etok;
+  if(_rgV.phone) nu.phone=_rgV.phone;
+  if(_rgV.tg) nu.tgId=_rgV.tg;
+  if(_rgV.email) nu.email=_rgV.email;
+  if(_rgV.ptok) nu._ptok=_rgV.ptok;
+  if(_rgV.etok) nu._etok=_rgV.etok;
   db.users.push(nu);
   saveDB(db);
   if(authRole==='teacher' && !nu.approved){
     showAuthTab('li');
-    document.getElementById('auth-err').innerHTML='<div class="alt as mt8">&#x2705; Ma\'lumotlaringiz adminga jo\'natildi! Admin tasdiqlagandan keyin tizimga kirishingiz mumkin bo\'ladi. Admin tasdiqlagach (yoki rad etsa), natija <b>'+email+'</b> manziliga xabar qilinadi.</div>';
+    document.getElementById('auth-err').innerHTML='<div class="alt as mt8">&#x2705; Ma\'lumotlaringiz adminga jo\'natildi! Admin tasdiqlagandan keyin tizimga kirishingiz mumkin bo\'ladi.'+(email?' Admin tasdiqlagach (yoki rad etsa), natija <b>'+_cEsc(email)+'</b> manziliga xabar qilinadi.':' Holatini bilish uchun keyinroq qayta kirishga urinib ko\'ring.')+'</div>';
     return;
   }
   // Yangi hisob serverga yetib borguncha biroz kutib, token olamiz (server
@@ -4719,9 +4731,25 @@ function addCls(){
   addMyClassesFrom('_tmp_cls', sb); tmp.remove(); loadClasses(); try{ renderMyClassesBySubj(); }catch(e){}
 }
 function delCls(enc){
-  var c=decodeURIComponent(enc); if(!confirm(c+" sinfini ro'yxatingizdan o'chirasizmi? (O'quvchilar va natijalar o'chmaydi)")) return;
+  var c=decodeURIComponent(enc);
+  var db=getDB(), stuCount=0, resCount=0;
+  (db.users||[]).forEach(function(u){ if(u.role==='student'&&u.cls===c&&(ME.role==='admin'||normSchool(u.maktab)===normSchool(ME.maktab))) stuCount++; });
+  (db.results||[]).forEach(function(r){ if((r.cls===c||r.class===c)&&resultVisibleToMe(r)) resCount++; });
+  var msg=c+" sinfini ro'yxatdan o'chirasizmi?";
+  if(stuCount||resCount){
+    msg+="\n\n⚠️ Bu sinfda ma'lumotlar bor:";
+    if(stuCount) msg+="\n• "+stuCount+" ta o'quvchi";
+    if(resCount) msg+="\n• "+resCount+" ta imtihon natijasi";
+    msg+="\n\nAvval shu ma'lumotlarni o'chirasizmi?\n(OK = ma'lumotlar o'chiriladi va sinf olib tashlanadi)";
+    if(!confirm(msg)) return;
+    if(stuCount){ db.users=db.users.filter(function(u){ return !(u.role==='student'&&u.cls===c&&(ME.role==='admin'||normSchool(u.maktab)===normSchool(ME.maktab))); }); }
+    if(resCount){ db.results=(db.results||[]).filter(function(r){ return !((r.cls===c||r.class===c)&&resultVisibleToMe(r)); }); }
+    saveDB(db);
+  } else {
+    if(!confirm(msg+"\n\nBu sinfda o'quvchi va natijalar yo'q.")) return;
+  }
   if(ME&&ME.role==='teacher') _saveMyClassList(myClassList().filter(function(x){ return x!==c; }));
-  else { var db=getDB(); db.classes=(db.classes||[]).filter(function(x){return x!==c;}); saveDB(db); }
+  else { db=getDB(); db.classes=(db.classes||[]).filter(function(x){return x!==c;}); saveDB(db); }
   loadClasses(); try{ renderMyClassesBySubj(); }catch(e){}
   document.getElementById('prog-panel').style.display='none';
 }
@@ -5280,7 +5308,22 @@ function addClsSubj(enc,i){
 }
 function delClsSubj(enc,cenc){
   var sb=decodeURIComponent(enc), c=decodeURIComponent(cenc);
-  if(!confirm(c+" sinfini "+subjName(sb)+" ro'yxatidan o'chirasizmi? Bu sinf o'quvchilari endi shu fan testlaringizni ko'rmaydi (o'quvchilar va natijalar o'chmaydi).")) return;
+  var db=getDB(), stuCount=0, resCount=0;
+  (db.users||[]).forEach(function(u){ if(u.role==='student'&&u.cls===c&&normSchool(u.maktab)===normSchool(ME.maktab)) stuCount++; });
+  (db.results||[]).forEach(function(r){ if((r.cls===c||r.class===c)&&resultVisibleToMe(r)) resCount++; });
+  var msg=c+" sinfini "+subjName(sb)+" ro'yxatidan o'chirasizmi?";
+  if(stuCount||resCount){
+    msg+="\n\n⚠️ Bu sinfda ma'lumotlar bor:";
+    if(stuCount) msg+="\n• "+stuCount+" ta o'quvchi";
+    if(resCount) msg+="\n• "+resCount+" ta imtihon natijasi";
+    msg+="\n\nAvval shu ma'lumotlarni o'chirasizmi?\n(OK = ma'lumotlar o'chiriladi va sinf olib tashlanadi)";
+    if(!confirm(msg)) return;
+    if(stuCount){ db.users=db.users.filter(function(u){ return !(u.role==='student'&&u.cls===c&&normSchool(u.maktab)===normSchool(ME.maktab)); }); }
+    if(resCount){ db.results=(db.results||[]).filter(function(r){ return !((r.cls===c||r.class===c)&&resultVisibleToMe(r)); }); }
+    saveDB(db);
+  } else {
+    if(!confirm(msg+"\n\nBu sinfda o'quvchi va natijalar yo'q — faqat ro'yxatdan olib tashlanadi.")) return;
+  }
   var m=subjClassMap(ME); m[sb]=(m[sb]||[]).filter(function(x){ return x!==c; }); _setMyClassMap(m);
   renderMyClassesBySubj(); try{ loadClasses(); }catch(e){}
 }
