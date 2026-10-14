@@ -1216,7 +1216,7 @@ function startDbPolling(){
       if((remote.v||0) > (local.v||0)){
         if(mergeLocalAdds(remote,local)){ remote.v=(remote.v||0)+1; dbSetRaw(JSON.stringify(remote)); sbPush(remote); }
         else dbSetRaw(JSON.stringify(remote));
-        rememberSyncedIds(remote);
+        rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){}
         renderNotifBell();
         // Ustoz "Natijalar" tabida bolsa - jadval avtomatik yangilanadi
         if(ME && ME.role==='teacher' && document.getElementById('tc-r') && document.getElementById('tc-r').classList.contains('on')) { loadResults(); }
@@ -1342,7 +1342,7 @@ async function sbResolveConflict(localDb){
       if(!res2.ok) return false;
     }
     try{ dbSetRaw(JSON.stringify(remote)); }catch(e){}
-    rememberSyncedIds(remote);
+    rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){}
     console.warn('Baza boshqa qurilmada yangilangan edi - yangi nusxa yuklandi'+(added?(' ('+added+' ta natija qo\'shildi)'):''));
     showSyncNotice('Ma\'lumotlar boshqa qurilmada yangilangan edi - yangi nusxa yuklandi. Sahifani yangilang.');
     return true;
@@ -2548,9 +2548,9 @@ async function syncFromCloud() {
       var _adds = localEmpty ? 0 : mergeLocalAdds(remote, local);
       if (_adds) remote.v = (remote.v||0) + 1;
       try { dbSetRaw(JSON.stringify(remote)); } catch(e) {}
-      rememberSyncedIds(remote);
+      rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){}
       if (_adds) sbPush(remote);
-    } else { rememberSyncedIds(remote); }
+    } else { rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){} }
   } catch(e) {
     console.warn('syncFromCloud xato:', e);
   }
@@ -3059,6 +3059,7 @@ async function doRegister(){
 function goMyPanel(){ if(typeof ME!=='undefined'&&ME){ afterLogin(); } else showPg('pg-home'); }
 function afterLogin(){
   setTimeout(function(){ try{ maybeStartTour(); }catch(e){} },0);
+  setTimeout(function(){ try{ syncTimerUI(); }catch(e){} },0); // taymer belgisi har kirishda bazadan
   setTimeout(function(){ try{ renderContactBoxes(); }catch(e){} },0);
   try{ var _sessData={id:ME.id, t:_authToken||null, exp:Date.now()+7*24*60*60*1000}; sessionStorage.setItem('et_sess', JSON.stringify(_sessData)); localStorage.setItem('et_sess_persist', JSON.stringify(_sessData)); }catch(e){}
   setTimeout(function(){ try{ renderTgLink(); }catch(e){} }, 300);
@@ -3221,7 +3222,8 @@ function selectTopicByName(t,el){
   var timerTimeRow=document.getElementById('timer-time-row-preview');
   var isTeacher=ME&&ME.role==='teacher';
   if(timerTeacher)timerTeacher.style.display=isTeacher?'flex':'none';
-  if(timerTimeRow)timerTimeRow.style.display=(isTeacher&&document.getElementById('timer-toggle-preview')&&document.getElementById('timer-toggle-preview').checked)?'flex':'none';
+  var timerOn=syncTimerUI();
+  if(timerTimeRow)timerTimeRow.style.display=(isTeacher&&timerOn)?'flex':'none';
   // Agar shu mavzu egasi bolgan ustoz "Imtihon" rejimini ochirib qoygan bolsa -
   // butunlay yashirmaymiz, balki KULRANG (nofaol) qilib, sababini yozib qoyamiz,
   // shunda oquvchi nega bosilmayotganini tushunadi.
@@ -3261,6 +3263,21 @@ function loadMyHist(){
 }
 
 function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
+// TUZATISH (2026-10-14): "Test rejimini tanlang" kartasidagi taymer belgisi
+// HTML'da doim checked yozilgan edi va bazadagi qiymat faqat Sozlamalar
+// ochilganda o'qilardi - shuning uchun ustoz kirgach taymer o'chiq bo'lsa ham
+// "Yoqiq" ko'rinardi (testning o'zi esa to'g'ri, taymersiz boshlanardi).
+// Endi ikkala joydagi belgi, yozuv, vaqt qatori har safar bazadan olinadi.
+function syncTimerUI(){
+  var db=getDB();
+  var on=db.timerEnabled!==false;
+  var mins=String(db.timerMinutes||15);
+  ['timer-toggle','timer-toggle-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.checked=on;});
+  ['timer-label','timer-label-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=on?'Yoqiq':'O\'chiq';});
+  var row=document.getElementById('timer-time-row'); if(row) row.style.display=on?'flex':'none';
+  ['timer-minutes','timer-minutes-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=mins;});
+  return on;
+}
 function saveTimerPref(val){
   var db=getDB();
   db.timerEnabled=val;
@@ -5339,12 +5356,7 @@ function initSettings(){
   // avval bu qadam yoq edi, shuning uchun checkbox har doim "Yoqiq" korsatardi,
   // hatto siz avval ochirib qoygan bolsangiz ham (haqiqiy qiymat togri saqlanar,
   // lekin ekranda notogri korinardi).
-  var tOn=db.timerEnabled!==false;
-  var tMins=db.timerMinutes||15;
-  ['timer-toggle','timer-toggle-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.checked=tOn;});
-  ['timer-label','timer-label-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=tOn?'Yoqiq':'O\'chiq';});
-  ['timer-time-row'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=tOn?'flex':'none';});
-  ['timer-minutes','timer-minutes-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=String(tMins);});
+  syncTimerUI();
   renderMyClassesBySubj();
   // Load saved Supabase config
   var savedUrl=localStorage.getItem('sb_url')||'';
