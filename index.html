@@ -988,6 +988,7 @@ var SK = 'edutest_v3';
 // yuzlab MB). Sahifa ochilganda IndexedDB'dagi nusxa avval yuklanadi (_lsLoad).
 var _memDB=null;
 function dbSetRaw(str){
+  _dbRo=null;
   try{ localStorage.setItem(SK,str); _memDB=null; return true; }
   catch(e){
     _memDB=str;
@@ -1544,7 +1545,7 @@ function addNotification(db, userId, title, body){
 }
 function myNotifications(){
   if(!ME) return [];
-  return (getDB().notifications||[]).filter(function(n){return n.userId===ME.id;}).sort(function(a,b){return b.date-a.date;});
+  return (getDBro().notifications||[]).filter(function(n){return n.userId===ME.id;}).sort(function(a,b){return b.date-a.date;});
 }
 function renderNotifBell(){
   var wrap=document.getElementById('notif-bell-wrap');
@@ -1752,6 +1753,15 @@ function localGetDB() {
 function getDB() {
   return localGetDB();
 }
+// FAQAT O'QISH uchun (natijani o'zgartirmang!) - bitta vazifa davomida bitta nusxa
+var _dbRo=null;
+function getDBro(){
+  if(_dbRo) return _dbRo;
+  _dbRo=localGetDB();
+  setTimeout(function(){ _dbRo=null; },0);
+  return _dbRo;
+}
+try{ window.addEventListener('storage',function(e){ if(!e.key||e.key===SK) _dbRo=null; }); }catch(e){}
 
 // ── SUZUVCHI MATEMATIK BELGILAR (fon dizayni) ──────────────────────────────
 function initMathBg(){renderFloatingBg('default');}
@@ -2009,7 +2019,7 @@ function resetTheme(){applySubjectTheme(null);}
 // faqat orqa fon shu qiymatga qarab tobora "jonliroq" boladi.
 function computeMyStandingTier(){
   if(!ME || ME.role!=='student') return 0;
-  var db=getDB();
+  var db=getDBro();
   var classmates=(db.results||[]).filter(function(r){return r.mode==='exam'&&r.cls===ME.cls;});
   if(!classmates.length) return 0;
   var byStudent={};
@@ -2590,7 +2600,7 @@ function reloadTopicsNow(btn){
 }
 function normSchool(s){ return (s||'').trim().toLowerCase(); }
 function getAllQs() {
-  var db=getDB();
+  var db=getDBro();
   var all=BQ.concat(db.userQs||[]);
   // Faqat oquvchilar uchun cheklov ishlaydi - ustoz va admin hammasini koradi
   if(!ME || ME.role!=='student') return all;
@@ -2784,7 +2794,7 @@ function getMyQs(){ return (getAllQs()).filter(function(q){return q.teacherId===
 function getMyTopics(){ var qs=getMyQs(),t=[]; qs.forEach(function(q){if(q.topic&&t.indexOf(q.topic)<0)t.push(q.topic);}); return t; }
 function getMyQsByTopic(t){ return getMyQs().filter(function(q){return q.topic===t;}); }
 function getTopicMeta(topic) {
-  var db=getDB();
+  var db=getDBro();
   var all=(db.topicsMeta||[]).concat(INIT_META);
   for(var i=0;i<all.length;i++){if(all[i].topic===topic)return all[i];}
   return null;
@@ -2792,7 +2802,7 @@ function getTopicMeta(topic) {
 // Timer: avval MAVZUGA XOS sozlama (agar aniq belgilangan bolsa), aks holda
 // UMUMIY (Sozlamalar bolimidagi) standart qiymat ishlatiladi.
 function resolveTimer(meta){
-  var db=getDB();
+  var db=getDBro();
   var on=(meta&&meta.timerEnabled!==undefined)?meta.timerEnabled:(db.timerEnabled!==undefined?db.timerEnabled:true);
   var mins=(meta&&meta.timerMinutes)?meta.timerMinutes:(db.timerMinutes||15);
   return {on:on,mins:mins};
@@ -3196,7 +3206,7 @@ function renderTopics(){
     return allQs.some(function(q){return q.topic===t&&q.subject===_curSubjFilter;});
   });
   // Mavzularni papka(kitob)larga guruhlash
-  var db=getDB();
+  var db=getDBro();
   var folderOf={};
   (db.topicsMeta||[]).forEach(function(m){ if(m.folder && !folderOf[m.topic]) folderOf[m.topic]=m.folder; });
 
@@ -3284,7 +3294,7 @@ function selectTopicByName(t,el){
   setTimeout(function(){mc.scrollIntoView({behavior:'smooth',block:'center'});},100);
 }
 function loadMyHist(){
-  var db=getDB(),myR=db.results.filter(function(r){return r.student===ME.name&&r.cls===ME.cls&&r.mode==='exam';});
+  var db=getDBro(),myR=db.results.filter(function(r){return r.student===ME.name&&r.cls===ME.cls&&r.mode==='exam';});
   var card=document.getElementById('my-hist');
   card.style.display='block';
   if(!myR.length){
@@ -3302,7 +3312,7 @@ function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(
 // "Yoqiq" ko'rinardi (testning o'zi esa to'g'ri, taymersiz boshlanardi).
 // Endi ikkala joydagi belgi, yozuv, vaqt qatori har safar bazadan olinadi.
 function syncTimerUI(){
-  var db=getDB();
+  var db=getDBro();
   var on=db.timerEnabled!==false;
   var mins=String(db.timerMinutes||15);
   ['timer-toggle','timer-toggle-preview'].forEach(function(id){var el=document.getElementById(id);if(el)el.checked=on;});
