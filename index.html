@@ -847,7 +847,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
   <div class="card" style="padding:14px 16px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:10px">
-        <button class="btn bg bsm" id="pg-notif-back" onclick="showPg(ME&&ME.role==='admin'?'pg-admin':'pg-teacher')">← Orqaga</button>
+        <button class="btn bg bsm" id="pg-notif-back" onclick="if(ME&&ME.role==='student')goMyPanel();else showPg(ME&&ME.role==='admin'?'pg-admin':'pg-teacher')">← Orqaga</button>
         <h2 style="margin:0">🔔 Xabarlar</h2>
       </div>
       <button class="btn bd bsm" onclick="clearAllNotifs()">🗑️ Hammasini o'chir</button>
@@ -1549,7 +1549,7 @@ function myNotifications(){
 function renderNotifBell(){
   var wrap=document.getElementById('notif-bell-wrap');
   if(!wrap) return;
-  if(!ME || ME.role==='student'){ wrap.style.display='none'; return; }
+  if(!ME){ wrap.style.display='none'; return; } // 2026-10-14: o'quvchiga ham (admin javobi bildirishnomaga keladi)
   wrap.style.display='inline-block';
   var list=myNotifications();
   var unread=list.filter(function(n){return !n.read;}).length;
@@ -3060,6 +3060,7 @@ function goMyPanel(){ if(typeof ME!=='undefined'&&ME){ afterLogin(); } else show
 function afterLogin(){
   setTimeout(function(){ try{ maybeStartTour(); }catch(e){} },0);
   setTimeout(function(){ try{ syncTimerUI(); }catch(e){} },0); // taymer belgisi har kirishda bazadan
+  document.documentElement.classList.add('et-auth');
   setTimeout(function(){ try{ renderContactBoxes(); }catch(e){} },0);
   try{ var _sessData={id:ME.id, t:_authToken||null, exp:Date.now()+7*24*60*60*1000}; sessionStorage.setItem('et_sess', JSON.stringify(_sessData)); localStorage.setItem('et_sess_persist', JSON.stringify(_sessData)); }catch(e){}
   setTimeout(function(){ try{ renderTgLink(); }catch(e){} }, 300);
@@ -3107,7 +3108,7 @@ function confirmLogoutWarn(){
   // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
   submitTest(true);
 }
-function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;try{sessionStorage.removeItem('et_sess');}catch(e){}try{localStorage.removeItem('et_sess_persist');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
+function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;document.documentElement.classList.remove('et-auth');try{sessionStorage.removeItem('et_sess');}catch(e){}try{localStorage.removeItem('et_sess_persist');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
   // To'liq ekrandan chiqish - faqat haqiqatan fullscreen bolsa
   if(document.fullscreenElement||document.webkitFullscreenElement){
     if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
@@ -7212,8 +7213,10 @@ if('serviceWorker' in navigator){
         'cursor:pointer;white-space:nowrap;font-family:inherit">✅ Yangilash</button>' +
       '</div>';
     document.body.appendChild(banner);
+    // 2026-10-14: banner telefonda pastdagi "Muammo yozish" tugmasini yopib qo'yardi - tugmani banner ustiga ko'taramiz
+    try{ var _rf=document.getElementById('rep-fab'), _bh=banner.firstElementChild?banner.firstElementChild.offsetHeight:0; if(_rf&&_bh) _rf.style.bottom=(_bh+12)+'px'; }catch(e){}
     window.swUpdate = function(){
-      if(_importInProgress){ window._swPendingSW=newSW; var bb=document.getElementById('sw-update-banner'); if(bb) bb.remove();
+      if(_importInProgress){ window._swPendingSW=newSW; var bb=document.getElementById('sw-update-banner'); if(bb) bb.remove(); try{ var _rf2=document.getElementById('rep-fab'); if(_rf2) _rf2.style.bottom=''; }catch(e){}
         alert("Import davom etmoqda — import tugagach yangilash taklif qilinadi."); return; }
       window._swUserReload=true; newSW.postMessage({type:'SKIP_WAITING'});
     };
@@ -9142,6 +9145,8 @@ async function _tgaEnter(a){
 #rep-fab{position:fixed;left:14px;bottom:14px;z-index:900;background:#fff;color:var(--pri,#25316d);border:1px solid rgba(37,49,109,.18);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer}
 #rep-fab:hover{transform:translateY(-1px)}
 body:has(#pg-test.on) #rep-fab{display:none}
+/* 2026-10-14: muammo faqat tizimga kirgandan keyin yoziladi (admin javobi bildirishnomaga keladi) */
+html:not(.et-auth) #rep-fab{display:none!important}
 #rep-ov{position:fixed;inset:0;background:rgba(10,15,40,.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
 #rep-ov.on{display:flex}
 #rep-box{background:#fff;color:#1e2a3a;border-radius:16px;max-width:460px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -9152,7 +9157,7 @@ body:has(#pg-test.on) #rep-fab{display:none}
 <div id="rep-ov" onclick="if(event.target===this)closeReport()">
   <div id="rep-box">
     <h3 style="margin:0 0 4px">Muammo haqida yozing</h3>
-    <p style="margin:0 0 10px;font-size:13px;opacity:.7">Xabaringiz to'g'ridan-to'g'ri dastur egasiga yetib boradi.</p>
+    <p style="margin:0 0 10px;font-size:13px;opacity:.7">Xabaringiz to'g'ridan-to'g'ri dastur egasiga yetib boradi. Javob shu saytdagi &#x1F514; bildirishnomalarga (Telegram ulangan bo'lsa, botga ham) keladi.</p>
     <textarea id="rep-text" maxlength="3000" placeholder="Nima bo'ldi? Qaysi sahifada? Qanday qilib takrorlash mumkin?"></textarea>
     <input id="rep-contact" maxlength="200" placeholder="Aloqa uchun telefon yoki Telegram (ixtiyoriy)">
     <div id="rep-msg" style="font-size:13px;margin-top:8px;min-height:18px"></div>
@@ -9163,7 +9168,7 @@ body:has(#pg-test.on) #rep-fab{display:none}
   </div>
 </div>
 <script>
-function openReport(){document.getElementById('rep-ov').classList.add('on');document.getElementById('rep-msg').textContent='';setTimeout(function(){document.getElementById('rep-text').focus();},50);}
+function openReport(){if(typeof ME==='undefined'||!ME){alert("Muammo yozish uchun avval tizimga kiring.");return;}document.getElementById('rep-ov').classList.add('on');document.getElementById('rep-msg').textContent='';setTimeout(function(){document.getElementById('rep-text').focus();},50);}
 function closeReport(){document.getElementById('rep-ov').classList.remove('on');}
 function sendReport(){
   var t=document.getElementById('rep-text').value.trim(), m=document.getElementById('rep-msg'), b=document.getElementById('rep-send');
@@ -9175,7 +9180,7 @@ function sendReport(){
     user:(typeof ME!=='undefined'&&ME)?{name:ME.name,login:ME.login,role:ME.role}:null, ua:navigator.userAgent})})
   .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,j:j};});})
   .then(function(res){
-    if(res.ok){m.style.color='#1e8449';m.textContent='Rahmat! Xabaringiz yuborildi.';document.getElementById('rep-text').value='';setTimeout(closeReport,1500);}
+    if(res.ok){m.style.color='#1e8449';m.textContent='Rahmat! Xabaringiz yuborildi. Javob bildirishnomalarda (\uD83D\uDD14) ko\'rinadi.';document.getElementById('rep-text').value='';setTimeout(closeReport,1500);}
     else{m.style.color='#c0392b';m.textContent=(res.j&&res.j.error)||'Yuborib bo\'lmadi, keyinroq urinib ko\'ring.';}
   }).catch(function(){m.style.color='#c0392b';m.textContent='Internet aloqasini tekshirib, qayta urinib ko\'ring.';})
   .then(function(){b.disabled=false;});
