@@ -1369,10 +1369,18 @@ function showSyncNotice(msg){
 async function sbPull() {
   if (!_dbReady) return null;
   try {
-    var res = await fetch(DB_SERVER+'/db_get');
-    if(!res.ok){ markConnLost(); return null; }
+    var res = null, data = null;
+    for (var _att = 0; _att < 2 && data === null; _att++) {
+      var _ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var _tm = _ctl ? setTimeout(function(){ try{ _ctl.abort(); }catch(e){} }, 40000) : null;
+      try {
+        res = await fetch(DB_SERVER+'/db_get', _ctl ? {signal:_ctl.signal} : undefined);
+        if (!res.ok) { if (_tm) clearTimeout(_tm); markConnLost(); return null; }
+        data = await res.json();
+      } catch (_e) { if (_att === 1) throw _e; }
+      finally { if (_tm) clearTimeout(_tm); }
+    }
     markConnOk();
-    var data = await res.json();
     if (data && data.value) return JSON.parse(data.value);
   } catch(e) { markConnLost(); }
   return null;
