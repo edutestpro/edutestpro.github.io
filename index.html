@@ -56,6 +56,9 @@ body{background:linear-gradient(125deg,#151b3d,var(--purd) 30%,var(--pri) 55%,va
 .logo{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.2px}
 .nav-r{display:flex;gap:8px;align-items:center;font-size:13px}
 .main{max-width:860px;margin:0 auto;padding:20px 14px}
+/* TUZATISH (2026-10-14): Safari/WebKit tugma va maydonlarga sahifa shriftini meros
+   qilib bermaydi ("Muammo yozish" tugmasi serif shriftda chiqardi). */
+button,input,select,textarea{font-family:inherit}
 .btn{padding:9px 18px;border-radius:9px;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:transform .12s,filter .12s,box-shadow .12s;display:inline-flex;align-items:center;gap:5px}
 .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .bp{background:var(--pri);color:#fff;box-shadow:0 2px 8px -2px rgba(37,49,109,.5)}.bpu{background:var(--purd);color:#fff;box-shadow:0 2px 8px -2px rgba(91,62,166,.5)}
@@ -91,6 +94,10 @@ textarea:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(37,49,109,.12)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+/* TUZATISH (2026-10-14): telefonda (iPhone 390px) 3/4 ustunli to'r ichidagi matn
+   qisqarmasdi va oxirgi ustun ekrandan chiqib, sahifa yonga surilardi (Sinflar). */
+.g2>*,.g3>*,.g4>*{min-width:0}
+@media(max-width:560px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .fx{display:flex;gap:8px;align-items:center}.fxw{flex-wrap:wrap}
 .between{justify-content:space-between}.center{justify-content:center}
 h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.3px}h2{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;letter-spacing:-.2px}h3{font-size:15px;font-weight:700}
@@ -973,6 +980,73 @@ var BQ = [];
 var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": "Sonlar nazariyasi  TEST-1", "questionsToAsk": 8}];
 
 var SK = 'edutest_v3';
+// TUZATISH (2026-10-14): iPhone/iPad Safari'da localStorage taxminan 5 MB
+// (UTF-16, ya'ni ~2,5 mln belgi). EduTest bazasi 3,8 mln belgi - setItem xato
+// berar, xato jim yutilar va sayt bo'sh boshlang'ich baza bilan qolardi
+// (iPhone'da testlar ko'rinmasdi). Endi baza localStorage'ga sig'masa XOTIRADA
+// turadi (_memDB) va doimiy saqlash uchun IndexedDB'ga yoziladi (iOS'da
+// yuzlab MB). Sahifa ochilganda IndexedDB'dagi nusxa avval yuklanadi (_lsLoad).
+var _memDB=null;
+function dbSetRaw(str){
+  try{ localStorage.setItem(SK,str); _memDB=null; return true; }
+  catch(e){
+    _memDB=str;
+    try{ localStorage.removeItem(SK); }catch(_){}
+    _idbPut(str);
+    return false;
+  }
+}
+function dbGetRaw(){
+  if(_memDB!==null) return _memDB;
+  try{ return localStorage.getItem(SK); }catch(e){ return null; }
+}
+var _idbP=null;
+function _idbOpen(){
+  if(_idbP) return _idbP;
+  _idbP=new Promise(function(res){
+    try{
+      if(!window.indexedDB){ res(null); return; }
+      var rq=indexedDB.open('et_store',1);
+      rq.onupgradeneeded=function(){ try{ rq.result.createObjectStore('kv'); }catch(e){} };
+      rq.onsuccess=function(){ res(rq.result); };
+      rq.onerror=function(){ res(null); };
+      rq.onblocked=function(){ res(null); };
+    }catch(e){ res(null); }
+  });
+  return _idbP;
+}
+var _idbTimer=null, _idbPending=null;
+function _idbPut(str){
+  _idbPending=str;
+  if(_idbTimer) return;
+  _idbTimer=setTimeout(function(){
+    _idbTimer=null; var v=_idbPending; _idbPending=null;
+    _idbOpen().then(function(db){
+      if(!db) return;
+      try{ db.transaction('kv','readwrite').objectStore('kv').put(v,SK); }catch(e){}
+    });
+  },300);
+}
+function _idbGet(){
+  return _idbOpen().then(function(db){
+    if(!db) return null;
+    return new Promise(function(res){
+      try{
+        var rq=db.transaction('kv','readonly').objectStore('kv').get(SK);
+        rq.onsuccess=function(){ res(rq.result||null); };
+        rq.onerror=function(){ res(null); };
+      }catch(e){ res(null); }
+    });
+  });
+}
+var _lsLoad=(function(){
+  var has=false; try{ has=!!localStorage.getItem(SK); }catch(e){}
+  if(has) return Promise.resolve();
+  return Promise.race([
+    _idbGet().then(function(v){ if(v && _memDB===null) _memDB=v; }),
+    new Promise(function(r){ setTimeout(r,2500); })
+  ]).catch(function(){});
+})();
 
 // ─── SUPABASE CONFIGURATION ───────────────────────────────────────────────────
 // Supabase sozlamalari — bu yerga o'z kalitlaringizni kiriting:
@@ -1140,8 +1214,8 @@ function startDbPolling(){
       var remote=await sbPull(); // FAQAT haqiqatan ozgargan bolsa, tolik blokni tortamiz
       if(!remote) return;
       if((remote.v||0) > (local.v||0)){
-        if(mergeLocalAdds(remote,local)){ remote.v=(remote.v||0)+1; localStorage.setItem(SK, JSON.stringify(remote)); sbPush(remote); }
-        else localStorage.setItem(SK, JSON.stringify(remote));
+        if(mergeLocalAdds(remote,local)){ remote.v=(remote.v||0)+1; dbSetRaw(JSON.stringify(remote)); sbPush(remote); }
+        else dbSetRaw(JSON.stringify(remote));
         rememberSyncedIds(remote);
         renderNotifBell();
         // Ustoz "Natijalar" tabida bolsa - jadval avtomatik yangilanadi
@@ -1267,7 +1341,7 @@ async function sbResolveConflict(localDb){
       var res2=await fetch(DB_SERVER+'/db_save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:JSON.stringify(remote)})});
       if(!res2.ok) return false;
     }
-    try{ localStorage.setItem(SK, JSON.stringify(remote)); }catch(e){}
+    try{ dbSetRaw(JSON.stringify(remote)); }catch(e){}
     rememberSyncedIds(remote);
     console.warn('Baza boshqa qurilmada yangilangan edi - yangi nusxa yuklandi'+(added?(' ('+added+' ta natija qo\'shildi)'):''));
     showSyncNotice('Ma\'lumotlar boshqa qurilmada yangilangan edi - yangi nusxa yuklandi. Sahifani yangilang.');
@@ -1656,7 +1730,7 @@ function fixRvfTexts(db){
 }
 function localGetDB() {
   try {
-    var r = localStorage.getItem(SK);
+    var r = dbGetRaw();
     if (r) {
       var db = JSON.parse(r);
       fixRvfTexts(db);
@@ -1668,7 +1742,7 @@ function localGetDB() {
         changed = true;
         setTimeout(function(){ alert('Admin hisobi topilmadi, yangisi yaratildi:\n\nsuperadmin / '+_newAdminPass+'\n\nBu parolni saqlab qoying!'); }, 500);
       }
-      if (changed) { try { localStorage.setItem(SK, JSON.stringify(db)); } catch(e) {} }
+      if (changed) { try { dbSetRaw(JSON.stringify(db)); } catch(e) {} }
       return db;
     }
   } catch(e) {}
@@ -2448,7 +2522,7 @@ function defDB() {
 function saveDB(db) {
   db.v = (db.v||0)+1;
   try{
-    localStorage.setItem(SK, JSON.stringify(db));
+    dbSetRaw(JSON.stringify(db));
   }catch(e){
     // Brauzer xotirasi (localStorage) tolib qolgan bolishi mumkin - lekin bu
     // muammo emas, chunki asosiy malumot baribir Supabase'ga (serverga)
@@ -2473,7 +2547,7 @@ async function syncFromCloud() {
     if ((remote.v||0) > (local.v||0) || localEmpty) {
       var _adds = localEmpty ? 0 : mergeLocalAdds(remote, local);
       if (_adds) remote.v = (remote.v||0) + 1;
-      try { localStorage.setItem(SK, JSON.stringify(remote)); } catch(e) {}
+      try { dbSetRaw(JSON.stringify(remote)); } catch(e) {}
       rememberSyncedIds(remote);
       if (_adds) sbPush(remote);
     } else { rememberSyncedIds(remote); }
@@ -3835,7 +3909,7 @@ async function doSubmitTest(){
     var db=getDB();
     db.results.push(res);
     db.v=(db.v||0)+1;
-    try{ localStorage.setItem(SK, JSON.stringify(db)); }catch(e){}
+    try{ dbSetRaw(JSON.stringify(db)); }catch(e){}
     flagWrongAnswersForReview(res).then(function(n){
       res._flaggedCount=n;
       var noteEl=document.getElementById('r-flag-note');
@@ -8046,8 +8120,8 @@ sbInit();
 // (bosh standart baza ustida emas) va bekorga bulutga hech narsa yozmaydi.
 // 2026-10-04: keyingi <script> bloklaridagi funksiyalar (masalan fcDecks) hali yuklanmagan bo'lishi
 // mumkin edi — o'quvchi F5 da afterLogin xato berib, ish joyi tiklanmasdi. Endi hammasi yuklangach.
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ restoreSession(); }); else restoreSession();
-syncFromCloud().then(function(){ initMeta(); restoreSession(); if(!ME) _endRestore(); });
+_lsLoad.then(function(){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ restoreSession(); }); else restoreSession(); });
+_lsLoad.then(function(){ return syncFromCloud(); }).then(function(){ initMeta(); restoreSession(); if(!ME) _endRestore(); });
 // Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash. sessionStorage
 // tab yopilganda o'chadi - umumiy kompyuterda keyingi odam hisobda qolmaydi.
 // ═══════════════════════════════════════════════════════════════════════
@@ -8907,7 +8981,7 @@ async function _ctSave(body){
   if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
   ME.phone=j.phone||''; ME.tgId=j.tgId||''; ME.email=j.email||'';
   try{ var db=getDB(); db.users.forEach(function(u){ if(u.id===ME.id){ u.phone=ME.phone; u.tgId=ME.tgId; u.email=ME.email; } });
-    localStorage.setItem(SK,JSON.stringify(db)); }catch(e){}
+    dbSetRaw(JSON.stringify(db)); }catch(e){}
 }
 function _ctPhoneUi(p){ var b=document.getElementById(p+'-ct-ph');
   return {st:function(t,ok){ _ctSt(p+'-ct-phst',t,ok); }, done:function(){ if(b) b.disabled=false; }}; }
