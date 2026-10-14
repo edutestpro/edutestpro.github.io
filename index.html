@@ -1216,7 +1216,7 @@ function startDbPolling(){
       if((remote.v||0) > (local.v||0)){
         if(mergeLocalAdds(remote,local)){ remote.v=(remote.v||0)+1; dbSetRaw(JSON.stringify(remote)); sbPush(remote); }
         else dbSetRaw(JSON.stringify(remote));
-        rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){}
+        rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){} try{ _rerenderAfterSync(); }catch(_e2){}
         renderNotifBell();
         // Ustoz "Natijalar" tabida bolsa - jadval avtomatik yangilanadi
         if(ME && ME.role==='teacher' && document.getElementById('tc-r') && document.getElementById('tc-r').classList.contains('on')) { loadResults(); }
@@ -1342,7 +1342,7 @@ async function sbResolveConflict(localDb){
       if(!res2.ok) return false;
     }
     try{ dbSetRaw(JSON.stringify(remote)); }catch(e){}
-    rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){}
+    rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){} try{ _rerenderAfterSync(); }catch(_e2){}
     console.warn('Baza boshqa qurilmada yangilangan edi - yangi nusxa yuklandi'+(added?(' ('+added+' ta natija qo\'shildi)'):''));
     showSyncNotice('Ma\'lumotlar boshqa qurilmada yangilangan edi - yangi nusxa yuklandi. Sahifani yangilang.');
     return true;
@@ -2548,14 +2548,46 @@ async function syncFromCloud() {
       var _adds = localEmpty ? 0 : mergeLocalAdds(remote, local);
       if (_adds) remote.v = (remote.v||0) + 1;
       try { dbSetRaw(JSON.stringify(remote)); } catch(e) {}
-      rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){}
+      rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){} try{ _rerenderAfterSync(); }catch(_e2){}
       if (_adds) sbPush(remote);
-    } else { rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){} }
+    } else { rememberSyncedIds(remote); try{ syncTimerUI(); }catch(_e){} try{ _rerenderAfterSync(); }catch(_e2){} }
   } catch(e) {
     console.warn('syncFromCloud xato:', e);
   }
 }
 
+// 2026-10-14: serverdan yangi baza kelgach ochiq o'quvchi sahifasi qayta chiziladi
+// (avval sahifa baza kelmasdan chizilsa "Mavzular yo'q" qolib ketardi - iPhone/Telegram ichki brauzeri)
+function _rerenderAfterSync(){
+  try{
+    if(typeof ME==='undefined'||!ME||ME.role!=='student'||S.mode) return;
+    var pg=document.getElementById('pg-topic'); if(!pg||!pg.classList.contains('on')) return;
+    if(selTopic) return;
+    renderTopics();
+  }catch(e){}
+}
+function _qsNotLoaded(){ try{ return !((getDB().userQs||[]).length); }catch(e){ return true; } }
+var _autoReloadTried=false;
+function _notLoadedHtml(){
+  if(!_autoReloadTried){ _autoReloadTried=true; setTimeout(function(){ reloadTopicsNow(null); },300); }
+  return '<div class="alt ai">&#x23F3; Testlar hali yuklanmadi (internet sekin bo\'lishi mumkin).<br>'+
+    '<button class="btn bp bsm" style="margin-top:8px" onclick="reloadTopicsNow(this)">&#x1F504; Qayta yuklash</button></div>';
+}
+function reloadTopicsNow(btn){
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Yuklanmoqda...'; }
+  sbPull().then(function(remote){
+    if(remote&&remote.users){
+      var local=localGetDB(), adds=0;
+      try{ adds=(local.users&&local.users.length>1)?mergeLocalAdds(remote,local):0; }catch(e){}
+      if(adds) remote.v=(remote.v||0)+1;
+      try{ dbSetRaw(JSON.stringify(remote)); }catch(e){}
+      rememberSyncedIds(remote);
+      if(adds) sbPush(remote);
+    }
+    if(ME&&ME.role==='student') renderTopics();
+    if(!remote&&btn) alert("Serverga ulanib bo'lmadi. Internetni tekshirib, qayta urinib ko'ring.");
+  }).catch(function(){ if(btn){ btn.disabled=false; btn.textContent='🔄 Qayta yuklash'; } });
+}
 function normSchool(s){ return (s||'').trim().toLowerCase(); }
 function getAllQs() {
   var db=getDB();
@@ -3208,7 +3240,7 @@ function renderTopics(){
     var tEsc=t.replace(/'/g,"\\'");
     return '<div class="tbtn" onclick="selectTopicByName(\''+tEsc+'\',this)"><div style="font-weight:700">'+t+'</div><div style="font-size:11px;color:var(--mut);margin-top:3px">'+Math.min(ask,cnt)+' ta savol</div></div>';
   }).join('');
-  grid.innerHTML=html||'<p class="ts tm">Mavzular yo\'q</p>';
+  grid.innerHTML=html||(_qsNotLoaded()?_notLoadedHtml():'<p class="ts tm">Sinfingiz uchun hali test yo\'q. Ustozingiz qo\'shganda shu yerda chiqadi.</p>');
 }
 function filterBySubj(s){_curSubjFilter=s;_curFolder=null;renderTopics();applySubjectTheme(s);}
 function selectTopicByName(t,el){
