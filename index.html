@@ -980,6 +980,22 @@ var BQ = [];
 var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": "Sonlar nazariyasi  TEST-1", "questionsToAsk": 8}];
 
 var SK = 'edutest_v3';
+// APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
+var APP_VER = 'edutest-v167';
+(function(){
+  try{
+    if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
+    var num=function(v){ var m=String(v||'').match(/v(\d+)$/); return m?parseInt(m[1],10):0; };
+    fetch('sw.js?vc='+Date.now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
+      var m=t&&t.match(/const CACHE = '([^']+)'/); if(!m) return;
+      var srv=m[1]; if(num(srv)<=num(APP_VER)) return;
+      var key='et_vreload_'+srv; try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1'); }catch(e){}
+      if(typeof S!=='undefined'&&S&&S.mode) return; // test paytida qayta yuklamaymiz
+      var q=location.search.replace(/([?&])v=[^&]*&?/,'$1').replace(/[?&]$/,'');
+      location.replace(location.pathname+(q?q+'&':'?')+'v='+encodeURIComponent(srv)+location.hash);
+    }).catch(function(){});
+  }catch(e){}
+})();
 // TUZATISH (2026-10-14): iPhone/iPad Safari'da localStorage taxminan 5 MB
 // (UTF-16, ya'ni ~2,5 mln belgi). EduTest bazasi 3,8 mln belgi - setItem xato
 // berar, xato jim yutilar va sayt bo'sh boshlang'ich baza bilan qolardi
