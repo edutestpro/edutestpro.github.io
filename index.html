@@ -1100,7 +1100,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v184';
+var APP_VER = 'edutest-v185';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -5443,7 +5443,7 @@ function collectUsedStoragePaths(db){
   });
   return used;
 }
-// "Etim" (hech qanday joriy savol/natijaga bogliq bolmagan)
+// "Yetim ma'lumotlar" (hech qanday joriy savol/natijaga bogliq bolmagan)
 async function cleanupOrphanStorageImages(msgEl){
   if(!_sbReady || !_sb) return {deleted:0, total:0, skipped:true};
   // XAVFSIZLIK 1
@@ -5465,16 +5465,16 @@ async function cleanupOrphanStorageImages(msgEl){
   var BATCH=200, deletedCount=0;
   for(var i=0;i<orphanPaths.length;i+=BATCH){
     var chunk=orphanPaths.slice(i,i+BATCH);
-    if(msgEl) msgEl.innerHTML='<div class="alt ai">&#x23F3; Etim fayllar ochirilmoqda... ('+Math.min(i+BATCH,orphanPaths.length)+'/'+orphanPaths.length+')</div>';
+    if(msgEl) msgEl.innerHTML='<div class="alt ai">&#x23F3; Yetim ma\'lumotlar o\'chirilmoqda... ('+Math.min(i+BATCH,orphanPaths.length)+'/'+orphanPaths.length+')</div>';
     try{
       var r=await _sb.storage.from(SB_STORAGE_BUCKET).remove(chunk);
       if(!r.error) deletedCount+=chunk.length;
-    }catch(e){ console.error('Etim fayl ochirish xato:',e); }
+    }catch(e){ console.error('Yetim ma\'lumotlarni o\'chirish xato:',e); }
   }
   return {deleted:deletedCount, total:allFiles.length};
 }
 async function clearUserQs(){
-  if(!confirm("Sizning barcha qo'shgan savollaringizni o'chirasizmi? Bog'liq VA butun serverda ishlatilmayotgan (etim) barcha rasmlar ham butunlay o'chib ketadi - qaytarib bo'lmaydi!"))return;
+  if(!confirm("Sizning barcha qo'shgan savollaringizni o'chirasizmi? Bog'liq VA butun serverda ishlatilmayotgan (yetim) barcha ma'lumotlar (rasmlar) ham butunlay o'chib ketadi - qaytarib bo'lmaydi!"))return;
   var btn=document.getElementById('clearqs-btn');
   var msg=document.getElementById('clearqs-msg');
   if(btn) btn.disabled=true;
@@ -5490,9 +5490,9 @@ async function clearUserQs(){
   renderQT();
   try{
     var res=await cleanupOrphanStorageImages(msg);
-    if(msg) msg.innerHTML='<div class="alt as">&#x2705; Savollaringiz tozalandi! Serverdan yana <b>'+res.deleted+'</b> ta ishlatilmayotgan (etim) fayl ochirildi (jami tekshirilgan: '+res.total+' ta).</div>';
+    if(msg) msg.innerHTML='<div class="alt as">&#x2705; Savollaringiz tozalandi! Serverdan yana <b>'+res.deleted+'</b> ta ishlatilmayotgan yetim ma\'lumot o\'chirildi (jami tekshirilgan: '+res.total+' ta).</div>';
   }catch(e){
-    if(msg) msg.innerHTML='<div class="alt ar">Savollaringiz tozalandi, lekin etim rasmlarni qidirishda xato yuz berdi: '+e.message+'</div>';
+    if(msg) msg.innerHTML='<div class="alt ar">Savollaringiz tozalandi, lekin yetim ma\'lumotlarni qidirishda xato yuz berdi: '+e.message+'</div>';
   }
   if(btn) btn.disabled=false;
 }
