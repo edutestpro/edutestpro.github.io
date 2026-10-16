@@ -267,6 +267,9 @@ body{animation:none!important;background:#0a0e2c!important}
 #mathBg span{color:rgba(255,255,255,.2)!important;text-shadow:2px 2px 0 rgba(10,14,44,.35)}
 /* piksel fon ustida matn aniq o'qilsin: kartalar deyarli oq */
 .card{background:rgba(255,255,255,.965)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* NUR O'CHIRILDI (2026-10-16): sichqoncha/barmoq ortidan yuradigan yorug' dog' kerak emas */
+.card::before,.card:hover::before,.card.glow-active::before{display:none!important;opacity:0!important}
+#touchGlow{display:none!important}
 </style>
 <script>try{var _p=JSON.parse(sessionStorage.getItem('et_pre')||'null');if(sessionStorage.getItem('et_sess')||(_p&&_p.pg==='pg-auth'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},3000);</script>
 <style>html.et-restoring .pg{visibility:hidden}</style>
@@ -1097,7 +1100,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v178';
+var APP_VER = 'edutest-v179';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
