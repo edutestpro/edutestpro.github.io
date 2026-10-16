@@ -263,13 +263,23 @@ html{background:#0a0e2c!important}
 #pxBg{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100lvh;z-index:-3;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges;display:block;
   transform:translate3d(0,0,0);will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#0a0e2c}
 #heroArt{display:none!important}
-body{animation:none!important;background:#0a0e2c!important}
+body{animation:none!important;background:transparent!important}
 #mathBg span{color:rgba(255,255,255,.2)!important;text-shadow:2px 2px 0 rgba(10,14,44,.35)}
 /* piksel fon ustida matn aniq o'qilsin: kartalar deyarli oq */
 .card{background:rgba(255,255,255,.965)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* NUR O'CHIRILDI (2026-10-16): sichqoncha/barmoq ortidan yuradigan yorug' dog' kerak emas */
 .card::before,.card:hover::before,.card.glow-active::before{display:none!important;opacity:0!important}
 #touchGlow{display:none!important}
+/* PIKSEL FON v2: tun/kunduz tugmasi va kunduz ranglari */
+html[data-px=day]{background:#58a4f7!important}
+html[data-px=day] #pxBg{background:#58a4f7}
+html[data-px=day] #mathBg span{color:rgba(30,50,120,.22)!important;text-shadow:none}
+#pxModeBtn{position:fixed;right:14px;bottom:78px;z-index:150;width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.55);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;background:rgba(14,18,56,.78);box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .3s}
+html[data-px=day] #pxModeBtn{background:rgba(255,255,255,.85);border-color:rgba(255,255,255,.9);box-shadow:0 6px 18px rgba(30,60,140,.3)}
+#pxModeBtn:active{transform:scale(.88) rotate(25deg)}
+@media (hover:hover){#pxModeBtn:hover{transform:scale(1.1) rotate(-12deg)}}
+body:has(#pg-test.on) #pxModeBtn{display:none}
 </style>
 <script>try{var _p=JSON.parse(sessionStorage.getItem('et_pre')||'null');if(sessionStorage.getItem('et_sess')||(_p&&_p.pg==='pg-auth'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},3000);</script>
 <style>html.et-restoring .pg{visibility:hidden}</style>
@@ -1100,7 +1110,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v179';
+var APP_VER = 'edutest-v181';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -9680,77 +9690,89 @@ function sendReport(){
 })();
 </script>
 <script>
-// ═══ 2D PIKSEL FON (2026-10-16): bosqichli (dither) osmon, piksel oy, yulduzlar, bulutlar, tepaliklar, maktab binosi, daraxtlar, raketa ═══
+// ═══ 2D PIKSEL FON v2 (2026-10-16): TUN (oy, yulduzlar) va KUNDUZ (quyosh, qushlar) rejimi + almashtirish tugmasi ═══
 (function(){
   var cv=document.createElement('canvas'); cv.id='pxBg'; cv.setAttribute('aria-hidden','true');
   var ctx=cv.getContext&&cv.getContext('2d'); if(!ctx) return;
-  var H=200, W=100, st=null, last=0, T0=Date.now(), raf=0, scrollUntil=0;
-  var SKY=['#0a0e2c','#111650','#1a1f6a','#2a2584','#40338f','#6a3f98','#a14f94','#d4647a','#f08a62','#f7b663'];
+  var H=200, W=100, st=null, last=0, T0=Date.now(), raf=0, scrollUntil=0, mode='night';
+  try{ var sv=localStorage.getItem('et_px_mode'); if(sv==='day'||sv==='night') mode=sv; }catch(e){}
+  var PAL={
+    night:{sky:['#04071c','#070c2b','#0b123c','#10194e','#16205f','#1d2a70','#253580','#2e408f','#3a4c9d','#475aab'],
+      far:['#242a6e','#3f4aa0'], mid:['#171c55','#2b3590'], near:['#0e1238','#2a7a5e'],
+      pineA:['#1f6b52','#2a8a68'], pineB:['#232a78','#323c96'], cloud:['#7d86c8','#a9b2ea'], wall:'#3b3f9a', wallTop:'#4a50b0', roof:'#5a60c8', door:'#12153a'},
+    day:{sky:['#2f7fe0','#3f8ff0','#58a4f7','#78b9fb','#98cbfd','#b7dcff','#cfe9ff','#e2f2ff','#f1f9ff','#fff6d6'],
+      far:['#5aa86a','#7cc47f'], mid:['#3f9a5a','#62b872'], near:['#2b7d46','#5cb874'],
+      pineA:['#1d7442','#2f9a5a'], pineB:['#2f8a55','#47a96e'], cloud:['#e4f0ff','#ffffff'], wall:'#e8d6a6', wallTop:'#f4e6bd', roof:'#c8553d', door:'#7a4a2c'}
+  };
   function hex(c){ var n=parseInt(c.slice(1),16); return [n>>16&255,n>>8&255,n&255]; }
   var BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   function rnd(seed){ var s=seed; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
   function px(c,x,y,w,h){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w||1,h||1); }
   function build(){
+    var P0=PAL[mode], night=mode==='night';
     var vw=Math.max(320,innerWidth), vh=Math.max(400,innerHeight);
     H=200; W=Math.max(96,Math.min(420,Math.round(H*vw/vh)));
     cv.width=W; cv.height=H;
     var off=document.createElement('canvas'); off.width=W; off.height=H; var o=off.getContext('2d');
-    // osmon: dither bilan bosqichma-bosqich
-    var img=o.createImageData(W,H), d=img.data, horizon=Math.round(H*0.8), pal=SKY.map(hex), y, x;
+    var img=o.createImageData(W,H), d=img.data, horizon=Math.round(H*0.8), pal=P0.sky.map(hex), y, x;
     for(y=0;y<H;y++){
       var t=Math.min(1,y/horizon)*(pal.length-1), b=Math.min(pal.length-2,Math.floor(t)), f=t-b;
-      for(x=0;x<W;x++){
-        var th=(BAY[(y&3)*4+(x&3)]+.5)/16, c=pal[b+(f>th?1:0)], i=(y*W+x)*4;
-        d[i]=c[0]; d[i+1]=c[1]; d[i+2]=c[2]; d[i+3]=255;
-      }
+      for(x=0;x<W;x++){ var th=(BAY[(y&3)*4+(x&3)]+.5)/16, c=pal[b+(f>th?1:0)], i=(y*W+x)*4; d[i]=c[0]; d[i+1]=c[1]; d[i+2]=c[2]; d[i+3]=255; }
     }
     o.putImageData(img,0,0);
     function P(c,x,y,w,h){ o.fillStyle=c; o.fillRect(x|0,y|0,w||1,h||1); }
-    // oy (piksel doira + kraterlar + yarim shaffof nur halqalari)
-    var mx=Math.round(W*0.78), my=Math.round(H*0.2), R=10, yy, xx;
-    for(yy=-R-6;yy<=R+6;yy++) for(xx=-R-6;xx<=R+6;xx++){
-      var dd=xx*xx+yy*yy;
-      if(dd<=R*R) P((xx+yy<-4)?'#fff1b8':'#f6d77a',mx+xx,my+yy);
-      else if(dd<=(R+3)*(R+3) && BAY[((my+yy)&3)*4+((mx+xx)&3)]<8) P('#f3cf7a55',mx+xx,my+yy);
-      else if(dd<=(R+6)*(R+6) && BAY[((my+yy)&3)*4+((mx+xx)&3)]<3) P('#f3cf7a33',mx+xx,my+yy);
+    var mx=Math.round(W*0.78), my=Math.round(H*0.2), R=night?11:10, yy, xx;
+    if(night){
+      // OY: kumush-ko'k, kraterlar, yarim oy yorug'ligi, sovuq nur
+      for(yy=-R-7;yy<=R+7;yy++) for(xx=-R-7;xx<=R+7;xx++){
+        var dd=xx*xx+yy*yy, bm=BAY[((my+yy)&3)*4+((mx+xx)&3)];
+        if(dd<=R*R){
+          var dx=xx-4, dy=yy+2, inCres=!(dx*dx+dy*dy<(R-1)*(R-1));
+          P(inCres?'#e6edff':'#3b4a90',mx+xx,my+yy);
+        } else if(dd<=(R+3)*(R+3) && bm<7) P('#9fb4ff44',mx+xx,my+yy);
+        else if(dd<=(R+7)*(R+7) && bm<3) P('#9fb4ff2a',mx+xx,my+yy);
+      }
+      P('#b8c6f2',mx-8,my-1,2,2); P('#b8c6f2',mx-6,my+4,3,2); P('#b8c6f2',mx-3,my-6,2,1); P('#c9d5fa',mx-9,my+2,1,1);
+    } else {
+      // QUYOSH: sariq, yorqin markaz, issiq nur
+      for(yy=-R-8;yy<=R+8;yy++) for(xx=-R-8;xx<=R+8;xx++){
+        var d2=xx*xx+yy*yy, bm2=BAY[((my+yy)&3)*4+((mx+xx)&3)];
+        if(d2<=R*R) P((xx+yy<-5)?'#fff4a8':(d2>(R-2)*(R-2)?'#ffc83a':'#ffe066'),mx+xx,my+yy);
+        else if(d2<=(R+3)*(R+3) && bm2<8) P('#ffe9804d',mx+xx,my+yy);
+        else if(d2<=(R+8)*(R+8) && bm2<3) P('#fff2a033',mx+xx,my+yy);
+      }
     }
-    P('#e0b95a',mx-3,my-2,3,2); P('#e0b95a',mx+3,my+3,2,2); P('#e0b95a',mx-1,my+5,2,1); P('#e0b95a',mx+4,my-4,1,1);
-    // tepaliklar (3 qatlam)
     var r=rnd(7);
     function hill(base,amp,fr,ph,col,top,seedOff){
       var hs=[];
       for(var x2=0;x2<W;x2++){
         var h=Math.round(base+amp*Math.sin(x2*fr+ph)+amp*.5*Math.sin(x2*fr*2.3+ph*1.7+seedOff));
-        hs.push(h); P(col,x2,h,1,H-h); P(top,x2,h,1,1);
-        if(((x2+h)&3)===0) P(top,x2,h+2,1,1);
+        hs.push(h); P(col,x2,h,1,H-h); P(top,x2,h,1,1); if(((x2+h)&3)===0) P(top,x2,h+2,1,1);
       }
       return hs;
     }
-    var far=hill(H*0.74,6,0.045,1.2,'#2b2470','#4b3d9a',1);
-    var mid=hill(H*0.82,5,0.06,3.1,'#1c1855','#33298a',2);
-    var near=hill(H*0.91,4,0.08,.4,'#120f3a','#2a7a5e',3);
-    // maktab binosi (o'rta tepalikda)
+    var far=hill(H*0.74,6,0.045,1.2,P0.far[0],P0.far[1],1);
+    var mid=hill(H*0.82,5,0.06,3.1,P0.mid[0],P0.mid[1],2);
+    var near=hill(H*0.91,4,0.08,.4,P0.near[0],P0.near[1],3);
     var bx=Math.round(W*0.2), by=mid[Math.min(W-1,bx)]-1;
-    P('#3b2f8f',bx-9,by-12,19,12); P('#4a3da8',bx-9,by-12,19,1); P('#5a4cc0',bx-3,by-17,7,5); P('#4a3da8',bx-1,by-20,3,3); P('#f0b429',bx,by-24,1,4); P('#f0b429',bx+1,by-24,3,2);
-    P('#1b153f',bx-1,by-5,3,5);
+    P(P0.wall,bx-9,by-12,19,12); P(P0.wallTop,bx-9,by-12,19,1); P(P0.roof,bx-3,by-17,7,5); P(P0.wallTop,bx-1,by-20,3,3); P('#f0b429',bx,by-24,1,4); P('#f0b429',bx+1,by-24,3,2);
+    P(P0.door,bx-1,by-5,3,5);
     var wins=[[bx-7,by-9],[bx-4,by-9],[bx+2,by-9],[bx+5,by-9],[bx-7,by-5],[bx+5,by-5]];
-    // daraxtlar (piksel qarag'ay)
-    function pine(px0,base,h,c1,c2){ for(var k=0;k<h;k++){ var w=1+Math.floor(k*1.2); P(k%2?c1:c2,px0-(w>>1),base-h+k,w,1); } P('#2a1c1c',px0,base,1,2); }
+    function pine(px0,base,h,c1,c2){ for(var k=0;k<h;k++){ var w=1+Math.floor(k*1.2); P(k%2?c1:c2,px0-(w>>1),base-h+k,w,1); } P('#4a2f22',px0,base,1,2); }
     var tr=rnd(11);
-    for(var q=0;q<Math.max(4,Math.round(W/22));q++){ var tx=Math.round(tr()*(W-8))+4; pine(tx,near[tx]+1,8+Math.floor(tr()*5),'#1f6b52','#2a8a68'); }
-    for(var q2=0;q2<Math.max(3,Math.round(W/34));q2++){ var tx2=Math.round(tr()*(W-8))+4; pine(tx2,mid[tx2]+1,6+Math.floor(tr()*3),'#2b2a7a','#3a3797'); }
-    // yulduzlar joylari
-    var sr=rnd(3), stars=[], n=Math.round(W*0.55);
-    for(var s=0;s<n;s++){ stars.push({x:Math.floor(sr()*W),y:Math.floor(sr()*H*0.55),p:sr()*6.28,big:sr()<0.14}); }
-    // bulutlar
+    for(var q=0;q<Math.max(4,Math.round(W/22));q++){ var tx=Math.round(tr()*(W-8))+4; pine(tx,near[tx]+1,8+Math.floor(tr()*5),P0.pineA[0],P0.pineA[1]); }
+    for(var q2=0;q2<Math.max(3,Math.round(W/34));q2++){ var tx2=Math.round(tr()*(W-8))+4; pine(tx2,mid[tx2]+1,6+Math.floor(tr()*3),P0.pineB[0],P0.pineB[1]); }
+    var sr=rnd(3), stars=[], n=night?Math.round(W*0.6):0;
+    for(var s=0;s<n;s++){ stars.push({x:Math.floor(sr()*W),y:Math.floor(sr()*H*0.58),p:sr()*6.28,big:sr()<0.14}); }
     var cr=rnd(5), clouds=[], ci;
-    for(ci=0;ci<5;ci++) clouds.push({x:cr()*W,y:H*0.12+cr()*H*0.38,s:ci<2?1:0,v:ci<2?0.55:0.28});
-    st={off:off,wins:wins,stars:stars,clouds:clouds,horizon:horizon};
+    for(ci=0;ci<5;ci++) clouds.push({x:cr()*W,y:H*0.1+cr()*H*0.4,s:ci<2?1:0,v:ci<2?0.55:0.28});
+    var birds=[]; if(!night) for(var bi=0;bi<3;bi++) birds.push({x:cr()*W,y:H*0.18+cr()*H*0.3,v:.6+cr()*.5,p:cr()*6});
+    st={off:off,wins:wins,stars:stars,clouds:clouds,birds:birds,night:night,mx:mx,my:my,R:R};
   }
   function cloud(c){
-    var col=c.s?'#b9a8ee':'#8a7bc4', x=Math.round(c.x), y=Math.round(c.y);
+    var col=st.night?(c.s?'#a9b2ea':'#7d86c8'):(c.s?'#ffffff':'#e4f0ff'), x=Math.round(c.x), y=Math.round(c.y);
     var rows=c.s?[[3,9],[1,13],[0,15],[2,12]]:[[2,6],[0,10],[1,8]];
-    ctx.globalAlpha=c.s?.55:.35;
+    ctx.globalAlpha=st.night?(c.s?.5:.3):(c.s?.95:.75);
     for(var k=0;k<rows.length;k++){ px(col,x+rows[k][0],y+k,rows[k][1],1); }
     ctx.globalAlpha=1;
   }
@@ -9760,26 +9782,52 @@ function sendReport(){
     if(now-last<100) return; if(Date.now()<scrollUntil) return; last=now;
     var t=(Date.now()-T0)/1000, i;
     ctx.drawImage(st.off,0,0);
-    // yulduzlar miltillaydi
-    for(i=0;i<st.stars.length;i++){ var s=st.stars[i], a=.35+.65*Math.abs(Math.sin(t*1.3+s.p));
-      ctx.globalAlpha=a; px('#ffffff',s.x,s.y,1,1);
-      if(s.big&&a>.7){ px('#fff6cf',s.x-1,s.y,3,1); px('#fff6cf',s.x,s.y-1,1,3); }
-      ctx.globalAlpha=1; }
-    // bulutlar suzadi
+    if(st.night){
+      for(i=0;i<st.stars.length;i++){ var s=st.stars[i], a=.35+.65*Math.abs(Math.sin(t*1.3+s.p));
+        ctx.globalAlpha=a; px('#ffffff',s.x,s.y,1,1);
+        if(s.big&&a>.7){ px('#fff6cf',s.x-1,s.y,3,1); px('#fff6cf',s.x,s.y-1,1,3); }
+        ctx.globalAlpha=1; }
+    } else {
+      // quyosh nurlari (ikki holat almashadi)
+      var a2=Math.floor(t*2)%2, rr=st.R+4, dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
+      for(i=0;i<dirs.length;i++){ var L=(i+a2)%2?3:5; for(var k2=0;k2<L;k2++){ px('#ffd84a',st.mx+dirs[i][0]*(rr+k2),st.my+dirs[i][1]*(rr+k2),1,1); } }
+    }
     for(i=0;i<st.clouds.length;i++){ var c=st.clouds[i]; c.x+=c.v*0.1*8; if(c.x>W+16) c.x=-18; cloud(c); }
-    // maktab oynalari chaqnaydi
-    for(i=0;i<st.wins.length;i++){ var lit=((Math.floor(t/2.5)+i*3)%5)!==0; px(lit?'#ffd86b':'#6b5aa8',st.wins[i][0],st.wins[i][1],2,2); }
-    // uchar yulduz
-    var ph=t%9; if(ph<1){ var k2=ph; var sx=W*0.9-k2*W*0.6, sy=H*0.08+k2*H*0.3;
-      for(i=0;i<7;i++){ ctx.globalAlpha=1-i/7; px('#fff',sx+i*1.4,sy-i*0.7,1,1); } ctx.globalAlpha=1; }
-    // raketa (har 26 soniyada bir marta)
+    for(i=0;i<st.wins.length;i++){
+      if(st.night){ var lit=((Math.floor(t/2.5)+i*3)%5)!==0; px(lit?'#ffd86b':'#6b5aa8',st.wins[i][0],st.wins[i][1],2,2); }
+      else px('#7fc4ff',st.wins[i][0],st.wins[i][1],2,2);
+    }
+    if(st.night){
+      var ph=t%9; if(ph<1){ var sx=W*0.9-ph*W*0.6, sy=H*0.08+ph*H*0.3;
+        for(i=0;i<7;i++){ ctx.globalAlpha=1-i/7; px('#fff',sx+i*1.4,sy-i*0.7,1,1); } ctx.globalAlpha=1; }
+    } else {
+      // qushlar uchadi
+      for(i=0;i<st.birds.length;i++){ var b=st.birds[i]; b.x+=b.v*0.8; if(b.x>W+6) b.x=-6;
+        var up=Math.floor(t*4+b.p)%2, bx2=Math.round(b.x), by2=Math.round(b.y+Math.sin(t+b.p)*2);
+        px('#2a3a5e',bx2,by2+(up?0:1),1,1); px('#2a3a5e',bx2+1,by2+(up?1:0),1,1); px('#2a3a5e',bx2+2,by2+(up?0:1),1,1); }
+    }
     var rp=(t%26)/26; if(rp<.28){ var u=rp/.28, rx=-10+u*(W+20), ry=H*0.62-u*H*0.45;
       px('#e9ecff',rx,ry,4,2); px('#e9ecff',rx+1,ry-1,2,1); px('#ff6b6b',rx+4,ry,1,2); px('#5aa9ff',rx+1,ry,1,1);
       var fl=(Math.floor(t*12)%2)?'#ffd86b':'#ff9a3c'; px(fl,rx-2,ry,2,1); px(fl,rx-3,ry+((Math.floor(t*12)%2)?1:0),1,1); }
   }
+  var btn=null;
+  var ICON={night:"<svg viewBox='0 0 24 24' width='24' height='24'><path fill='#e6edff' d='M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.5 9.5 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z'/></svg>",
+            day:"<svg viewBox='0 0 24 24' width='24' height='24'><circle cx='12' cy='12' r='5' fill='#ffd84a'/><g stroke='#ffd84a' stroke-width='2' stroke-linecap='round'><path d='M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1'/></g></svg>"};
+  function apply(){
+    document.documentElement.setAttribute('data-px',mode);
+    if(btn){ btn.innerHTML=ICON[mode==='night'?'night':'day']; btn.title=mode==='night'?"Kunduzgi rejimga o'tish":"Tungi rejimga o'tish"; btn.setAttribute('aria-label',btn.title); }
+  }
+  function setMode(m){
+    mode=m; try{ localStorage.setItem('et_px_mode',m); }catch(e){}
+    cv.style.transition='opacity .18s'; cv.style.opacity='0';
+    setTimeout(function(){ build(); apply(); cv.style.opacity='1'; },190);
+  }
+  window.togglePxMode=function(){ setMode(mode==='night'?'day':'night'); };
   function init(){
     document.body.insertBefore(cv,document.body.firstChild);
-    build(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame);
+    btn=document.createElement('button'); btn.id='pxModeBtn'; btn.type='button'; btn.onclick=window.togglePxMode;
+    document.body.appendChild(btn);
+    apply(); build(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame);
     var rt=0; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,250); });
     window.addEventListener('scroll',function(){ scrollUntil=Date.now()+220; },{passive:true,capture:true});
     window.addEventListener('touchmove',function(){ scrollUntil=Date.now()+220; },{passive:true});
