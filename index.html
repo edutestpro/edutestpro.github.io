@@ -1110,7 +1110,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v182';
+var APP_VER = 'edutest-v183';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -9123,7 +9123,12 @@ var GOOGLE_CLIENT_ID='456387534382-f04bbeboaj7jfg9l8o8fsrmgnr5s3uj5.apps.googleu
 function initGoogleLogin(){
   var box=document.getElementById('g-signin-box'); if(!box) return;
   if(!GOOGLE_CLIENT_ID){ box.style.display='none'; return; }
-  box.style.display='';
+  // 2026-10-16: Google tugmasi (iframe) ba'zi telefonlarda/ilova ichidagi brauzerlarda yuklanmay, kulrang "xafa yuz" qutisi
+  // chiqarardi. Iframe ishlasa accounts.google.com'dan xabar yuboradi (readyForConnect) — faqat shunda tugmani ko'rsatamiz.
+  box.style.display='none';
+  if(!window._gisMsgHook){ window._gisMsgHook=true;
+    window.addEventListener('message',function(e){ try{ if(e.origin==='https://accounts.google.com'){ var bx=document.getElementById('g-signin-box'); if(bx) bx.style.display=''; } }catch(x){} });
+  }
   function render(){ try{
     google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:onGoogleCredential,ux_mode:'popup'});
     google.accounts.id.renderButton(document.getElementById('g-signin'),{theme:'outline',size:'large',text:'signin_with',shape:'pill',width:280,locale:'uz'});
