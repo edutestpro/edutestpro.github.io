@@ -256,6 +256,8 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 4px rgba(91,62,166,.15)
 @keyframes titleIn{from{opacity:0;transform:translateY(16px) scale(.8)}to{opacity:1;transform:none}}
 .et-emoji{position:fixed;bottom:-50px;pointer-events:none;z-index:9998;animation:emojiUp var(--t,2.8s) cubic-bezier(.2,.8,.3,1) forwards}
 @keyframes emojiUp{0%{opacity:0;transform:translateY(0) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateY(calc(-100vh - 60px)) rotate(var(--r,30deg))}}
+.tg-logo{display:inline-block;width:1.25em;height:1.25em;vertical-align:-.28em;margin-right:.35em;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='%2337aee2'/><path fill='%23fff' d='M54 118.4l112.4-48.3c5.2-2.3 9.8 1.3 8.1 9.1l-19.1 90.2c-1.4 6.4-5.2 7.9-10.6 4.9l-29.1-21.5-14 13.5c-1.5 1.5-2.9 2.9-5.8 2.9l2.1-29.6 53.9-48.7c2.3-2.1-.5-3.2-3.6-1.2L81.6 137.2l-28.7-9c-6.2-2-6.4-6.2 1.3-9.2z'/></svg>") center/contain no-repeat;border-radius:50%;box-shadow:0 0 0 0 rgba(55,174,226,.5);animation:tgPulse 2.8s ease-in-out infinite}
+@keyframes tgPulse{0%,100%{box-shadow:0 0 0 0 rgba(55,174,226,.45)}50%{box-shadow:0 0 0 6px rgba(55,174,226,0)}}
 </style>
 <script>try{var _p=JSON.parse(sessionStorage.getItem('et_pre')||'null');if(sessionStorage.getItem('et_sess')||(_p&&_p.pg==='pg-auth'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},3000);</script>
 <style>html.et-restoring .pg{visibility:hidden}</style>
@@ -376,7 +378,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 4px rgba(91,62,166,.15)
         <a class="fp-link" onclick="openForgot()">Parolni unutdingizmi?</a>
         <button class="btn bp bfw blg mt8" onclick="doLogin()">Kirish</button>
         <div id="g-signin-box" style="display:none"><div class="or">yoki</div><div id="g-signin"></div></div>
-        <div style="text-align:center;margin-top:10px"><button type="button" onclick="tgLoginBtn()" style="background:#229ED9;color:#fff;border:0;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer">&#x1F4F2; Telegram orqali kirish</button></div>
+        <div style="text-align:center;margin-top:10px"><button type="button" onclick="tgLoginBtn()" style="background:#229ED9;color:#fff;border:0;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer"><i class="tg-logo"></i>Telegram orqali kirish</button></div>
         <p class="ts tm" style="margin-top:10px;text-align:center;line-height:1.5">&#x1F4A1; Umumiy/maktab kompyuteridan foydalansangiz, brauzer parolni saqlashni so'rasa <b>"Hech qachon"</b> yoki <b>"Yo'q, rahmat"</b> tugmasini bosing - shunda boshqa o'quvchi sizning hisobingizdan foydalana olmaydi.</p>
       </div>
       <div id="form-rg" style="display:none">
@@ -1086,7 +1088,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v174';
+var APP_VER = 'edutest-v175';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -9028,7 +9030,7 @@ function openForgot(){
     '<div class="fg"><label>Login</label><input type="text" id="fp-login" value="'+_cEsc(_fp.login)+'" autocomplete="username" enterkeyhint="next"></div>'+
     '<div class="fg"><label>Email <span class="tm" style="font-weight:400">(faqat email orqali olish uchun)</span></label><input type="email" id="fp-email" placeholder="masalan@gmail.com" autocomplete="email" enterkeyhint="send"></div>'+
     '<div id="fp-msg" class="ts" style="min-height:18px;margin:6px 0"></div>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button><button type="button" class="btn bpu" id="fp-send-tg" onclick="tgAuthLogin()">&#x1F4F2; Telegram orqali kirish</button><button type="button" class="btn bp" id="fp-send" onclick="fpSend(\'email\')">&#x2709;&#xFE0F; Emailga kod</button></div></div>';
+    '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button><button type="button" class="btn bpu" id="fp-send-tg" onclick="tgAuthLogin()"><i class="tg-logo"></i>Telegram orqali kirish</button><button type="button" class="btn bp" id="fp-send" onclick="fpSend(\'email\')">&#x2709;&#xFE0F; Emailga kod</button></div></div>';
   ov.style.display='flex'; setTimeout(function(){ var f=document.getElementById(_fp.login?'fp-email':'fp-login'); if(f) f.focus(); },50);
 }
 function closeForgot(){ var ov=document.getElementById('fp-ov'); if(ov) ov.style.display='none'; }
@@ -9044,7 +9046,7 @@ async function fpSend(via){
     if(!r.ok){ _fpMsg(j.error||('Xato: '+r.status)); b.disabled=false; return; }
     _fp.login=login;
     var box=document.querySelector('#fp-ov .tour-modal');
-    box.innerHTML='<h3 style="margin:0 0 6px">'+(via==='tg'?'&#x1F4F2; Telegram\'ni tekshiring':'&#x2709;&#xFE0F; Emailingizni tekshiring')+'</h3>'+
+    box.innerHTML='<h3 style="margin:0 0 6px">'+(via==='tg'?'<i class="tg-logo"></i>Telegram\'ni tekshiring':'&#x2709;&#xFE0F; Emailingizni tekshiring')+'</h3>'+
       '<p class="ts tm" style="margin:0 0 12px">'+(via==='tg'?'Telegram\'ingizga (botga) 6 xonali kod yuborildi':_cEsc(email)+' manziliga 6 xonali kod yuborildi. Xat ko\'rinmasa, "Spam" papkasini ham tekshiring')+' (10 daqiqa amal qiladi).</p>'+
       '<div class="fg"><label>Kod</label><input type="text" id="fp-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" enterkeyhint="next" style="letter-spacing:4px;font-weight:700;text-align:center;font-size:20px"></div>'+
       '<div class="fg"><label>Yangi parol</label><input type="password" id="fp-pass" autocomplete="new-password" enterkeyhint="done"></div>'+
@@ -9434,7 +9436,7 @@ async function tgAuthLogin(){
 function tgLoginBtn(){
   openForgot();
   var box=document.querySelector('#fp-ov .tour-modal'); if(!box) return;
-  box.innerHTML='<h3 style="margin:0 0 6px">&#x1F4F2; Telegram orqali kirish</h3><p class="ts tm" style="margin:0 0 12px">Qulay usulni tanlang. Hisobingiz Telegram\'ga ulangan bo\'lishi kerak.</p>'+
+  box.innerHTML='<h3 style="margin:0 0 6px"><i class="tg-logo"></i>Telegram orqali kirish</h3><p class="ts tm" style="margin:0 0 12px">Qulay usulni tanlang. Hisobingiz Telegram\'ga ulangan bo\'lishi kerak.</p>'+
     '<button type="button" class="btn bpu" style="width:100%;margin-bottom:8px;text-align:left" onclick="tgCodeForm()"><b>&#x1F522; Kod orqali</b><br><span style="font-size:12px;font-weight:400">Loginingizni yozasiz, bot 6 xonali kod yuboradi</span></button>'+
     '<button type="button" class="btn bpu" style="width:100%;margin-bottom:8px;text-align:left" onclick="tgBotAuto()"><b>&#x26A1; Bot orqali avtomatik</b><br><span style="font-size:12px;font-weight:400">Botda "&#x2705; Ruxsat berish" ni bosasiz — login kerak emas</span></button>'+
     '<div id="fp-msg" class="ts" style="min-height:18px"></div><button type="button" class="btn bg" onclick="closeForgot()">Bekor qilish</button>';
