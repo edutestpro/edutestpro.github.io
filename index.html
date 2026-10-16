@@ -2,8 +2,7 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<!-- 2026-10-14 et-lite-redirect: FAQAT tugmali telefon brauzeri (KaiOS, Opera Mini/Java, MIDP, S30/S40...) yengil versiyaga.
-     Android, iPhone, iPad, kompyuter HECH QACHON yo'naltirilmaydi. ?full=1 — to'liq saytda qolish. -->
+<!-- et-lite-redirect -->
 <script>(function(){try{var u=navigator.userAgent||"";var k=/KAIOS/i.test(u);if(!k&&/Android|iPhone|iPad|iPod|Windows NT|Macintosh|X11|CrOS|Linux x86/i.test(u))return;if(location.search.indexOf("full=1")>=0)return;if(k||/Opera Mini|MAUI|Series ?(30|40|60)|MIDP|J2ME|CLDC|UCWEB|Obigo|Teleca|NetFront|Polaris|SymbianOS|MRE\/|Spreadtrum|BREW|Nokia/i.test(u))location.replace("https://130-61-74-112.nip.io/m");}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
 <title>EduTest Pro</title>
@@ -59,8 +58,7 @@ body{background:linear-gradient(125deg,#151b3d,var(--purd) 30%,var(--pri) 55%,va
 .logo{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.2px}
 .nav-r{display:flex;gap:8px;align-items:center;font-size:13px}
 .main{max-width:860px;margin:0 auto;padding:20px 14px}
-/* TUZATISH (2026-10-14): Safari/WebKit tugma va maydonlarga sahifa shriftini meros
-   qilib bermaydi ("Muammo yozish" tugmasi serif shriftda chiqardi). */
+/* TUZATISH */
 button,input,select,textarea{font-family:inherit}
 .btn{padding:9px 18px;border-radius:9px;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:transform .12s,filter .12s,box-shadow .12s;display:inline-flex;align-items:center;gap:5px}
 .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -78,16 +76,12 @@ textarea{width:100%;padding:10px 13px;border:1.5px solid var(--bdr);border-radiu
 .mathedit:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(37,49,109,.12)}
 .mathedit:empty::before{content:attr(data-placeholder);color:#94a3b8}
 .mathedit.optedit{min-height:44px;max-height:120px;flex:1;padding:8px 10px;font-size:14px;line-height:1.6}
-/* TUZATISH: formula "to'rtburchagi" avvalgi qattiq chegara/fon o'rniga endi
-   faqat nozik pastki chiziq bilan - "bu yerga formula qo'yiladi" degan
-   yengil ishorani beradi, ko'zga tashlanib qolmaydi */
+/* TUZATISH */
 .mfrag{display:inline-block;vertical-align:middle;margin:0 1px;font-size:1.02em;border:none;border-bottom:1.5px dashed transparent;transition:border-color .15s;--placeholder-opacity:.25;min-width:1.4em;white-space:normal;line-height:normal}
 #aq-text .mfrag{font-size:1.5em}
 .mfrag:hover{border-bottom-color:var(--bdr)}
 .mfrag:focus-within{border-bottom-color:var(--pri)}
-/* MathLive'ning o'zi qo'shadigan qo'shimcha asboblar paneli/klaviatura
-   ochish tugmasi - biz o'zimizning "aq-syms" panelimizni ishlatamiz,
-   shuning uchun bular chalg'itmasin deb yashirilgan */
+/* MathLive'ning o'zi qo'shadigan qo'shimcha asboblar */
 math-field::part(virtual-keyboard-toggle),
 math-field::part(menu-toggle){display:none!important}
 .ML__keyboard-toggle,.ML__virtual-keyboard-toggle,.ML__menu-toggle,
@@ -97,8 +91,7 @@ textarea:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(37,49,109,.12)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-/* TUZATISH (2026-10-14): telefonda (iPhone 390px) 3/4 ustunli to'r ichidagi matn
-   qisqarmasdi va oxirgi ustun ekrandan chiqib, sahifa yonga surilardi (Sinflar). */
+/* TUZATISH */
 .g2>*,.g3>*,.g4>*{min-width:0}
 @media(max-width:560px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .fx{display:flex;gap:8px;align-items:center}.fxw{flex-wrap:wrap}
@@ -162,13 +155,13 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
 .pd{background:#f8fafc;border-radius:11px;padding:13px;margin-bottom:9px;border:1px solid var(--bdr)}
 .ts{font-size:13px}.tm{color:var(--mut)}
 .mt8{margin-top:8px}.mt12{margin-top:12px}
-/* ═══ HARAKAT QATLAMI (2026-10-16): silliq o'tishlar va animatsiyalar. Faqat transform/opacity — eski telefonlarda ham yengil. ═══ */
+/* HARAKAT QATLAMI */
 :root{--ease-out:cubic-bezier(.22,1,.36,1);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
 html{scroll-behavior:smooth}
 /* sahifa almashishi */
 .pg{animation:pgIn2 .5s var(--ease-out)}
 @keyframes pgIn2{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
-/* sahifa ochilganda kartalar ketma-ket chiqadi (faqat ochilish paytida — keyingi yangilanishlarda miltillamaydi) */
+/* sahifa ochilganda kartalar ketma-ket chiqadi (faqat ochilish */
 .pg-enter .card,.pg-enter .tbtn,.pg-enter .hub-card,.pg-enter .rcard{animation:riseIn .55s var(--ease-out) both}
 .pg-enter .card:nth-child(2),.pg-enter .tbtn:nth-child(2),.pg-enter .hub-card:nth-child(2),.pg-enter .rcard:nth-child(2){animation-delay:.05s}
 .pg-enter .card:nth-child(3),.pg-enter .tbtn:nth-child(3),.pg-enter .hub-card:nth-child(3),.pg-enter .rcard:nth-child(3){animation-delay:.1s}
@@ -303,10 +296,7 @@ body:has(#pg-test.on) #pxModeBtn{display:none}
     <circle cx="720" cy="95" r="2.5"/><circle cx="950" cy="45" r="2"/><circle cx="1080" cy="120" r="2"/>
     <circle cx="1480" cy="70" r="2.5"/><circle cx="1560" cy="140" r="2"/>
   </g>
-  <!-- quyosh - endi MARJON-ATIRGUL rangda (sariq/oltin emas) - fonning
-       fan-rangi (--accent, odatda sariq/oltin oilasidan) bilan hech qachon
-       bir xil bo'lib qolmaydi, chunki butunlay boshqa rang oilasidan
-       tanlangan (qizil-pushti), sariq emas -->
+  <!-- quyosh - endi MARJON-ATIRGUL rangda (sariq/oltin emas) - fonning -->
   <circle id="sunGlowCircle" cx="1280" cy="160" r="130" fill="url(#sunGlow)"/>
   <circle id="sunCoreCircle" cx="1280" cy="160" r="48" fill="#ffd9c7" opacity=".92"/>
   <!-- orqa tepalik -->
@@ -1110,7 +1100,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v183';
+var APP_VER = 'edutest-v184';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -1125,12 +1115,7 @@ var APP_VER = 'edutest-v183';
     }).catch(function(){});
   }catch(e){}
 })();
-// TUZATISH (2026-10-14): iPhone/iPad Safari'da localStorage taxminan 5 MB
-// (UTF-16, ya'ni ~2,5 mln belgi). EduTest bazasi 3,8 mln belgi - setItem xato
-// berar, xato jim yutilar va sayt bo'sh boshlang'ich baza bilan qolardi
-// (iPhone'da testlar ko'rinmasdi). Endi baza localStorage'ga sig'masa XOTIRADA
-// turadi (_memDB) va doimiy saqlash uchun IndexedDB'ga yoziladi (iOS'da
-// yuzlab MB). Sahifa ochilganda IndexedDB'dagi nusxa avval yuklanadi (_lsLoad).
+// TUZATISH : iPhone/iPad Safari'da localStorage taxminan 5 MB
 var _memDB=null;
 function dbSetRaw(str){
   _dbRo=null;
@@ -1194,18 +1179,13 @@ var _lsLoad=(function(){
   ]).catch(function(){});
 })();
 
-// ─── SUPABASE CONFIGURATION ───────────────────────────────────────────────────
-// Supabase sozlamalari — bu yerga o'z kalitlaringizni kiriting:
+// SUPABASE CONFIGURATION
 var SB_URL = 'https://ykpegjtexjwddsfgwwpw.supabase.co';
 var SB_KEY = 'sb_publishable_sU45gZYAtOGHx2SLnZfC_A_JqKLqLry';
 var SB_STORAGE_BUCKET = 'edutest-images';
 
 var _sb = null;
-// ─── SERVER TOKENI (2026-09-30) ─────────────────────────────────────────────
-// Kirgach server bergan vaqtinchalik token XOTIRADA saqlanadi (sahifa
-// yangilansa qayta kirish kerak - ilova avval ham shunday ishlagan). Token
-// FAQAT bizning serverlarga va faqat himoyalangan endpointlarga (AI, import,
-// rasm yuklash, bildirishnoma...) "Authorization: Bearer" sifatida qo'shiladi.
+// SERVER TOKENI
 var _authToken=null;
 try{ var _es0=JSON.parse(sessionStorage.getItem('et_sess')||'null'); if(_es0&&_es0.t) _authToken=_es0.t; }catch(e){}
 if(!_authToken){ try{ var _lp0=JSON.parse(localStorage.getItem('et_sess_persist')||'null'); if(_lp0&&_lp0.t&&_lp0.exp&&Date.now()<_lp0.exp) _authToken=_lp0.t; }catch(e){} }
@@ -1237,9 +1217,7 @@ var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|pars
     });
   };
 })();
-// Login/parolni SERVERDA tekshirtiradi. {ok:true,token} | {ok:false,status,error}
-// (login xato/tasdiqlanmagan/juda ko'p urinish) | null (server bu imkoniyatni
-// bermaydi - eski server yoki tarmoq xatosi: eskicha mahalliy tekshiruvga o'tiladi).
+// Login/parolni SERVERDA tekshirtiradi
 async function serverLogin(login,pass,role){
   try{
     var res=await fetch(DB_SERVER+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:login,pass:pass,role:role})});
@@ -1256,20 +1234,7 @@ var _sbReady = false;
 var _dbReady = true;
 var _realtimeCh = null;
 
-// ── RASMLARNI YUKLASH (R2 birinchi, Supabase zaxira) ───────────────────────
-// Rasmlarni asosiy ma'lumotlar bazasi (JSON) ichida Base64 sifatida saqlash
-// o'rniga, alohida fayl saqlash xizmatiga yuklaymiz va faqat QISQA HAVOLANI
-// saqlaymiz. Bu asosiy JSON hajmini yuzlab marta kichraytiradi.
-// 2026-09-06 TUZATISH: avval bu funksiya FAQAT Supabase Storage'ga yozardi -
-// R2 backend'da (import/EMF-konvertatsiya yolida) qancha toliq sozlangan
-// bolmasin, BU yerdan (masalan "Savol qo'shish" formasiga qolda rasm
-// yuklanganda, yoki import paytida uploadAllImages() orqali) chiqadigan
-// rasmlar doim Supabase'da qolib ketardi - "R2'ni toliq ulagandan keyin
-// ham hammasi Supabase'ga tushyapti" shikoyatining aynan shu funksiyadagi
-// sababi edi. Endi: AVVAL /upload_image (server orqali R2'ga, kalitlar
-// brauzerga chiqmaydi) sinaladi; faqat u ishlamasa (R2 sozlanmagan yoki
-// server javob bermasa) ESKI Supabase yoliga qaytiladi - import hech qachon
-// buzilmaydi, faqat R2 to'liq sozlanmagan holatda avvalgidek ishlayveradi.
+// RASMLARNI YUKLASH (R2 birinchi, Supabase zaxira)
 async function uploadImageToStorage(dataUrl, keyHint){
   var match = dataUrl && dataUrl.match ? dataUrl.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/) : null;
   if(!match) return dataUrl; // notanish format yoki allaqachon URL (R2/Supabase)
@@ -1299,10 +1264,7 @@ async function uploadImageToStorage(dataUrl, keyHint){
     return (pub.data && pub.data.publicUrl) ? pub.data.publicUrl : dataUrl;
   }catch(e){ console.error('uploadImageToStorage xato:', e); return dataUrl; }
 }
-// Kop rasmni bir vaqtda (lekin cheklangan miqdorda parallel) yuklash -
-// minglab rasm bolganda ham brauzerni "qotirmaydi" va tezroq ishlaydi.
-// MUHIM: endi Supabase ulanmagan bolsa ham ishlaydi (avval shart edi) -
-// R2 yoli Supabase'dan mutlaqo mustaqil ishlashi kerak.
+// Kop rasmni bir vaqtda (lekin cheklangan miqdorda parallel)
 async function uploadAllImages(items){
   if(!items.length) return;
   var CONCURRENCY = 8;
@@ -1326,11 +1288,7 @@ function sbInit() {
   if (!SB_URL || !SB_KEY) { _sbReady = false; return; }
   if (_sb) return;
   try {
-    // MUHIM: bu klient endi FAQAT Storage (rasmlar) uchun ishlatiladi.
-    // Jadval (edutest_store) o'qish/yozish endi TO'G'RIDAN-TO'G'RI Supabase'ga
-    // emas, Render serveringiz orqali (service key bilan, faqat serverda
-    // saqlanadigan) amalga oshiriladi - shuning uchun anon key orqali
-    // hech kim bazani o'qiy/yoza olmaydi.
+    // MUHIM: bu klient endi FAQAT Storage (rasmlar) uchun ishlatiladi
     _sb = supabase.createClient(SB_URL, SB_KEY, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'sb_edu_'+SB_URL.slice(-8) }
     });
@@ -1339,17 +1297,13 @@ function sbInit() {
   startDbPolling();
 }
 
-// Avval Supabase Realtime (postgres_changes) orqali kuzatilgan edi - lekin bu
-// RLS yoqilgach anon key uchun ishlamay qoladi (Realtime ham RLS'ga bo'ysunadi).
-// Shuning uchun endi davriy ravishda serverdan yangilanishni soraymiz -
-// funksionallik deyarli bir xil, faqat "darhol" emas, ~20 soniyada bir marta.
+// Avval Supabase Realtime (postgres_changes) orqali kuzatilgan edi
 var _dbPollTimer=null;
 function startDbPolling(){
   if(_dbPollTimer) return;
   _dbPollTimer=setInterval(async function(){
     try{
       // Test yechilayotgan bolsa, hech narsaga tegmaymiz - internet
-      // muammosi test jarayonini butunlay chetlab otishi kerak.
       if(S.mode) return;
       var remoteV=await sbPullVersion();
       if(remoteV===null){ markConnLost(); return; }
@@ -1374,36 +1328,10 @@ function startDbPolling(){
   }, 40000);
 }
 
-// MUHIM: db_save/db_get (login, profil, natijalarni saqlash) ENDI alohida,
-// faqat shu ish uchun ajratilgan serverga (edutest-server-7) boradi - import
-// vaqtida boshqa serverlar formula/rasm qayta ishlash bilan band bolib
-// qolganda ham, ustoz/oquvchi kirish va malumot saqlash SEKINLAMASIN uchun.
-// VAQTINCHA (2026-09-21): Render hisobi butun akkaunt boyicha bandwidth
-// limitiga tegib, edutest-server-7 to'xtatilgani sababli, asosiy server
-// vaqtincha Oracle VM pool'dagi VM1'ga otkazildi (bu - Render emas, boshqa
-// infratuzilma, Render limitiga bogliq emas). Render hisobi tiklangach,
-// buni yana 'https://edutest-server-7.onrender.com'ga qaytarish mumkin.
-// TUZATISH (2026-09-22): DuckDNS manzillari mobil tarmoqlarda (telefonda)
-// "NXDOMAIN" xatosi bilan butunlay ishlamasligi aniqlandi (Xiaomi'da
-// tasdiqlandi) - shuning uchun "telefonda sayt ishlamayapti" muammosi
-// aynan shu edi. nip.io manzillari esa mobilda ham darhol ishlaydi -
-// shuning uchun DB_SERVER endi nip.io'ga o'tkazildi.
-// TUZATISH (2026-09-22): DuckDNS manzillari mobil tarmoqlarda (telefonda)
-// "NXDOMAIN" xatosi bilan butunlay ishlamasligi aniqlandi (Xiaomi'da
-// tasdiqlandi) - shuning uchun "telefonda sayt ishlamayapti" muammosi
-// aynan shu edi. nip.io manzillari esa mobilda ham darhol ishlaydi -
-// shuning uchun DB_SERVER endi VM1'ning haqiqiy IP'siga (nip.io orqali)
-// o'tkazildi - bu aynan "edutest-vnic" (docker orqali .env bilan
-// sozlangan) server, VM8 emas.
+// MUHIM
 var DB_SERVER='https://130-61-74-112.nip.io'; // 2026-10-02: VM1 (Micro, 500MB) sekin edi - tizim serveri vm4 (Ampere) ga ko'chirildi
 
-// TUZATISH (2026-09-30): import kabi tez ketma-ket saveDB() chaqiruvlarida bir
-// nechta db_save so'rovi PARALLEL ketib, server ularni tartibsiz qabul qilar
-// edi - server eskirgan (past v) nusxani rad etgani uchun har biriga 409 kelar,
-// har 409 esa butun bazani qayta yuklashga sabab bo'lardi. Endi so'rovlar
-// KETMA-KET yuboriladi va navbatda undan keyingi yangi saqlash bor bo'lsa,
-// eskirgan nusxa umuman yuborilmaydi (yangisi barcha o'zgarishni o'z ichiga oladi).
-// force=true - o'tkazib yuborilmaydi (kutilayotgan natijalarni yuborish uchun).
+// TUZATISH : import kabi tez ketma-ket saveDB() chaqiruvlarida bir
 var _pushChain=Promise.resolve(true), _pushSeq=0, _pushLatestDb=null, _lastOkV=0;
 function sbPush(db, force) {
   if (!_dbReady) return Promise.resolve(false);
@@ -1426,8 +1354,7 @@ async function _sbPushOnce(db) {
     if(res.status===409){
       markConnOk();
       var info={}; try{ info=await res.json(); }catch(e){}
-      // O'zimizning yuqoriroq nusxamiz allaqachon qabul qilingan bo'lsa - bu
-      // shunchaki kechikib kelgan eski surat, e'tibor bermaymiz.
+      // O'zimizning yuqoriroq nusxamiz allaqachon qabul qilingan bo'lsa
       if(typeof info.server_v==='number' && info.server_v<=_lastOkV) return true;
       return await sbResolveConflict(db);
     }
@@ -1439,20 +1366,9 @@ async function _sbPushOnce(db) {
   } catch(e) { console.error('Server push xato (malumot juda katta bolishi yoki server band bolishi mumkin):', e); markConnLost(); return false; }
 }
 
-// Server bu qurilmaning bazasini "eskirgan" deb rad etdi (409): boshqa qurilma
-// yangiroq versiyani allaqachon saqlagan. Eskirgan nusxa bilan butun bazani
-// bosib ketmaymiz - yangi bazani tortib olamiz. FAQAT hali serverga
-// yetmagan (kutilayotgan) imtihon natijalari yangi bazaga qo'shib qayta
-// yuboriladi, shunda internetsiz topshirilgan natija yo'qolmaydi.
+// Server bu qurilmaning bazasini "eskirgan" deb rad etdi (409)
 var _resolvingConflict=false;
-// ─── YANGI QO'SHILGANLARNI SAQLAB QOLISH (2026-10-01) ─────────────────────
-// Muammo: server nusxasi yangiroq bo'lsa (409 yoki polling), qurilmada hali
-// yuborilmagan yangi foydalanuvchi/savol/to'plam jimgina yo'qolardi
-// (masalan, ro'yxatdan o'tgan o'quvchi). Yechim: oxirgi muvaffaqiyatli
-// sinxrondagi id'lar ro'yxatini saqlaymiz. Lokalda bor, serverda yo'q VA
-// oxirgi sinxronda ham bo'lmagan element = shu qurilmada yangi qo'shilgan,
-// uni server nusxasiga qo'shamiz. Oxirgi sinxronda bo'lgan, endi serverda
-// yo'q element = boshqa joyda o'chirilgan, qaytarilmaydi.
+// YANGI QO'SHILGANLARNI SAQLAB QOLISH
 var SYNC_COLLS=['users','userQs','decks','results','collaborations'];
 var SYNCED_IDS_KEY='bt_synced_ids';
 function _collIds(db,c){ return (db[c]||[]).map(function(x){return x&&x.id!=null?String(x.id):null;}).filter(Boolean); }
@@ -1530,11 +1446,7 @@ async function sbPull() {
   } catch(e) { markConnLost(); }
   return null;
 }
-// TUZATISH (2026-09-21): butun bazani (/db_get) HAR SAFAR tortish o'rniga,
-// avval shu YENGIL (bir necha bayt) endpointni chaqiramiz - faqat versiya
-// raqami qaytadi. Trafikni (va Render bandwidth limitini) tejash uchun -
-// avval har 20 soniyada BUTUN baza qayta yuklanardi, hatto ozgarish
-// bolmasa ham; bu ayni traffik limitidan oshib ketishning sababi edi.
+// TUZATISH : butun bazani (/db_get) HAR SAFAR tortish o'rniga
 async function sbPullVersion() {
   if (!_dbReady) return null;
   try {
@@ -1546,11 +1458,7 @@ async function sbPullVersion() {
   } catch(e) { markConnLost(); return null; }
 }
 
-// ─── ULANISH BANNERI (online/offline) ──────────────────────────────────────
-// MUHIM: test yechilayotganda (S.mode to'ldirilgan bolsa) bu banner HECH
-// QACHON korsatilmaydi - talab shunday: test jarayoni internetga bogliq
-// bolmasligi, o'quvchini chalgitmasligi kerak. Banner faqat "oddiy" holatda
-// (ustoz/admin panelida, yoki test tashqarisida) korinadi.
+// ULANISH BANNERI (online/offline)
 function ensureConnBanner(){
   var el=document.getElementById('conn-banner');
   if(el) return el;
@@ -1582,14 +1490,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(navigator.onLine===false) markConnLost();
 });
 
-// ─── OFFLINE IMTIHON NATIJALARI NAVBATI ────────────────────────────────────
-// Imtihon (exam) tugaganda internet bolmasa - natija baribir LOKAL saqlanadi
-// (localStorage, darhol), lekin serverga ("bulutga") yuborilmagan deb
-// belgilanadi. Internet tiklanganda (online event, keyingi poll, yoki
-// sahifa qayta ochilganda) avtomatik qayta urinib yuboriladi. O'quvchi
-// ilovadan chiqib ketgan bolsa ham - keyingi safar shu qurilmada ochganda
-// yoki fonda hali ochiq bolgan tab orqali baribir yuborilishga harakat
-// qilinadi (localStorage saqlanib qoladi, hech narsa yoqolmaydi).
+// OFFLINE IMTIHON NATIJALARI NAVBATI
 var PENDING_KEY='edutest_pending_sync';
 function getPendingSync(){ try{ return JSON.parse(localStorage.getItem(PENDING_KEY)||'[]'); }catch(e){ return []; } }
 function setPendingSync(arr){ try{ localStorage.setItem(PENDING_KEY, JSON.stringify(arr)); }catch(e){} }
@@ -1616,11 +1517,9 @@ async function flushPendingSync(){
   }catch(e){}
   _flushingSync=false;
 }
-// Sahifa har ochilganda (o'quvchi ilovani yopib, keyin qayta ochsa ham)
-// avval kutilayotgan natijalarni yuborishga urinamiz.
+// Sahifa har ochilganda (o'quvchi ilovani yopib, keyin qayta
 setTimeout(function(){ flushPendingSync(); }, 1500);
-// Zaxira: 'online' event ba'zi qurilmalarda ishonchli kelmasligi mumkin -
-// shuning uchun har 25 soniyada ham qoshimcha tekshirib turamiz.
+// Zaxira
 setInterval(flushPendingSync, 25000);
 
 // ─── PUSH BILDIRISHNOMA (ustozga) ──────────────────────────────────────────
@@ -1668,7 +1567,6 @@ async function notifyResultToTeacher(res, wasOffline){
     var title = wasOffline ? '\u26A0\uFE0F Kechiktirilgan natija keldi' : '\uD83D\uDCCA Yangi imtihon natijasi';
     var body = res.student+' ('+(res.cls||'')+') - '+res.topic+' - '+res.pct+'%'+(wasOffline?' (internetsiz topshirilgan, endi tekshirsa boladi)':'');
     // Ilova ICHIDAGI bildirishnoma - push ruxsat berilmagan/hali obuna
-    // bolmagan ustozlar uchun ham ishlaydi, chunki bu oddiy DB yozuvi.
     var db2=getDB();
     addNotification(db2, teacherId, title, body);
     saveDB(db2);
@@ -1680,12 +1578,7 @@ async function notifyResultToTeacher(res, wasOffline){
   }catch(e){}
 }
 
-// ─── ILOVA ICHIDAGI BILDIRISHNOMA MARKAZI ──────────────────────────────────
-// Push (brauzer) bildirishnoma ruxsatga va obunaga bogliq, shuning uchun
-// har doim ishlayvermaydi. Shu sabab HAR BIR muhim hodisa (ustoz tasdiqlandi,
-// yangi natija keldi) baza ichida db.notifications[] sifatida ham saqlanadi -
-// foydalanuvchi keyingi safar tizimga kirganda yoki panelni yangilaganda
-// qongiroq belgisida korinadi, push kelmagan bolsa ham.
+// ILOVA ICHIDAGI BILDIRISHNOMA MARKAZI
 function addNotification(db, userId, title, body){
   db.notifications=db.notifications||[];
   db.notifications.push({id:'n'+Date.now()+'_'+Math.random().toString(36).slice(2,7), userId:userId, title:title, body:body, date:Date.now(), read:false});
@@ -1827,9 +1720,7 @@ document.addEventListener('click', function(e){
   if(!wrap.contains(e.target)) dd.style.display='none';
 });
 
-// ─── TEST BOSHLANISHIDA RASMLARNI OLDINDAN KESHLASH (offline uchun) ────────
-// Shunda test davomida internet ochib qolsa ham, savol/javob rasmlari
-// allaqachon qurilmada saqlangan bolib, korsatilishda davom etadi.
+// TEST BOSHLANISHIDA RASMLARNI OLDINDAN KESHLASH (offline uchun)
 function _qImgUrls(q){
   var urls=[]; if(!q) return urls;
   if(isImgVal(q.img)) urls.push(imgSrcVal(q.img));
@@ -1852,9 +1743,7 @@ function _prefetchNextQImgs(){
     _nextImgs=out.map(function(u){ var im=new Image(); im.decoding='async'; im.src=u; return im; }); }catch(e){}
 }
 
-// ─── LOCAL DB ─────────────────────────────────────────────────────────────────
-// 2026-10-03: eski importda RVF formatlash yozuvlari UTF-16 deb o'qilib, savol matnida
-// "x‰ㄭ㤠〠1" kabi buzuq belgilar qolgan. Ko'rsatishda tozalanadi (x₁, sm³); serverga yozilmaydi.
+// LOCAL DB
 function cleanRvfGarbage(t){
   if(typeof t!=='string'||t.indexOf('\u0a0d')<0) return t;
   function rec(c){ var o=c.charCodeAt(0); if(o===0x0a0d) return true; var hi=o>>8, lo=o&255; return hi>=32&&hi<=126&&lo>=32&&lo<=126; }
@@ -1918,9 +1807,7 @@ try{ window.addEventListener('storage',function(e){ if(!e.key||e.key===SK) _dbRo
 
 // ── SUZUVCHI MATEMATIK BELGILAR (fon dizayni) ──────────────────────────────
 function initMathBg(){renderFloatingBg('default');}
-// Har bir fan uchun ozining "suzib yuruvchi" belgi/emoji toplami - diqqatni
-// tortadigan, harakatlanadigan fon. Fan ozgarganda (applySubjectTheme orqali)
-// bu ham yangilanadi.
+// Har bir fan uchun ozining "suzib yuruvchi" belgi/emoji toplami
 var SUBJECT_BG_SYMBOLS={
   math:['π','√','∑','∞','×','÷','+','−','%','∆','∫','θ','α','β','°','=','≠','½'],
   phys:['⚛️','⚡','🔬','🌀','∇','λ','Ω','🧲','💡','🔭','📡'],
@@ -1942,11 +1829,7 @@ function renderFloatingBg(subjectKey, tier){
   host.innerHTML='';
   tier = tier||0;
   var symbols=SUBJECT_BG_SYMBOLS[subjectKey]||SUBJECT_BG_SYMBOLS.default;
-  // MUHIM: bu - "tabaqalash" (gamifikatsiya) tizimi. Hech qanday ochiq
-  // "reyting"/"o'rin" korsatilmaydi - faqat orqa fonning ozi sekin-asta
-  // jonliroq, porloqroq bolib boradi, agar oquvchi sinfdoshlariga nisbatan
-  // yuqori natija korsatsa. Past orindagilar uchun hech narsa ozgarmaydi
-  // (tier=0 - asl, ozgarishsiz fon).
+  // MUHIM
   var n = 22 + tier*10; // 22/32/42/52
   for(var i=0;i<n;i++){
     var el=document.createElement('span');
@@ -1988,19 +1871,7 @@ if(!document.getElementById('twinkle-star-style')){
 }
 initMathBg();
 
-// ── KATTA YORUG'LIK NURI - AYNAN TEGINILGAN/BOSILGAN NUQTADAN (2026-09-20) ─
-// Quyoshning o'zi harakatlanmaydi (statik). Alohida, KATTA va YORQIN nur
-// porlashi (#touchGlow) aynan sichqoncha/barmoq TEGINGAN nuqtada paydo
-// bo'ladi. TUZATISH: sichqoncha/barmoq HARAKATSIZ qolsa (masalan ekrandan
-// chiqib ketsa yoki bir necha soniya qimirlamasa), nur SEZILARSIZ bo'lib
-// (yo'q bo'lib) qoladi - faqat haqiqiy harakat paytida ko'rinadi.
-// TUZATISH (2026-09-20): "prefers-reduced-motion" tekshiruvi OLIB
-// TASHLANDI - ba'zi Samsung telefonlarda "Animatsiyalarni kamaytirish"
-// sozlamasi yoqilgan bo'lsa, bu tekshiruv butun effektni ISHGA
-// TUSHIRMASDAN to'xtatib qo'yar edi ("tegsam ham hech narsa chiqmadi"
-// muammosining aynan shu sababi edi). Bu - kichik, mahalliy (faqat teginilgan
-// joyda) porlash, uzoq/keng ekran animatsiyasi emas, shuning uchun bu
-// sozlamaga bog'liq qilib qo'yish shart emas edi.
+// KATTA YORUG'LIK NURI - AYNAN TEGINILGAN/BOSILGAN NUQTADAN
 (function(){
   var glowEl=document.getElementById('touchGlow');
   if(!glowEl) return;
@@ -2020,15 +1891,7 @@ initMathBg();
     glowEl.style.opacity='0';
   }
 
-  // TUZATISH (2026-09-20): endi nur FAQAT sichqoncha/barmoq biror panel
-  // (.card/.modal) USTIDA bo'lganda O'CHADI - faqat sahifaning bo'sh
-  // (panelsiz) joylarida ko'rinadi. (Avvalgi versiyada bu TESKARI edi -
-  // asl talab: "faqat panellarga KIRGUNCHA bo'lsin" - ya'ni panel ichida
-  // emas, tashqarisida.)
-  // TUZATISH (2026-09-21): ustoz/admin/o'quvchi tizimga KIRGANDAN keyin
-  // (ME o'rnatilgach) bu effekt ISHLASHNI TO'XTATADI - faqat kirish
-  // sahifasida (login qilishdan oldin) ko'rinadi, ish paneliga xalaqit
-  // bermaydi.
+  // TUZATISH : endi nur FAQAT sichqoncha/barmoq biror panel
   function isOverCard(target){ return !!(target && target.closest && target.closest('.card, .modal')); }
   function isLoggedIn(){ return typeof ME!=='undefined' && !!ME; }
 
@@ -2051,12 +1914,7 @@ initMathBg();
     if(!isOverCard(el)) setTarget(t.clientX, t.clientY);
     else hideNow();
   }, {passive:true});
-  // MUHIM TUZATISH: avval "touchend"da nur DARHOL yashirilardi - lekin
-  // oddiy bir marta bosishda (barmoqni surmasdan) touchstart va touchend
-  // deyarli bir zumda ketma-ket keladi, shuning uchun nur chiqishi bilan
-  // bir onda o'chib qolar, umuman ko'rinmasdi ("tegsam ham ozgarmayapti").
-  // Endi touchend'da hech narsa qilinmaydi - nur touchstart'da allaqachon
-  // belgilangan IDLE_MS (700ms) vaqt tugagach, o'zi tabiiy ravishda o'chadi.
+  // MUHIM TUZATISH
   document.addEventListener('mouseleave', hideNow, {passive:true});
 
   function tick(){
@@ -2068,12 +1926,7 @@ initMathBg();
   requestAnimationFrame(tick);
 })();
 
-// ── HAR BIR PANELDA (.card) SHU XIL NUR HARAKATI (2026-09-19) ───────────
-// Sichqoncha/barmoq biror panel (.card) ustida qayerga yursa/tegsa, o'sha
-// panelning o'zida ham xuddi shunday yumshoq nur uning ORQASIDAN chiqib,
-// kursor/barmoqqa ergashadi (CSS ::before + --mx/--my orqali). Rang FAN
-// mavzusiga qarab avtomatik moslashadi (var(--accent) ishlatiladi - bu
-// applySubjectTheme() allaqachon boshqaradigan sozlama, unga tegilmaydi).
+// HAR BIR PANELDA (.card) SHU XIL NUR HARAKATI
 (function(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   function isLoggedIn(){ return typeof ME!=='undefined' && !!ME; }
@@ -2104,19 +1957,13 @@ initMathBg();
   }, {passive:true});
   document.addEventListener('touchend', function(){
     // TUZATISH: darhol emas, kichik kechikish bilan yashiramiz - oddiy
-    // bosishda ham nur ko'rinib ulguradi (yuqoridagi touchGlow tuzatishi
-    // bilan bir xil sabab)
     setTimeout(function(){
       document.querySelectorAll('.card.glow-active').forEach(function(c){ c.classList.remove('glow-active'); });
     }, 500);
   }, {passive:true});
 })();
 
-// ── FANLAR VA VILOYAT/TUMAN MALUMOTLARI ────────────────────────────────────
-// ── RASM ANIQLASH VA MANZIL YASASH (umumiy yordamchi) ──────────────────────
-// Rasm endi 3 xil korinishda kelishi mumkin: to'liq data: URL, xom Base64,
-// yoki Supabase Storage havolasi (http/https). Shu funksiyalar hammasini
-// bitta joydan boshqaradi.
+// FANLAR VA VILOYAT/TUMAN MALUMOTLARI
 function isImgVal(s){
   if(!s || typeof s!=='string') return false;
   return s.indexOf('data:image')===0 || s.indexOf('iVBOR')===0 || s.indexOf('/9j/')===0 ||
@@ -2138,10 +1985,7 @@ function subjName(v){var s=SUBJECTS.find(function(x){return x.v===v;});return s?
 var SUBJECT_EMOJI={math:'&#x1F4D0;',phys:'&#x269B;&#xFE0F;',chem:'&#x1F9EA;',bio:'&#x1F9EC;',hist:'&#x1F4DC;',geo:'&#x1F30D;',lit:'&#x1F4D6;',lang:'&#x270D;&#xFE0F;',eng:'&#x1F1EC;&#x1F1E7;',rus:'&#x1F1F7;&#x1F1FA;',info:'&#x1F4BB;',other:'&#x1F4DA;'};
 function subjEmoji(v){return SUBJECT_EMOJI[v]||'&#x1F4DA;';}
 
-// ── FANGA QARAB DIZAYN (RANG) O'ZGARISHI ───────────────────────────────────
-// Har bir fan uchun oz rang uslubi: sayt kirish sahifasi doim neytral/umumiy
-// bolib qoladi, lekin kirgandan keyin (ustoz - oz faniga qarab, oquvchi -
-// tanlagan fan filtri boyicha) rang sxemasi shu fanga mos ozgaradi.
+// FANGA QARAB DIZAYN (RANG) O'ZGARISHI
 var DEFAULT_THEME={pri:'#25316d',purd:'#5b3ea6',accent:'#f0b429'};
 var SUBJECT_THEMES={
   math:{pri:'#2554c7',purd:'#6d3fc9',accent:'#f0b429'},
@@ -2166,10 +2010,7 @@ function applySubjectTheme(subjectKey){
   renderFloatingBg(subjectKey||'default', computeMyStandingTier());
 }
 function resetTheme(){applySubjectTheme(null);}
-// Oquvchining sinfdoshlariga nisbatan ortacha natijasi qaysi choraktada
-// ekanligini hisoblaydi (0=past yarim yoki malumot yetarli emas,
-// 1/2/3=tobora yuqoriroq). Hech qanday raqam/orin ochiq korsatilmaydi -
-// faqat orqa fon shu qiymatga qarab tobora "jonliroq" boladi.
+// Oquvchining sinfdoshlariga nisbatan ortacha natijasi qaysi
 function computeMyStandingTier(){
   if(!ME || ME.role!=='student') return 0;
   var db=getDBro();
@@ -2232,12 +2073,7 @@ var SYMBOLS_BY_SUBJECT={
   other:['±','→','↔','°','%','‰','...','«','»','№','–','×','÷','²','³','≈','≠','≤','≥']
 };
 
-// ─── MATEMATIK KIRITISH YORDAMCHISI (inline mini-modal) ──────────────────
-// prompt() o'rniga - mobil qurilmada prompt() qo'shimcha klaviatura ochib
-// yopadi va kursor pozitsiyasini yo'qotadi. Endi barcha kiritish shu
-// yordamchi orqali: kichik panel textarea'ning pastida paydo bo'ladi,
-// foydalanuvchi qiymatlarni kiriting, "Qo'shish" bosadi - formula
-// avtomatik qo'shiladi va panel yo'qoladi.
+// MATEMATIK KIRITISH YORDAMCHISI (inline mini-modal)
 var _aqImgData=null; // joriy savol qo'shish modalidagi rasm (base64 data URL)
 function onAQImgChange(inp){
   if(!inp.files||!inp.files[0])return;
@@ -2260,26 +2096,10 @@ function clearAQImg(){
   if(inp)inp.value='';
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// WYSIWYG FORMULA MUHARRIRI (aq-text) — 2026-09-20, MathLive integratsiyasi
-// TARIX: avval formulalar KaTeX bilan chizilgan STATIK rasm ("chip") edi -
-// tahrirlash uchun tashqi panel ochilib, Surat/Mahraj alohida so'ralardi.
-// Ustoz buni "Word'dagidek, chiziqning tagiga to'g'ridan-to'g'ri bosib
-// yozish" bilan almashtirishni so'radi. Endi har bir formula haqiqiy
-// JONLI, TAHRIRLANADIGAN maydon (<math-field>, MathLive kutubxonasi) -
-// kasrning surat/mahraj qismiga, ildiz ostiga va h.k. TO'G'RIDAN-TO'G'RI
-// bosib kiritish mumkin, bo'sh joylar maxsus to'rtburchak (placeholder)
-// ko'rinishida ko'rinadi, ichma-ich kasr/ildiz cheklovsiz yoziladi -
-// tashqi panel, "Surat/Mahraj so'rash" bosqichi BUTUNLAY OLIB TASHLANDI.
-// Saqlash formati o'zgarmadi — DB'ga baribir "$latex$" ko'rinishida
-// yoziladi (mathEditGetLatexString orqali), shuning uchun eski savollar,
-// render funksiyalari (renderMathIn, t-qbody va h.k.) hech narsa
-// o'zgartirmasdan ishlayveradi - bu FAQAT ustoz "Savol qo'shish" oynasidagi
-// muharrirga tegishli.
+// WYSIWYG FORMULA MUHARRIRI (aq-text)
 var _aqSavedRange=null;   // foydalanuvchi oxirgi turgan kursor joyi
 var _activeEditorEl=null; // hozir "faol" mathedit konteyner - aq-text YOKI biror variant maydoni.
                            // Shu orqali a/b, √, xⁿ tugmalari HAR DOIM siz oxirgi turgan
-                           // maydonga yoziladi - savol matniga emas (avvalgi xato shu edi).
 
 function aqTextEl(){ return document.getElementById('aq-text'); }
 function aqTextContains(node){ var el=aqTextEl(); return !!(el&&node&&el.contains(node)); }
@@ -2306,8 +2126,7 @@ document.addEventListener('selectionchange', function(){
   }
 });
 
-// Tanlangan matnni (yoki aynan bitta belgilangan formula-chipning xom
-// LaTeX kodini) qaytaradi - yangi formulaga "boshlang'ich qiymat" sifatida
+// Tanlangan matnni (yoki aynan bitta belgilangan formula-chipning
 function getAqSelectionForPrefill(){
   var el=currentEditorEl();
   var sel=window.getSelection();
@@ -2321,20 +2140,14 @@ function getAqSelectionForPrefill(){
   return sel.toString();
 }
 
-// Jonli, tahrirlanadigan formula maydoni (MathLive <math-field>) yaratadi.
-// Fokusdan chiqib ketilganda (chapga/o'ngga strelka bilan "chegaradan
-// tashqariga" chiqilsa) - kursor avtomatik atrofdagi oddiy matnga qaytadi,
-// xuddi Word'dagi formula maydonlaridek.
+// Jonli, tahrirlanadigan formula maydoni (MathLive <math-field>)
 function makeChip(latex){
   var mf=document.createElement('math-field');
   mf.className='mfrag';
   try{ mf.value=latex; }catch(e){}
   mf.setAttribute('virtual-keyboard-mode','off');
   mf.setAttribute('math-virtual-keyboard-policy','manual');
-  // TUZATISH (2026-10-04): telefonda kasr/daraja tugmasidan keyin klaviatura yo'qolardi.
-  // MathLive 0.111 atributni o'qimaydi (siyosat 'auto' qoladi) va sensorli ekranda yashirin
-  // kiritish elementiga inputmode=none qo'yadi - telefon klaviaturasi yopiladi, MathLive'ning
-  // o'z klaviaturasi esa o'chiq. Endi telefonning oddiy klaviaturasi ochiladi.
+  // TUZATISH
   try{ mf.mathVirtualKeyboardPolicy='manual'; }catch(e){}
   function nativeKbd(){ try{ var sk=mf.shadowRoot&&mf.shadowRoot.querySelector('.ML__keyboard-sink'); if(sk&&sk.getAttribute('inputmode')!=='text') sk.setAttribute('inputmode','text'); }catch(e){} }
   mf.addEventListener('focusin', nativeKbd); mf.addEventListener('mount', nativeKbd); setTimeout(nativeKbd,0);
@@ -2349,14 +2162,9 @@ function makeChip(latex){
     var owner=findMathEditAncestor(mf.parentNode);
     if(owner){ _activeEditorEl=owner; owner.focus(); }
   }
-  // TUZATISH (2026-09-30): ba'zi klaviatura tartiblarida (masalan US-International)
-  // Shift+6 "o'lik tugma" (Dead key) bo'lib, keyingi belgi bilan birga oddiy
-  // "^7" MATNI bo'lib tushadi - MathLive buni daraja deb tanimaydi va formulada
-  // "1^7^7^7" kabi tekis yozuv chiqadi. Bu tugmani ushlab, MathLive'ning o'z
-  // "daraja"ga o'tish buyrug'ini bajaramiz (oddiy '^' tugmasidek).
+  // TUZATISH
   mf.addEventListener('keydown', function(ev){
-    // 2026-10-03: daraja/indeks TUGMASIDAN keyin klaviaturada yozilgan belgi
-    // darajaning ichiga emas, YONIGA (asosiy qatorga) tushadi: 2⁴ va 5 -> 2^{4}5.
+    // daraja/indeks TUGMASIDAN keyin klaviaturada yozilgan belgi
     if(mf._scriptJust){
       mf._scriptJust=false;
       if(ev.key && ev.key.length===1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey && ev.key!=='^' && ev.key!=='_'){
@@ -2380,7 +2188,6 @@ function makeChip(latex){
 }
 
 // Matn (masalan DB'dan kelgan "...text $\frac{1}{2}$ text...") ni
-// contenteditable DIV ichiga, formulalarni jonli <math-field> qilib qo'yadi
 function mathEditSetValue(el, text){
   if(!el) return;
   el.innerHTML='';
@@ -2393,9 +2200,7 @@ function mathEditSetValue(el, text){
   }
   if(lastIdx<text.length) el.appendChild(document.createTextNode(text.slice(lastIdx)));
 }
-// Contenteditable DIV ichidagi holatni yana "...text $latex$ text..."
-// ko'rinishidagi xom matnga qaytaradi — saqlash formatining eskisi bilan
-// 100% mos, boshqa hech qanday joyni o'zgartirish shart emas
+// Contenteditable DIV ichidagi holatni yana "...text $latex$
 function mathEditGetLatexString(el){
   if(!el) return '';
   var out='';
@@ -2413,16 +2218,9 @@ function mathEditGetLatexString(el){
   return out;
 }
 
-// Kursor turgan joyga (qaysi maydonda bo'lsa - savol yoki variant - o'sha
-// yerga), tayyor (bo'sh joysiz) LaTeX'ni chip sifatida qo'yadi
+// Kursor turgan joyga (qaysi maydonda bo'lsa
 function insLatex(latex){
-  // TUZATISH (2026-09-27): sekin internetda MathLive kutubxonasi hali
-  // yuklanib ulgurmagan bo'lishi mumkin (<script defer src=".../mathlive">
-  // hali ishga tushmagan) - shu holatda <math-field> "custom element" sifatida
-  // registratsiya qilinmagan bo'ladi va formula chiqarish o'rniga bo'sh,
-  // uslubsiz to'rtburchak qutichalar ustma-ust chiqib qolardi (har tugma
-  // bosilganda YANA bittasi qo'shilib, "daraja"lar buzilib ko'rinishi shu edi).
-  // Endi shu holatni oldindan tekshirib, foydalanuvchiga aniq xabar beramiz.
+  // TUZATISH : sekin internetda MathLive kutubxonasi hali
   if(!(window.customElements && customElements.get('math-field'))){
     alert("⏳ Formula muharriri hali to'liq yuklanmadi (internet sekin bo'lishi mumkin). Bir necha soniya kutib, qayta urinib ko'ring.");
     return null;
@@ -2441,27 +2239,12 @@ function insLatex(latex){
   _aqSavedRange=nr.cloneRange();
   return chip;
 }
-// Kursor turgan joyga QOLIP (bo'sh joylari bilan, masalan "\frac{#0}{#0}")
-// qo'yadi va darhol o'sha bo'sh joyga fokus qiladi - xuddi Word'dagidek,
-// ustoz chiziqning tagiga/ustiga bosib emas, formula paydo bo'lishi bilan
-// TO'G'RIDAN-TO'G'RI o'sha bo'sh joyga yoza boshlaydi.
+// Kursor turgan joyga QOLIP (bo'sh joylari bilan, masalan
 function insLatexTemplate(latex){
-  // TUZATISH (2026-09-23): avtomatik fokusga "majburlab" urinish (rAF +
-  // setTimeout zanjiri) ishonchsiz chiqdi - video orqali tasdiqlandi:
-  // tugma bosilganda quticha TO'G'RI chiqadi, lekin fokus ko'chmagani
-  // uchun foydalanuvchi yozgan matn CHETGA tushib ketardi, va tugmani
-  // qayta bossa yana YANGI (uchinchi, tortinchi...) bo'sh quticha
-  // qo'shilib borardi. Endi faqat BITTA oddiy .focus() chaqiriladi -
-  // agar brauzer buni darhol qabul qilmasa, foydalanuvchi shunchaki
-  // chiqqan quticha ustiga bir marta bossa yetarli (MathLive'ning o'zi
-  // uchun bu - odatiy, 100% ishlaydigan usul).
+  // TUZATISH : avtomatik fokusga "majburlab" urinish (rAF +
   var chip=insLatex(latex);
   if(!chip) return null;
-  // TUZATISH (2026-09-30): oddiy .focus() kursorni formula OXIRIGA qo'yadi, ya'ni
-  // kasr/daraja kvadrati (placeholder) ICHIGA emas - shu sabab yozilgan raqamlar
-  // kvadratdan tashqariga tushib, "2^2^2" kabi oddiy matn bo'lib qolardi va
-  // daraja uchun kvadratcha chiqmasdi. Endi kursor darhol BIRINCHI kvadratga
-  // o'tadi (u tanlangan holda ko'rinadi) va yozish shu yerdan boshlanadi.
+  // TUZATISH
   function goFirstPlaceholder(){
     try{
       chip.focus();
@@ -2470,34 +2253,23 @@ function insLatexTemplate(latex){
     }catch(e){}
   }
   goFirstPlaceholder();
-  // Element endigina yaratilgani uchun ba'zan birinchi urinish ulgurmaydi -
-  // foydalanuvchi hali hech narsa yozmagan bo'lsagina bir marta takrorlaymiz.
+  // Element endigina yaratilgani uchun ba'zan birinchi urinish
   setTimeout(function(){ try{ if(chip.value===latex) goFirstPlaceholder(); }catch(e){} }, 80);
   return chip;
 }
-// Yuqori/pastki indeks belgilari (asboblar panelidagi ⁰-⁹, ₀-₉ tugmalari).
-// MathLive ularning HAR BIRINI alohida "^{9}" ga aylantiradi, natijada ⁹ni 4 marta
-// bossangiz "1^{9}^{9}^{9}^{9}" (buzuq, tekis "^" bilan chiziladi) bo'lardi.
-// Endi birinchi bosishda darajaga o'tiladi, keyingi tugmalar shu daraja ICHIGA
-// oddiy raqam bo'lib qo'shiladi: "1^{9999}". Kursorni boshqa joyga siljitsangiz -
-// keyingi bosish yangi daraja boshlaydi.
+// Yuqori/pastki indeks belgilari (asboblar panelidagi ⁰-⁹, ₀-₉
 var SUP_MAP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁺':'+','⁻':'-','ⁿ':'n'};
 var SUB_MAP={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','₊':'+','₋':'-'};
 function insScriptChar(mf, ch){
   var isSup=SUP_MAP.hasOwnProperty(ch);
   var plain=(isSup?SUP_MAP:SUB_MAP)[ch];
   var kind=isSup?'sup':'sub';
-  // 2026-10-02 (foydalanuvchi talabi): har bosilgan daraja/indeks tugmasi YANGI
-  // (ichma-ich) daraja ochadi: 3, ¹, ² -> 3^{1^{2}}. Klaviaturadan yozilgan raqam esa
-  // turgan darajaning ICHIGA qo'shiladi (MathLive odatiy xulqi).
+  // foydalanuvchi talabi): har bosilgan daraja/indeks tugmasi YANGI
   mf.executeCommand(isSup?'moveToSuperscript':'moveToSubscript');
   mf.executeCommand(['insert', plain]);
   mf._scriptJust=true;
 }
-// Oddiy matnda (formula tashqarisida) ⁰-⁹/₀-₉ bosilsa: oldingi son yoki harf
-// formula ichiga olinadi (2 + ⁴ -> 2^{4}), shunda keyingi bosish ichma-ich daraja,
-// klaviatura esa yoniga yozadi. Avval oddiy "⁴" belgisi qo'shilib, ustma-ust
-// daraja qilib bo'lmas edi.
+// Oddiy matnda (formula tashqarisida) ⁰-⁹/₀-₉ bosilsa
 function insScriptAsFormula(s){
   var isSup=SUP_MAP.hasOwnProperty(s), plain=(isSup?SUP_MAP:SUB_MAP)[s];
   var el=currentEditorEl(), sel=window.getSelection(), base='';
@@ -2518,10 +2290,7 @@ function insScriptAsFormula(s){
   }catch(e){}
 }
 function insSym(s){
-  // Agar kursor hozir biror formula maydonining (<math-field>) ICHIDA
-  // tursa - belgi O'SHA formula ichiga qo'yiladi. Aks holda - siz OXIRGI
-  // TURGAN maydonga (savol matni YOKI variant - qaysi biri bo'lsa),
-  // oddiy matn sifatida qo'shiladi. (Avvalgi xato: doim savolga yozilardi.)
+  // Agar kursor hozir biror formula maydonining (<math-field>)
   var af=document.activeElement;
   if(af && af.tagName==='MATH-FIELD' && editorContains(af)){
     if(SUP_MAP.hasOwnProperty(s) || SUB_MAP.hasOwnProperty(s)){
@@ -2556,18 +2325,7 @@ function insWrapAny(){
   el.focus();
 }
 
-// ➗ KASR: agar kursor hozir bir formula maydoni ICHIDA bo'lsa - o'sha
-// yerga (kerak bo'lsa ICHMA-ICH, MathLive buni cheklovsiz qo'llab-quvvatlaydi)
-// yangi kasr qo'shiladi. Aks holda - siz OXIRGI TURGAN maydonga (savol
-// matni yoki biror variant) yangi formula-maydon qo'yiladi, va surat qismi
-// (bo'sh to'rtburchak) DARHOL tahrirlash uchun tayyor bo'ladi.
-// MUHIM TUZATISH (2026-09-21): "#0" MathLive'da "bo'sh joy" DEGANI EMAS -
-// bu "hozir BELGILANGAN matn" degani (masalan matnni qavsga olish uchun).
-// Belgilangan matn bo'lmasa, "#0" deyarli HECH NARSA qo'ymaydi - shuning
-// uchun "\frac{#0}{#0}" aslida "\frac{}{}"  (bazan strukturasi buzilgan)
-// bo'lib qolar, "^{#0}" esa asossiz qolib, MathLive buni tushunolmay 2 ta
-// ajralgan qutichaga "parchalab" yuborardi. Haqiqiy BO'SH-TO'LDIRILADIGAN
-// joy uchun MathLive'ning O'Z buyrug'i - "\placeholder{}" kerak ekan.
+// ➗ KASR
 function insFraction(){
   var af=document.activeElement;
   if(af && af.tagName==='MATH-FIELD' && editorContains(af)){
@@ -2577,8 +2335,7 @@ function insFraction(){
   insLatexTemplate(num?('\\frac{'+num+'}{\\placeholder{}}'):'\\frac{\\placeholder{}}{\\placeholder{}}');
 }
 function insNthRoot(){
-  // 2026-10-16: n-darajali ildiz — avval DARAJA katagi (kursor shu yerda), keyin ildiz osti katagi.
-  // Avval daraja katagisiz oddiy ildiz chiqardi. Boshqa ildiz yoki kasr ichida ham ishlaydi (ichma-ich).
+  // n-darajali ildiz
   var T='\\sqrt[\\placeholder{}]{\\placeholder{}}';
   var af=document.activeElement;
   if(af && af.tagName==='MATH-FIELD' && editorContains(af)){
@@ -2597,15 +2354,11 @@ function insRootQuick(n){
   if(content){ insLatexTemplate(n?('\\sqrt['+n+']{'+content+'}'):('\\sqrt{'+content+'}')); }
   else { insLatexTemplate(tmpl); }
 }
-// DARAJA: asosni belgilab (select qilib) tursangiz, u SURAT bo'lib qoladi;
-// daraja ustiga daraja - chiqqan natijaning ichiga kursor bilan kirib,
-// yana xⁿ tugmasini bosish kifoya (MathLive ichma-ichlikni o'zi boshqaradi).
+// DARAJA
 function insCustomExp(){
   var af=document.activeElement;
   if(af && af.tagName==='MATH-FIELD' && editorContains(af)){
-    // 2026-10-16: formula (kasr, ildiz va h.k.) ICHIDA xⁿ bosilsa — oldingi belgiga daraja katagi ochiladi
-    // va kursor shu katakka o'tadi (5 + xⁿ + 3 -> 5^3). Avval qo'shimcha "asos" katagi ochilib,
-    // yozilgan son asosga qo'shilib ketardi (53^□). Daraja ichida yana bosilsa — ichma-ich daraja.
+    // formula (kasr, ildiz va h.k.) ICHIDA xⁿ bosilsa
     try{ af.executeCommand('moveToSuperscript'); return; }catch(e){}
   }
   var base=getAqSelectionForPrefill();
@@ -2655,8 +2408,7 @@ function genTeacherCode(){
   }
   return 'USTOZ-'+s;
 }
-// Standart (bootstrap) hisoblar uchun tasodifiy, taxmin qilib bolmaydigan
-// parol - "1234"/"admin123" kabi hammaga malum qiymatlar ornini bosadi.
+// Standart (bootstrap) hisoblar uchun tasodifiy, taxmin qilib
 function genRandomPassword(){
   var chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   var rnd;
@@ -2674,10 +2426,7 @@ function genRandomPassword(){
   return s;
 }
 function defDB() {
-  // 2026-10-03: avval bu yerda tasodifiy parollar alert() bilan ko'rsatilardi - lekin
-  // defDB() har bir YANGI brauzerda (bo'sh xotira) ishlaydi va bu parollar faqat lokal,
-  // haqiqiy server bazasi ularni darhol almashtiradi. Har tashrif buyuruvchiga
-  // "login/parol" ko'rsatish chalg'itardi - oyna olib tashlandi.
+  // avval bu yerda tasodifiy parollar alert() bilan ko'rsatilardi
   var tPass=genRandomPassword(), aPass=genRandomPassword();
   return { users: [
       {id:'t1',role:'teacher',name:'Admin',login:'admin',pass:tPass,cls:''},
@@ -2693,10 +2442,7 @@ function saveDB(db) {
   try{
     dbSetRaw(JSON.stringify(db));
   }catch(e){
-    // Brauzer xotirasi (localStorage) tolib qolgan bolishi mumkin - lekin bu
-    // muammo emas, chunki asosiy malumot baribir Supabase'ga (serverga)
-    // saqlanadi (pastdagi sbPush). Faqat konsolga yozib qoyamiz, foydalanuvchini
-    // bezovta qilmaymiz.
+    // Brauzer xotirasi (localStorage) tolib qolgan bolishi mumkin
     console.error('localStorage toldi (Supabase orqali baribir saqlanadi):', e);
   }
   sbPush(db); // async — doesn't block UI
@@ -2708,10 +2454,7 @@ async function syncFromCloud() {
     var remote = await sbPull();
     if (!remote) return;
     var local = localGetDB();
-    // TUZATISH: avval faqat v > local.v bo'lgandagina yangilardi.
-    // iPhone/yangi qurilmada localStorage bo'sh bo'lsa local.v=0, lekin
-    // remote.v ham 0 bo'lishi mumkin — natijada hech narsa yuklanmasdi.
-    // Endi: remote ma'lumot bor va local bo'sh bo'lsa HAR DOIM yuklaymiz.
+    // TUZATISH: avval faqat v > local.v bo'lgandagina yangilardi
     var localEmpty = !(local.users && local.users.length > 1);
     if ((remote.v||0) > (local.v||0) || localEmpty) {
       var _adds = localEmpty ? 0 : mergeLocalAdds(remote, local);
@@ -2725,8 +2468,7 @@ async function syncFromCloud() {
   }
 }
 
-// 2026-10-14: serverdan yangi baza kelgach ochiq o'quvchi sahifasi qayta chiziladi
-// (avval sahifa baza kelmasdan chizilsa "Mavzular yo'q" qolib ketardi - iPhone/Telegram ichki brauzeri)
+// serverdan yangi baza kelgach ochiq o'quvchi sahifasi qayta
 function _rerenderAfterSync(){
   try{
     if(typeof ME==='undefined'||!ME||ME.role!=='student'||S.mode) return;
@@ -2763,18 +2505,11 @@ function getAllQs() {
   var all=BQ.concat(db.userQs||[]);
   // Faqat oquvchilar uchun cheklov ishlaydi - ustoz va admin hammasini koradi
   if(!ME || ME.role!=='student') return all;
-  // MUHIM: getDB() ni har bir savol uchun emas, FAQAT BIR MARTA chaqiramiz
-  // va ustozlar xaritasini oldindan tuzamiz - aks holda minglab savolda
-  // sayt juda sekinlashib qolar edi (bu avvalgi jiddiy sekinlik sababi edi).
+  // MUHIM
   var teacherMap={};
   (db.users||[]).forEach(function(u){ teacherMap[u.id]=u; });
   var mySchool=normSchool(ME.maktab);
-  // HAMKORLIK (2026-08-31): agar biror ustoz (requester) boshqa ustozning
-  // (owner) savollaridan foydalanish uchun so'rov yuborib, owner rozilik
-  // bergan bolsa - requesterning SINFLARIGA ham owner savollari korinishi
-  // kerak (requester o'z sinfiga owner savollaridan test bera oladi).
-  // Buning uchun har bir owner uchun "kimlar ruxsat olgan" royxatini
-  // oldindan tayyorlab qoyamiz.
+  // HAMKORLIK : agar biror ustoz (requester) boshqa ustozning
   var acceptedByOwner={}; // ownerId -> [requesterTeacher, ...]
   (db.collaborations||[]).forEach(function(c){
     if(c.status!=='accepted' || c.copiedAt) return; // nusxa olingan bo'lsa 2-ustoz o'z nusxasidan beradi
@@ -2793,7 +2528,6 @@ function getAllQs() {
     var classOk=tTeachesCls(t,q.subject,ME.cls);
     if(schoolOk && classOk) return true;
     // 3) Yoki - shu savol egasi bilan hamkorlik qilgan (ruxsat olgan)
-    // ustozlardan biri ANIQ shu o'quvchining sinfiga dars berayotgan bolsa
     var collabTeachers=acceptedByOwner[q.teacherId]||[];
     return collabTeachers.some(function(rt){
       var rtSchoolOk=!(mySchool && normSchool(rt.maktab) && mySchool!==normSchool(rt.maktab));
@@ -2804,17 +2538,7 @@ function getAllQs() {
 }
 function getTopics() { var qs=getAllQs(),t=[]; qs.forEach(function(q){if(q.topic&&t.indexOf(q.topic)<0)t.push(q.topic);}); return t; }
 
-// ─── USTOZ UCHUN KORISH HUQUQI CHEKLOVI (xavfsizlik) ──────────────────────
-// MUHIM: avval bu cheklov UMUMAN yoq edi - har qanday ustoz (hatto yolgon
-// kodni bilib olgan notanish kishi ham) BARCHA maktablarning, BARCHA
-// sinflarining oquvchilari, natijalari va login/parollarini korar,
-// ozgartirar va ochira olardi. Endi har bir ustoz FAQAT ozining maktabi VA
-// ozi dars beradigan sinflaridagi oquvchilarni/natijalarni koradi - xuddi
-// oquvchi tomonidagi getAllQs() dagi mantiq bilan bir xil tarzda.
-// 2026-10-12: ustoz har fan uchun alohida sinflar belgilashi mumkin (teachClassesBySubj).
-// Fan bo'yicha ro'yxat bo'lmasa — umumiy teachClasses (eski hisoblar shunday ishlaydi).
-// classesBySubj (2026-10-12): {fan:[sinflar]} — har fanning O'Z ro'yxati, aniq. Unda fan bo'lsa (bo'sh bo'lsa ham)
-// faqat shu ro'yxat ishlaydi. Eski hisoblarda yo'q — teachClassesBySubj/teachClasses bo'yicha (eskicha).
+// USTOZ UCHUN KORISH HUQUQI CHEKLOVI (xavfsizlik)
 function tClasses(t,subj){ var c=t&&t.classesBySubj; if(c&&subj&&Array.isArray(c[subj])) return c[subj];
   var m=t&&t.teachClassesBySubj; if(subj&&m&&m[subj]&&m[subj].length) return m[subj]; return (t&&t.teachClasses)||[]; }
 function tTeachesCls(t,subj,cls){
@@ -2844,11 +2568,7 @@ function myVisibleStudents(){
   var db=getDB();
   return (db.users||[]).filter(function(u){ return u.role==='student' && studentVisibleToMe(u); });
 }
-// Natija (result) yozuvlarida oquvchining maktabi saqlanmaydi (faqat ism+sinf) -
-// shuning uchun mos oquvchi hisobini ism+sinf boyicha topib, maktabini shundan
-// aniqlaymiz. Mos oquvchi topilmasa (masalan hisobi ochirilgan), kamida sinf
-// tekshiruvi (teachClasses) bilan cheklanadi - bu boshqa maktablarning
-// notanish sinflarini hech bolmasa aralashtirib yubormaydi.
+// Natija (result) yozuvlarida oquvchining maktabi saqlanmaydi
 function resultVisibleToMe(r){
   if(!ME || ME.role==='admin') return true;
   if(ME.role!=='teacher') return false;
@@ -2864,9 +2584,7 @@ function myVisibleResults(){
   var db=getDB();
   return (db.results||[]).filter(resultVisibleToMe);
 }
-// 2026-10-12: sinflar endi har ustozning O'ZINIKI (u.myClasses). Avval bitta umumiy db.classes
-// bo'lib, bir ustoz qo'shgan sinf butun saytga chiqardi. Eski hisoblarda myClasses yo'q —
-// ularning dars beradigan sinflaridan olinadi.
+// sinflar endi har ustozning O'ZINIKI (u.myClasses)
 var STD_CLASSES=['5A','5B','5V','6A','6B','6V','7A','7B','7V','8A','8B','8V','9A','9B','9V','10A','10B','10V','11A','11B','11V'];
 function _clsSort(a){ return a.sort(function(x,y){ var nx=parseInt(x),ny=parseInt(y); if(!isNaN(nx)&&!isNaN(ny)&&nx!==ny) return nx-ny; if(isNaN(nx)!==isNaN(ny)) return isNaN(nx)?1:-1; return String(x).localeCompare(String(y),'uz'); }); }
 // Ustozning fanlar bo'yicha sinflari: {fan:[...]} (eski hisoblar uchun bir martalik o'tkazish bilan)
@@ -2887,7 +2605,7 @@ function userClassList(u){
   Object.keys(m).forEach(function(k){ (m[k]||[]).forEach(function(c){ if(c&&out.indexOf(c)<0) out.push(c); }); });
   return _clsSort(out);
 }
-// Ustozning fan->sinflar xaritasini saqlaydi; umumiy teachClasses/myClasses (o'quvchilar, natijalar uchun) — birlashma
+// Ustozning fan->sinflar xaritasini saqlaydi
 function _setMyClassMap(m){
   var clean={}, all=[];
   Object.keys(m).forEach(function(k){ var l=(m[k]||[]).map(function(c){ return String(c).trim(); }).filter(function(c,i,a){ return c&&a.indexOf(c)===i; });
@@ -2904,8 +2622,7 @@ function myClassList(){
   (db.users||[]).forEach(function(u){ if(u.role==='teacher') userClassList(u).forEach(function(c){ if(out.indexOf(c)<0) out.push(c); }); });
   return _clsSort(out);
 }
-// O'quvchi ro'yxatdan o'tishda: shu maktab ustozlarining sinflari (maktab yozilmagan yoki
-// unda hali sinf yo'q bo'lsa — standart 5A..11V)
+// O'quvchi ro'yxatdan o'tishda
 function schoolClassList(maktab){
   var ns=normSchool(maktab), out=[], labels={};
   if(ns) (getDB().users||[]).forEach(function(u){
@@ -2958,8 +2675,7 @@ function getTopicMeta(topic) {
   for(var i=0;i<all.length;i++){if(all[i].topic===topic)return all[i];}
   return null;
 }
-// Timer: avval MAVZUGA XOS sozlama (agar aniq belgilangan bolsa), aks holda
-// UMUMIY (Sozlamalar bolimidagi) standart qiymat ishlatiladi.
+// Timer
 function resolveTimer(meta){
   var db=getDBro();
   var on=(meta&&meta.timerEnabled!==undefined)?meta.timerEnabled:(db.timerEnabled!==undefined?db.timerEnabled:true);
@@ -2969,14 +2685,7 @@ function resolveTimer(meta){
 function initMeta() {
   var db=getDB();
   if(!db.topicsMeta)db.topicsMeta=[];
-  // MUHIM: avval bu funksiya HAR DOIM saveDB() (demak sbPush ham) chaqirar
-  // edi, hech narsa ozgarmagan bolsa ham. Bu xavfli edi: agar shu qurilmada
-  // localStorage'da ESKI malumot (masalan eski parol) qolib ketgan bolsa-yu,
-  // uning versiya raqami (v) tasodifan bulutdagidan kattaroq bolsa,
-  // syncFromCloud yangi malumotni tortib olmay qolar, keyin esa bu yerda
-  // ESKI malumot qaytadan bulutga yozilib, boshqa qurilmada/joyda qilingan
-  // ozgarishlarni ustidan bosib ochirib yuborar edi. Endi FAQAT haqiqatan
-  // yangi narsa qoshilganda saqlaymiz.
+  // MUHIM
   var changed=false;
   INIT_META.forEach(function(m){
     var f=false;
@@ -2988,11 +2697,7 @@ function initMeta() {
 
 var ME=null, selTopic=null, showDet=false;
 
-// ─── FOYDALANISH LIMITLARI (bepul/Pro) ────────────────────────────────────
-// MUHIM: bu limitlar boshlangich TAKLIF - haqiqiy xarajatlarga qarab keyin
-// ozgartirilishi kerak. Foydalanuvchiga korsatiladigan matnlarda hech qanday
-// texnik nom (AI provayder, server nomi va h.k.) ishlatilmaydi - faqat
-// "imkoniyat" tilida ("shuncha rasm, shuncha bet") tushuntiriladi.
+// FOYDALANISH LIMITLARI (bepul/Pro)
 var PLAN_LIMITS = {
   free: { images: 15, pages: 20, questions: 40, label: "Bepul" },
   pro:  { images: 200, pages: 300, questions: 2000, label: "Pro" }
@@ -3012,13 +2717,9 @@ function myUsage(){
   }
   return ME.usage;
 }
-// kind: 'images' | 'pages' | 'questions'. amount - qoshiladigan miqdor.
-// Limitga yetgan bolsa - yuqorilash oynasini korsatadi va false qaytaradi
-// (chaqiruvchi funksiya operatsiyani DAVOM ETTIRMASLIGI kerak).
+// kind
 function checkAndIncrementUsage(kind, amount){
-  // TO'LOV TIZIMI (Click/Payme) ulanmaguncha limit tekshiruvi o'chirilgan.
-  // Limit chiqishi foydalanuvchini bezovta qilar edi, lekin haqiqiy to'lov
-  // yo'qligi sababli foydasi ham yo'q edi. Pro tizimi tayyor bo'lgach qaytariladi.
+  // TO'LOV TIZIMI (Click/Payme) ulanmaguncha limit tekshiruvi
   return true;
 }
 function showUpgradeModal(kind){
@@ -3069,9 +2770,7 @@ function showPg(id){document.querySelectorAll('.pg').forEach(function(p){p.class
 function switchTab(id,el){try{sessionStorage.setItem('et_tab',id);}catch(e){}document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('on');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});document.getElementById(id).classList.add('on');el.classList.add('on');}
 
 var authRole='student';
-// Yashirin admin kirish: bosh sahifada, hech qanday maydonga yozmasdan
-// shu maxfiy sozni tersa, admin login ochiladi.
-// MUHIM: quyidagi sozni ozingiz biladigan boshqa sozga almashtiring!
+// Yashirin admin kirish
 var ADMIN_SECRET_PHRASE = 'boshqaruv2026';
 var _secretBuf = '';
 document.addEventListener('keydown', function(e){
@@ -3120,19 +2819,9 @@ function goAuth(role){
   document.getElementById('rg-tum').innerHTML='<option value="">-- Avval viloyatni tanlang --</option>';
   document.getElementById('rg-tum').disabled=true;
   document.getElementById('rg-maktab').value='';
-  // Xavfsizlik: parol maydonlari har safar bosh sahifadan qayta ochilganda tozalanadi
-  // (brauzerning avtomatik toldirish/eslab qolishidan himoya uchun)
+  // Xavfsizlik
   ['li-u','li-p'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  // QO'SHIMCHA XAVFSIZLIK (2026-08-18): umumiy/maktab kompyuterlarida Chrome
-  // parolni saqlab qo'yishi va KEYINGI o'quvchiga oldingi o'quvchining
-  // login/parolini avtomatik taklif qilib ko'rsatishi - jiddiy xavf edi.
-  // autocomplete="off" YOLGIZ O'ZI YETARLI EMAS - Chrome buni ataylab
-  // e'tiborsiz qoldiradi (2014'dan buyon, "foydalanuvchiga yordam" nomi
-  // bilan). Eng samarali qo'shimcha usul: har safar login ekrani ochilganda
-  // maydon `name` atributini TASODIFIY qilib qo'yamiz - shunda Chrome'ning
-  // saqlangan hisob ma'lumotlari YANGI (hech qachon ko'rmagan) `name`ga mos
-  // kelmaydi va avtomatik taklif qilmaydi. `id` o'zgarmaydi (kodning qolgan
-  // qismi shu orqali ishlaydi), faqat `name` o'zgaradi.
+  // QO'SHIMCHA XAVFSIZLIK : umumiy/maktab kompyuterlarida Chrome
   var _rndSuffix=Math.random().toString(36).slice(2,10);
   ['li-u','li-p','rg-u','rg-p'].forEach(function(id){
     var el=document.getElementById(id);
@@ -3168,8 +2857,7 @@ async function doLogin(){
   var u=document.getElementById('li-u').value.trim(),p=document.getElementById('li-p').value;
   if(!u||!p){showErr("Login va parol kiriting!");return;}
   document.getElementById('auth-err').innerHTML='<div class="alt ai">&#x23F3; Tekshirilmoqda...</div>';
-  // Avval SERVER login/parolni tekshiradi (u token ham beradi). Server bu
-  // imkoniyatni bermasa (null) - eskicha mahalliy tekshiruvga o'tamiz.
+  // Avval SERVER login/parolni tekshiradi (u token ham beradi)
   var srv=await serverLogin(u,p,authRole);
   if(srv && !srv.ok){
     if(srv.status===403 && srv.error==='not_approved') showErr("Hisobingiz hali admin tomonidan tasdiqlanmagan. Iltimos, kuting yoki admin bilan boglaning.");
@@ -3177,8 +2865,7 @@ async function doLogin(){
     else showErr("Login yoki parol noto'g'ri!");
     return;
   }
-  // Har doim serverdan eng so'nggi ma'lumotni yuklaymiz — iPhone/yangi
-  // qurilmada localStorage bo'sh bo'lsa ham kirish ishlashi uchun.
+  // Har doim serverdan eng so'nggi ma'lumotni yuklaymiz
   try{ await syncFromCloud(); }catch(e){}
   var db=getDB(),found=null;
   db.users.forEach(function(x){if(x.login===u&&x.role===authRole&&(srv?true:x.pass===p))found=x;});
@@ -3230,9 +2917,6 @@ async function doRegister(){
   var dup=db.users.filter(function(x){return x.login===user;});
   if(dup.length){showErr("Bu login band! Boshqa login tanlang.");return;}
   // MUHIM: endi maxfiy kod tizimi YOQ - uning ornini admin tasdigi
-  // egallaydi. Yangi ustoz hisobi darhol ISHLAY OLMAYDI (approved:false) -
-  // admin uni "Tasdiqlanishi kerak" royxatida korib (ism/maktab/sinflar orqali)
-  // tekshirib, keyin tasdiqlaydi. Shu payGacha ustoz kira olmaydi.
   var nu={id:'u'+Date.now(),role:authRole,name:name,login:user,pass:pass,cls:cls,subject:subj,email:email,teachClasses:tclasses,myClasses:tclasses,viloyat:vil,tuman:tum,maktab:maktab,plan:'free',approved:(authRole!=='teacher'),usage:{month:curMonthKey(),images:0,pages:0,questions:0}};
   if(_rgV.phone) nu.phone=_rgV.phone;
   if(_rgV.tg) nu.tgId=_rgV.tg;
@@ -3246,8 +2930,7 @@ async function doRegister(){
     document.getElementById('auth-err').innerHTML='<div class="alt as mt8">&#x2705; Ma\'lumotlaringiz adminga jo\'natildi! Admin tasdiqlagandan keyin tizimga kirishingiz mumkin bo\'ladi.'+(email?' Admin tasdiqlagach (yoki rad etsa), natija <b>'+_cEsc(email)+'</b> manziliga xabar qilinadi.':' Holatini bilish uchun keyinroq qayta kirishga urinib ko\'ring.')+'</div>';
     return;
   }
-  // Yangi hisob serverga yetib borguncha biroz kutib, token olamiz (server
-  // bazadan tekshiradi). Olinmasa - tokensiz davom etamiz (yumshoq rejimda ishlaydi).
+  // Yangi hisob serverga yetib borguncha biroz kutib, token olamiz
   for(var ti=0; ti<4 && !_authToken; ti++){
     await new Promise(function(r){ setTimeout(r, ti?1500:600); });
     var sl=await serverLogin(user,pass,authRole);
@@ -3265,8 +2948,7 @@ function afterLogin(){
   setTimeout(function(){ try{ renderContactBoxes(); }catch(e){} },0);
   try{ var _sessData={id:ME.id, t:_authToken||null, exp:Date.now()+7*24*60*60*1000}; sessionStorage.setItem('et_sess', JSON.stringify(_sessData)); localStorage.setItem('et_sess_persist', JSON.stringify(_sessData)); }catch(e){}
   setTimeout(function(){ try{ renderTgLink(); }catch(e){} }, 300);
-  // Agar oldingi sessiyada test yarim qolgan bo'lsa (masalan brauzer yopilgan,
-  // blur eventi ishlamagan) - kirish paytida holat to'liq tozalansin.
+  // Agar oldingi sessiyada test yarim qolgan bo'lsa (masalan
   if(S.iv) clearInterval(S.iv);
   S={test:[],idx:0,answers:{},timeLeft:0,iv:null,mode:'',lastRes:null};
   _backWarned=false; _logoutWarned=false; _ignoreBlur=false;
@@ -3300,13 +2982,7 @@ function closeLogoutWarn(){
 }
 function confirmLogoutWarn(){
   document.getElementById('logout-warn-modal').style.display='none';
-  // TUZATISH (2026-09-27): avval shu yerda 300ms dan keyin majburiy logout()
-  // chaqirilardi - bu doSubmitTest() ko'rsatgan natija sahifasini (va undagi
-  // "Batafsil" tugmasini) o'quvchi bosishga ulgurmasdanoq bosh sahifaga
-  // qaytarib yuborardi (video orqali tasdiqlangan real xato). Endi faqat
-  // testni yakunlaymiz - natija sahifasi normal oddiy "Yakunlash" oqimidagi
-  // kabi ko'rinadi, o'quvchi "Batafsil"ni ko'radi va tayyor bo'lganda "Bosh
-  // sahifa" tugmasini o'zi bosadi (o'sha tugma allaqachon logout() chaqiradi).
+  // TUZATISH : avval shu yerda 300ms dan keyin majburiy logout()
   submitTest(true);
 }
 function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;document.documentElement.classList.remove('et-auth');try{sessionStorage.removeItem('et_sess');}catch(e){}try{localStorage.removeItem('et_sess_persist');}catch(e){}if(S.iv)clearInterval(S.iv);_backWarned=false;
@@ -3334,18 +3010,11 @@ function renderTopics(){
   var grid=document.getElementById('topic-grid');
 
   if(subjSet.length<=1){
-    // Faqat bitta fan bor - tanlash shart emas, avtomatik shu fan tanlangan
-    // hisoblanadi.
+    // Faqat bitta fan bor
     filterHost.innerHTML='';
     _curSubjFilter=subjSet[0]||'';
   } else if(!_curSubjFilter){
-    // MUHIM (2026-08-30): endi bir nechta fan bo'lsa, mavzular RO'YXATI
-    // birinchi navbatda umuman KO'RSATILMAYDI - avval FAN tanlash MAJBURIY.
-    // Sabab: ustozlar endi ro'yxatdan o'tishda o'z fanini tanlaydi, va
-    // turli fanlardan bir xil nomli yoki oxshash mavzular aralashib,
-    // o'quvchi uchun qaysi fan ekanini ajratish qiyin bo'lib qolgan edi.
-    // "Barchasi" (hammasini birga korish) variant ENDI YO'Q - aynan shu
-    // aralashib ketishning oldini olish uchun.
+    // MUHIM : endi bir nechta fan bo'lsa, mavzular RO'YXATI
     filterHost.innerHTML='';
     document.getElementById('tp-sub').textContent="Avval fanni tanlang";
     grid.innerHTML=subjSet.map(function(s){
@@ -3354,7 +3023,6 @@ function renderTopics(){
     return;
   } else {
     // Fan allaqachon tanlangan - kichik "fanni almashtirish" tugmasi
-    // korsatiladi (pastda), "Barchasi" esa YO'Q.
     var pills=subjSet.map(function(s){
       return '<button class="tab'+(_curSubjFilter===s?' on':'')+'" style="flex:none;padding:6px 14px" onclick="filterBySubj(\''+s+'\')">'+subjName(s)+'</button>';
     });
@@ -3369,8 +3037,7 @@ function renderTopics(){
   var folderOf={};
   (db.topicsMeta||[]).forEach(function(m){ if(m.folder && !folderOf[m.topic]) folderOf[m.topic]=m.folder; });
 
-  // Har bir mavzu uchun savollar sonini va metani BIR MARTA hisoblab olamiz
-  // (aks holda har mavzu uchun butun royxatni qayta aylanib chiqish kerak bolar edi - sekin)
+  // Har bir mavzu uchun savollar sonini va metani BIR MARTA
   var qsCountByTopic={};
   allQs.forEach(function(q){ if(q.topic) qsCountByTopic[q.topic]=(qsCountByTopic[q.topic]||0)+1; });
   var metaByTopic={};
@@ -3426,9 +3093,7 @@ function selectTopicByName(t,el){
   if(timerTeacher)timerTeacher.style.display=isTeacher?'flex':'none';
   var timerOn=syncTimerUI();
   if(timerTimeRow)timerTimeRow.style.display=(isTeacher&&timerOn)?'flex':'none';
-  // Agar shu mavzu egasi bolgan ustoz "Imtihon" rejimini ochirib qoygan bolsa -
-  // butunlay yashirmaymiz, balki KULRANG (nofaol) qilib, sababini yozib qoyamiz,
-  // shunda oquvchi nega bosilmayotganini tushunadi.
+  // Agar shu mavzu egasi bolgan ustoz "Imtihon" rejimini ochirib
   var examCard=document.getElementById('exam-mode-card');
   if(examCard){
     var db=getDB();
@@ -3465,11 +3130,7 @@ function loadMyHist(){
 }
 
 function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
-// TUZATISH (2026-10-14): "Test rejimini tanlang" kartasidagi taymer belgisi
-// HTML'da doim checked yozilgan edi va bazadagi qiymat faqat Sozlamalar
-// ochilganda o'qilardi - shuning uchun ustoz kirgach taymer o'chiq bo'lsa ham
-// "Yoqiq" ko'rinardi (testning o'zi esa to'g'ri, taymersiz boshlanardi).
-// Endi ikkala joydagi belgi, yozuv, vaqt qatori har safar bazadan olinadi.
+// TUZATISH : "Test rejimini tanlang" kartasidagi taymer belgisi
 function syncTimerUI(){
   var db=getDBro();
   var on=db.timerEnabled!==false;
@@ -3533,37 +3194,14 @@ function startTest(mode){
 function startTimer(){if(S.iv)clearInterval(S.iv);_backWarned=false;
   updTmr();if(S.timeLeft>0){S._dl=Date.now()+S.timeLeft*1000;S.iv=setInterval(function(){S.timeLeft=Math.max(0,Math.ceil((S._dl-Date.now())/1000));updTmr();if(S.timeLeft<=0){clearInterval(S.iv);submitTest(true);}},1000);}else{var tel=document.getElementById('t-tmr');if(tel)tel.style.display='none';}}
 function updTmr(){var el=document.getElementById('t-tmr');if(!el)return;var m=Math.floor(S.timeLeft/60),s=S.timeLeft%60;el.textContent=m+':'+(s<10?'0'+s:s);el.className=S.timeLeft<=60?'tmr red':'tmr';}
-// ══════════════════════════════════════════════════════════════════════
 // EDUTEST OCR/AI VISION HIMOYA ENGINE v3
-// ──────────────────────────────────────────────────────────────────────
-// SCREENSHOT'ga qarshi:
-//   - DOM'da plain text yo'q (Canvas piksellar)
-//   - Sub-pixel glyph jitter (OCR character segmentation'ni buzadi)
-//   - Dynamic seed (har render — yangi pattern, statik bypass imkonsiz)
-//   - Savol + variantlar BITTA Canvas'da (AI segment qila olmaydi)
-//
-// KAMERA FOTO'ga qarshi:
-//   - Moiré interference (ekran grid × kamera sensor = fizik artifact)
-//   - Glyph micro-rotation (character edges buziladi JPEG compression'da)
-//   - Sub-pixel noise (kamera pipeline'i kuchaytiradi)
-//   - Dynamic layout micro-shifts (OCR line detection'ni buzadi)
-//
-// KUCHLI AI BYPASS holatlari (100% kafolat yo'q):
-//   - GPT-4o / Gemini Pro Ultra — hali ham 60-75% o'qiydi
-//   - Yaxshi kamera (iPhone 15 Pro) — moiré'ni avtomatik kamaytiradi
-//   - Canvas.toDataURL() — DevTools'dan bypass mumkin
-//   - Accessibility tree — aria-label orqali matn topilishi mumkin
-// ══════════════════════════════════════════════════════════════════════
 
 var _EDU_SESSION_SEED = (function(){
   // Server-side secret bo'lmasa — sessiya boshida random, o'zgarmas
-  // Har o'quvchi sessiyasi uchun boshqa seed — bir o'quvchining bypass
-  // usuli boshqa sessiyada ishlamaydi
   return Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
 })();
 
 // Savol canvas'lari uchun click zone xaritasi
-// { canvasId: [{optIdx, y0, y1}] }
 var _EDU_CLICK_ZONES = {};
 
 // ── Seeded PRNG ──────────────────────────────────────────────────────
@@ -3586,10 +3224,7 @@ function _eduRNG(seed) {
   };
 }
 
-// ── Moiré background ─────────────────────────────────────────────────
-// Ekranda deyarli ko'rinmas (opacity 0.018-0.05), lekin kamera orqali
-// olinganda ekran piksel grid bilan interferensiya hosil qiladi.
-// Screenshot'da: OCR preprocessing (sharpening) buni kuchaytiradi.
+// Moiré background
 function _eduMoire(ctx, W, H, rng) {
   ctx.save();
   // Gorizontal chiziqlar — ekran scan line'larini simulatsiya
@@ -3617,11 +3252,7 @@ function _eduMoire(ctx, W, H, rng) {
   ctx.restore();
 }
 
-// ── Sub-pixel glyph renderer ─────────────────────────────────────────
-// Har belgi uchun <1.5px siljish + <2° rotatsiya + <1.5% scale.
-// Inson ko'zi bu farqni sezmaydi (JND threshold'dan past).
-// OCR uchun: character baseline va spacing o'zgaradi → segmentation xato.
-// Kamera: JPEG compression bu micro-shift'larni kuchaytiradi.
+// Sub-pixel glyph renderer
 function _eduDrawText(ctx, text, x, y, rng, intensity) {
   var amp      = intensity * 1.2;
   var rotAmp   = intensity * 0.028;
@@ -3652,13 +3283,7 @@ function _eduDrawText(ctx, text, x, y, rng, intensity) {
   return curX - x;
 }
 
-// ── Decoy strokes (screenshot OCR himoyasi) ───────────────────────────
-// Screenshot → OCR preprocessing: grayscale → contrast boost → binarize.
-// Biz bu pipeline'ni buzamiz: matn atrofiga ko'zga ko'rinmas "soxta
-// chiziqlar" qo'shamiz. Kontrast boost'dan KEYIN ular OCR uchun yangi
-// "belgilar" sifatida namoyon bo'ladi, lekin inson ko'zi uchun fon bilan
-// bir xil. Natija: OCR haqiqiy harflar bilan soxta harflarni aralashtirib
-// yuboradi → character accuracy sezilarli pasayadi.
+// Decoy strokes (screenshot OCR himoyasi)
 function _eduDecoyStrokes(ctx, W, lineY, lineH, rng) {
   ctx.save();
   // Vertikal soxta "strokes" — OCR segment qila olmaydi
@@ -3715,9 +3340,7 @@ function _eduWrap(ctx, text, maxW) {
   return lines.length ? lines : [text];
 }
 
-// ── Asosiy render: savol + variantlar bitta Canvas'ga ────────────────
-// DOM'da plain text yo'q. Canvas piksellar — AI segment qila olmaydi.
-// Click zone'lar qaytariladi: [{optIdx, y0, y1}]
+// Asosiy render: savol + variantlar bitta Canvas'ga
 function _eduRenderAll(canvas, q, ans, seed) {
   var ctx    = canvas.getContext('2d');
   var W      = canvas.width;
@@ -3868,8 +3491,6 @@ function _eduCanvasClick(e, canvasId) {
   var scaleY = canvas.height / rect.height;
   var scaleX = canvas.width / rect.width;
   // TUZATISH: touchend paytida e.touches BOSH bo'ladi!
-  // e.changedTouches ishlatilishi shart — avvalgi kod har doim
-  // clientY = undefined qaytarardi => cy = NaN => hech qanday zone topilmasdi
   var clientY, clientX;
   if (e.changedTouches && e.changedTouches.length) {
     clientY = e.changedTouches[0].clientY;
@@ -3890,8 +3511,7 @@ function _eduCanvasClick(e, canvasId) {
   }
 }
 
-// YOZMA JAVOB TEKSHIRUVI (2026-10-16): katta/kichik harf, kirill/lotin, apostrof turlari, raqam so'z bilan (o'zbekcha/inglizcha),
-// o'nli vergul/nuqta, kasr, foiz, daraja belgilari, birlik (5 sm = 5), "x=5" = "5". ES5 (eski iPhone uchun).
+// YOZMA JAVOB TEKSHIRUVI
 var _OA_UNITS={nol:0,zero:0,bir:1,one:1,ikki:2,two:2,uch:3,three:3,tort:4,four:4,besh:5,five:5,olti:6,six:6,yetti:7,seven:7,sakkiz:8,eight:8,toqqiz:9,nine:9,
   on:10,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,
   yigirma:20,twenty:20,ottiz:30,thirty:30,qirq:40,forty:40,ellik:50,fifty:50,oltmish:60,sixty:60,yetmish:70,seventy:70,sakson:80,eighty:80,toqson:90,ninety:90};
@@ -3992,13 +3612,7 @@ function renderQ(){
     btnSub.style.opacity=unansweredCount>0?'0.5':'1';
   }
 
-  // TUZATISH (2026-09-21): avval savol/variantlar Canvas ichida "chizilgan
-  // rasm" sifatida ko'rsatilardi (AI/skrinshot-himoya maqsadida) - lekin bu
-  // himoya haqiqiy foyda bermadi (skrinshot+AI baribir ishlashda davom
-  // etaverdi - vision-AI'lar rasmdan ham o'qiy oladi), shu bilan birga
-  // formulalar (KaTeX) to'g'ri chizilmasdi, shrift oʻlchami komyuterda
-  // nomutanosib katta chiqardi. Shuning uchun oddiy, tekis HTML ko'rinishga
-  // qaytarildi - formulalar endi to'g'ri, aniq chiqadi.
+  // TUZATISH : avval savol/variantlar Canvas ichida "chizilgan
   var imgSrc=(q.img||q.image)?imgSrcVal(q.img||q.image):'';
   var imgHtml=imgSrc?'<div style="text-align:center;margin:10px 0"><img src="'+imgSrc+'" style="max-width:100%;max-height:420px;border-radius:8px;background:#fff;padding:4px"></div>':'';
   var optsHtml=(q.options||[]).map(function(opt,i){
@@ -4030,8 +3644,7 @@ function goQ(d){
   S.idx=Math.max(0,Math.min(S.test.length-1,S.idx+d));renderQ();
 }
 function selAns(i){var q=S.test[S.idx],ans=(S.answers[S.idx]||[]).slice();if(q.isMulti){var x=ans.indexOf(i);if(x>=0)ans.splice(x,1);else ans.push(i);}else{ans=[i];}S.answers[S.idx]=ans;renderQ();}
-// Klaviatura orqali javob belgilash: 1-9 raqamlar yoki A-Z harflar variant tanlaydi,
-// chap/ong strelkalar savol almashtiradi. Faqat test sahifasi ochiq bolganda ishlaydi.
+// Klaviatura orqali javob belgilash
 document.addEventListener('keydown',function(e){
   var testPg=document.getElementById('pg-test');
   if(!testPg||!testPg.classList.contains('on'))return;
@@ -4069,10 +3682,7 @@ document.addEventListener('keydown',function(e){
     e.preventDefault();
   }
 });
-// ═══════════════════════════════════════════════════════════════════════
-// ENTER TUGMASI (2026-10-02): test ichida — keyingi savol (oxirgisida
-// tugatish); formalarda — keyingi maydon, oxirgisida asosiy tugma.
-// ═══════════════════════════════════════════════════════════════════════
+// ENTER TUGMASI : test ichida — keyingi savol (oxirgisida
 function _visible(el){ return !!(el && el.offsetParent!==null && !el.disabled); }
 document.addEventListener('keydown',function(e){
   if(e.key!=='Enter'||e.shiftKey||e.ctrlKey||e.altKey||e.isComposing) return;
@@ -4155,21 +3765,7 @@ function closeFinishModal(){
 function confirmFinishTest(){
   submitTest(true);
 }
-// ═══════════════════════════════════════════════════════════════════════
-// JAVOBLARNI TEKSHIRISH TIZIMI (2026-08-31)
-// ═══════════════════════════════════════════════════════════════════════
-// Maqsad: agar o'quvchi biror savolni "xato" ishlagan bo'lsa, bu HAR DOIM
-// ham o'quvchining xatosi degani emas - ba'zan savolning o'zida (yoki
-// to'g'ri javob belgisida) xato bo'lishi mumkin. Shuning uchun har bir
-// xato javob avtomatik ustozga "Tekshirish" navbatiga yuboriladi. Ustoz
-// "To'g'ri" (savol durust, o'quvchi xato qilgan) yoki "Noto'g'ri" (savolda
-// xato bor, tuzatish kerak) deb belgilaydi. Bitta savol 5 marta "To'g'ri"
-// ovoz olsa (2026-09-06'da 10'dan 5'ga tushirildi - foydalanuvchi so'roviga
-// ko'ra, 10 juda ko'p edi), ISHONCHLI deb hisoblanadi va boshqa hech qachon
-// navbatga tushmaydi (server/ustoz vaqtini tejash uchun). Agar "Noto'g'ri" chiqsa,
-// savol tuzatiladi va O'SHA SAVOLNI XATO deb hisoblangan BARCHA o'quvchilar
-// balliga RETROAKTIV +1 qo'shiladi (agar ularning javobi yangi to'g'ri
-// javobga mos kelsa).
+// JAVOBLARNI TEKSHIRISH TIZIMI
 async function flagWrongAnswersForReview(res){
   if(!_sbReady || !_sb || !S.test) return 0;
   var toFlag=[];
@@ -4217,8 +3813,7 @@ async function doSubmitTest(){
   S.lastRes=res;
   var isExam=(S.mode==='exam');
   if(isExam){
-    // MUHIM: avval HAR DOIM lokal (qurilmada) saqlaymiz - internet bormi
-    // yoqmi, bundan qatiy nazar natija hech qachon yoqolmaydi.
+    // MUHIM
     var db=getDB();
     db.results.push(res);
     db.v=(db.v||0)+1;
@@ -4235,9 +3830,7 @@ async function doSubmitTest(){
   testAwakeOff(); _stopAllSpeech();
   S.mode='';S._blurWarnPending=false;
   if(typeof updateOfflineOverlay==='function') updateOfflineOverlay();
-  // Natija ekranini DARHOL korsatamiz (internetni kutib turmaymiz) -
-  // "sinxronlanmoqda" holati fonda tekshiriladi va banner shu asosda
-  // yangilanadi.
+  // Natija ekranini DARHOL korsatamiz (internetni kutib turmaymiz)
   showResult(res, isExam?'checking':null);showPg('pg-res');
   if(isExam){
     sbPush(getDB()).then(function(ok){
@@ -4457,9 +4050,7 @@ function deleteFolder(fn){
 }
 
 
-// Ochirilgan savol/mavzuga tegishli Supabase Storage'dagi rasmlarni ham
-// ochiradi - aks holda ular "etim" (hech kim ishlatmaydigan) fayllar
-// bolib serverda joy band qilib qolaveradi.
+// Ochirilgan savol/mavzuga tegishli Supabase Storage'dagi
 function deleteStorageImagesFor(questions){
   if(!_sbReady || !_sb) return;
   var paths=[];
@@ -4478,10 +4069,7 @@ function deleteStorageImagesFor(questions){
     (q.options||[]).forEach(function(opt){ if(keep[opt]) return; var p2=extractPath(opt); if(p2) paths.push(p2); });
   });
   if(!paths.length) return;
-  // Katta miqdordagi rasm bolganda (masalan "Barchasini tozalash" bosilganda,
-  // yuzlab-minglab rasm bolishi mumkin) bitta sorovda hammasini yuborish
-  // ornatilgan chegaraga urilib xato berishi mumkin - shuning uchun kichik
-  // guruhlarga bolib yuboramiz.
+  // Katta miqdordagi rasm bolganda (masalan "Barchasini tozalash"
   var BATCH=200;
   for(var i=0;i<paths.length;i+=BATCH){
     var chunk=paths.slice(i,i+BATCH);
@@ -4582,8 +4170,7 @@ function deleteQ(qid,topic){
   if(!confirm('Savolni o\'chirasizmi?'))return;
   var db=getDB();
   var before=(db.userQs||[]).length;
-  // Xavfsizlik uchun: agar topic berilgan bolsa, faqat SHU mavzudagi mos ID ochiriladi
-  // (import qilingan fayllarda ID lar turli mavzularda takrorlanishi mumkin edi)
+  // Xavfsizlik uchun
   var matched=(db.userQs||[]).filter(function(q){return q.id===qid&&q.teacherId===ME.id&&(!topic||q.topic===topic);});
   deleteStorageImagesFor(matched.slice(0,1));
   if(matched.length>1){
@@ -4604,7 +4191,6 @@ function deleteQ(qid,topic){
 function editQ(qid,topic){
   var qs=getMyQs();
   // Xavfsizlik uchun: faqat id emas, mavzu ham mos kelishi kerak
-  // (import qilingan fayllarda ID lar turli mavzularda takrorlanishi mumkin edi)
   var q=qs.find(function(x){return x.id===qid && x.topic===topic;});
   if(!q) q=qs.find(function(x){return x.id===qid;}); // zaxira: eski malumotlar uchun
   if(!q)return;
@@ -4726,10 +4312,6 @@ function refreshSyms(){
   };
   document.getElementById('aq-syms').innerHTML=syms.map(function(s){
     // MUHIM TUZATISH: onmousedown="event.preventDefault()" - aks holda
-    // tugmani bosish formula maydonidagi FOKUSNI tugmaga "o'g'irlab"
-    // ketardi, shuning uchun "siz hozir formula ichidasizmi" tekshiruvi
-    // doim yolg'on chiqib, ICHMA-ICH kasr o'rniga har doim YANGI, ALOHIDA
-    // kasr qo'shilib qolardi ("2 ta bo'lib qoldi" muammosi shu edi).
     if(special[s])return '<button class="symb" onmousedown="event.preventDefault()" onclick="'+special[s][0]+'" title="'+special[s][1]+'">'+s+'</button>';
     return '<button class="symb" onmousedown="event.preventDefault()" onclick="insSym(\''+s+'\')">'+s+'</button>';
   }).join('');
@@ -4737,10 +4319,7 @@ function refreshSyms(){
 function closeAQ(){document.getElementById('aq-modal').style.display='none';}
 document.querySelectorAll('input[name="aqtype"]').forEach(function(r){r.addEventListener('change',function(){aqIsM=this.value==='multi';aqCorr=[];renderAQO();
   var op=this.value==='open'; document.getElementById('aq-opts-fg').style.display=op?'none':''; document.getElementById('aq-open-fg').style.display=op?'':'none'; });});
-// TUZATISH (2026-09-27): telefonda klaviatura chiqqanda modal oynadagi
-// (masalan "Savol qo'shish") maydon klaviatura ostida qolib ketardi.
-// Klaviatura animatsiyasi tugagach, fokusdagi maydonni ekran markaziga
-// aylantiramiz.
+// TUZATISH : telefonda klaviatura chiqqanda modal oynadagi
 document.addEventListener('focusin', function(e){
   if(e.target && e.target.closest && e.target.closest('.modal')){
     setTimeout(function(){
@@ -4766,11 +4345,7 @@ function tgC(i){var x=aqCorr.indexOf(i);if(x>=0)aqCorr.splice(x,1);else aqCorr.p
 function stC(i){aqCorr=[i];renderAQO();}
 function addOpt(){aqOpts.push('');renderAQO();}
 function rmO(i){aqOpts.splice(i,1);aqCorr=aqCorr.filter(function(c){return c!==i;}).map(function(c){return c>i?c-1:c;});renderAQO();}
-// (insSym va insWrapAny endi yuqorida, WYSIWYG formula muharriri blokida
-// contenteditable #aq-text uchun to'g'ri yozilgan — bu yerdagi eski,
-// <textarea>.value ga mo'ljallangan nusxalar 2026-09-18'da olib tashlandi,
-// aks holda ular pastda turgani uchun yuqoridagi to'g'ri versiyalarni
-// "bosib" qo'yib, eski xatoni qaytarardi.)
+// insSym va insWrapAny endi yuqorida, WYSIWYG formula muharriri
 function saveQ(){
   var topic=document.getElementById('aq-topic').value.trim(),text=mathEditGetLatexString(document.getElementById('aq-text')).trim(),subj=document.getElementById('aq-subj').value,qcount=parseInt(document.getElementById('aq-qcount').value)||null;
   if(!topic){alert("Mavzu kiriting!");return;}if(!text){alert("Savol matnini kiriting!");return;}
@@ -4793,13 +4368,9 @@ function saveQ(){
 }
 function delQ(idx){if(idx<BQ.length){alert("Bu savol o'zgarmas!");return;}if(!confirm("O'chirasizmi?"))return;var db=getDB();db.userQs.splice(idx-BQ.length,1);saveDB(db);renderQT();}
 
-// ═══════════════════════════════════════════════════════════════════════
 // USTOZ TOMONI: TEKSHIRISH NAVBATI
-// ═══════════════════════════════════════════════════════════════════════
 var _reviewGroups=[];
-// ═══════════════════════════════════════════════════════════════════════
-// HAMKORLIK (2026-08-31)
-// ═══════════════════════════════════════════════════════════════════════
+// HAMKORLIK
 function sendCollabRequest(){
   var login=(document.getElementById('collab-target-login').value||'').trim();
   var msg=document.getElementById('collab-send-msg');
@@ -4855,9 +4426,7 @@ function respondCollab(cid, accept){
   saveDB(db);
   loadCollaborations();
 }
-// 2026-10-12: hamkorlik qabul qilinganda 1-ustozning (toId) hamma savollari va mavzu sozlamalari
-// 2-ustozga (fromId) BIR MARTA nusxa qilib beriladi — 2-ustoz ularni o'zinikidek boshqaradi,
-// 1-ustoz keyin o'chirib yuborsa ham 2-ustozdagi nusxa qoladi.
+// hamkorlik qabul qilinganda 1-ustozning (toId) hamma savollari
 function _collabCopyQs(db,c){
   if(!c||c.copiedAt) return 0;
   var owner=c.toId, to=c.fromId; db.userQs=db.userQs||[]; db.topicsMeta=db.topicsMeta||[];
@@ -4916,8 +4485,7 @@ async function loadReviewQueue(){
   list.innerHTML='<p class="ts tm" style="text-align:center;padding:20px">&#x23F3; Yuklanmoqda...</p>';
   var res=await _sb.from('answer_flags').select('*').eq('teacher_id',ME.id).eq('status','pending').order('created_at');
   var flags=res.data||[];
-  // Bir xil savolga tegishli flaglarni birlashtiramiz - ustoz bitta savolni
-  // bir marta korib, barcha talabalar uchun birdaniga hal qila oladi.
+  // Bir xil savolga tegishli flaglarni birlashtiramiz
   var byQ={};
   flags.forEach(function(f){
     if(!byQ[f.question_id]) byQ[f.question_id]={question_id:f.question_id, snapshot:f.question_snapshot, topic:f.topic, flags:[]};
@@ -4967,9 +4535,7 @@ function renderReviewList(){
   }).join('');
   renderMathIn(list);
 }
-// 2026-10-08: navbatdagi savol ASL testdagi savoldan olinadi (snapshot'da variantlar aralashgan
-// tartibda, correct esa asl raqamda edi — ustozga noto'g'ri variant "to'g'ri" deb ko'rinardi).
-// O'quvchi tanlovi snapshot variantlari matni bo'yicha asl tartibga o'giriladi.
+// navbatdagi savol ASL testdagi savoldan olinadi (snapshot'da
 function _flagOrigQ(g){
   var db=getDB();
   return (db.userQs||[]).find(function(x){return String(x.id)===String(g.question_id)&&x.teacherId===ME.id;})||null;
@@ -5035,9 +4601,7 @@ async function saveReviewFix(gi){
   var q=(db.userQs||[]).find(function(x){return String(x.id)===String(g.question_id)&&x.teacherId===ME.id;});
   if(q){ q.correct=newCorrect; q.trustVotes=0; }
 
-  // RETROAKTIV TUZATISH: shu savolni xato deb hisoblangan (lekin yangi
-  // kalitga kora aslida TOGRI bolgan) barcha o'quvchilarning natijasini
-  // topib, ballini +1 qilib tuzatamiz.
+  // RETROAKTIV TUZATISH
   var fixedStudents=[];
   g.flags.forEach(function(f){
     var sel=_flagSel(f,g).slice().sort();
@@ -5231,8 +4795,7 @@ function renderAdminOverview(){
     '<div class="sc"><div class="sn">'+myClassList().length+'</div><div class="sl">Sinflar</div></div>'+
     '<div class="sc" style="border:2px solid var(--accent)"><div class="sn" style="color:var(--purd)">&#x2B50; '+proCount+'</div><div class="sl">Pro obunachi (ustoz)</div></div>'+
     '<div class="sc"><div class="sn">'+freeCount+'</div><div class="sl">Bepul rejadagi ustoz</div></div>';
-  // Xotira holatini har safar "Umumiy" bo'limi ochilganda avtomatik yuklaymiz -
-  // avval faqat "Sozlamalar" bo'limida, qo'lda "Yangilash" bosilganda korinardi.
+  // Xotira holatini har safar "Umumiy" bo'limi ochilganda avtomatik
   loadStorageStats();
   document.getElementById('admin-teachers-tbody').innerHTML=teachers.map(function(t){
     return '<tr><td>'+t.name+'</td><td class="ts tm">'+t.login+'</td></tr>';
@@ -5280,8 +4843,7 @@ function initAdminSettings(){
 }
 var _adminShowPass=false;
 var STORAGE_PLAN_MB={free:1024,pro:1024*100};
-// R2 bepul: 10 GB storage, 10 million Class B read ops/oy, 1 million Class A write ops/oy
-// Cloudflare rasmiy: https://developers.cloudflare.com/r2/pricing/
+// R2 bepul
 var R2_FREE_LIMITS={storage_gb:10,reads_per_month:10000000,writes_per_month:1000000};
 var _storageCache=null;
 var _r2StatsCache=null;
@@ -5383,8 +4945,7 @@ function renderStorageBars(){
       html+=_storageBar('📦 Ma\'lumotlar ('+r2.data_bucket+')'+(r2.data&&r2.data.error?' ⚠️ '+r2.data.error:''), datMB, limitR2MB, '#6366f1');
     }
     html+=_storageBar('💾 Jami saqlash joyi', totalR2MB, limitR2MB, colR2);
-    // O'qish/yozish operatsiyalari haqida ma'lumot (statistika real vaqtda
-    // S3 API'dan kelmaydi — Cloudflare faqat Dashboard'da ko'rsatadi)
+    // O'qish/yozish operatsiyalari haqida ma'lumot (statistika real
     html+='<div style="background:#fff;border:1px solid #d1fae5;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:var(--mut)">'+
       '<div style="font-weight:700;color:#374151;margin-bottom:6px">📊 Oylik operatsiyalar limiti (S3 API real vaqtda bera olmaydi — Cloudflare Dashboard\'dan ko\'ring)</div>'+
       '<div style="display:flex;gap:16px;flex-wrap:wrap">'+
@@ -5588,13 +5149,7 @@ function renderPendingTeachers(){
       '</div></div></div>';
   }).join('');
 }
-// 2026-09-06: avval bu yerda fetch(...).catch(function(){}) bor edi -
-// xatoni butunlay yutib yuborardi va pastdagi alert() HAR DOIM "Emailga
-// ham xabar yuborildi" derdi, hatto server email yubora olmagan (masalan
-// EMAIL_SMTP_USER/PASS sozlanmagan) yoki tarmoq xatosi bolgan taqdirda ham -
-// admin hech qachon haqiqiy holatni bilmasdi. Endi javob albatta
-// tekshiriladi va MUVAFFAQIYATSIZ bolsa alohida ANIQ ogohlantirish beriladi.
-// Admin uchun bildirishnoma yubor (barcha adminlarga)
+// avval bu yerda fetch(...).catch(function(){}) bor edi
 function notifyAdmins(db, title, body){
   (db.users||[]).forEach(function(u){
     if(u.role==='admin') addNotification(db, u.id, title, body);
@@ -5602,8 +5157,7 @@ function notifyAdmins(db, title, body){
 }
 
 function notifyTeacherEmailHonestly(u, status, db){
-  // Email natijasini (muvaffaqiyat yoki xato) admin bildirishnomalariga yozamiz
-  // - alert() o'rniga yoki undan QOSHIMCHA (email bo'lmasa ham admin ko'rsin)
+  // Email natijasini (muvaffaqiyat yoki xato) admin
   var statusText=status==='approved'?'tasdiqlandi':'rad etildi';
   if(!u.email){
     if(db){
@@ -5685,10 +5239,7 @@ function initSettings(){
   var examOn=ME.examEnabled!==false;
   document.getElementById('exam-toggle').checked=examOn;
   document.getElementById('exam-toggle-label').textContent=examOn?'Imtihon rejimi yoqilgan':'Imtihon rejimi ochirilgan';
-  // Umumiy (standart) timer holatini HAQIQIY saqlangan qiymatdan yuklaymiz -
-  // avval bu qadam yoq edi, shuning uchun checkbox har doim "Yoqiq" korsatardi,
-  // hatto siz avval ochirib qoygan bolsangiz ham (haqiqiy qiymat togri saqlanar,
-  // lekin ekranda notogri korinardi).
+  // Umumiy (standart) timer holatini HAQIQIY saqlangan qiymatdan
   syncTimerUI();
   renderMyClassesBySubj();
   // Load saved Supabase config
@@ -5854,9 +5405,7 @@ function clearResults(){
   loadResults();
   alert("Sizga tegishli natijalar tozalandi!");
 }
-// Bucket'dagi barcha fayllarni sahifalab royxatga oladi (loadStorageStats
-// bilan bir xil pattern - 1000 talik sahifalarda, minglab fayl bolsa ham
-// ishlaydi).
+// Bucket'dagi barcha fayllarni sahifalab royxatga oladi
 async function listAllStorageObjects(){
   var all=[];
   var offset=0, pageSize=1000, guard=0;
@@ -5871,10 +5420,7 @@ async function listAllStorageObjects(){
   }
   return all.filter(function(f){return f.name && f.metadata;});
 }
-// Joriy bazada (BARCHA ustozlarning savollari + natijalar tarixidagi
-// "Batafsil" korinishi uchun saqlangan tafsilotlar) ISHLATILAYOTGAN barcha
-// rasm yollarini yigadi. Natijalar tarixi ham hisobga olinadi - aks holda
-// eski imtihon natijalarida korsatiladigan rasmlar ham ochirilib qolar edi.
+// Joriy bazada (BARCHA ustozlarning savollari + natijalar
 function collectUsedStoragePaths(db){
   var used={};
   function extractPath(url){
@@ -5897,28 +5443,17 @@ function collectUsedStoragePaths(db){
   });
   return used;
 }
-// "Etim" (hech qanday joriy savol/natijaga bogliq bolmagan) fayllarni butun
-// Storage bucket boyicha topib ochiradi. Bular kopincha muvaffaqiyatsiz yoki
-// qayta urinilgan importlardan qolgan - fayl nomi har safar tasodifiy
-// generatsiya qilingani uchun oddiy "savolni ochirish" ularni topa olmaydi.
+// "Etim" (hech qanday joriy savol/natijaga bogliq bolmagan)
 async function cleanupOrphanStorageImages(msgEl){
   if(!_sbReady || !_sb) return {deleted:0, total:0, skipped:true};
-  // XAVFSIZLIK 1: mahalliy (shu qurilmadagi) nusxa ESKIRGAN bolishi mumkin -
-  // masalan boshqa ustoz yaqinda yangi savol qoshgan-u, hali shu brauzerga
-  // "yetib kelmagan" bolishi mumkin edi. Shuning uchun "ishlatilayotgan"
-  // royxatini albatta ENG SONGGI BULUT holatidan tuzamiz, mahalliy keshdan
-  // emas - aks holda boshqa ustozning yangi rasmini xato "etim" deb ochirib
-  // qoyishimiz mumkin edi.
+  // XAVFSIZLIK 1
   if(msgEl) msgEl.innerHTML='<div class="alt ai">&#x23F3; Eng songgi malumot bulutdan tekshirilmoqda...</div>';
   var cloudDb=await sbPull();
   var db=cloudDb||getDB();
   var used=collectUsedStoragePaths(db);
   if(msgEl) msgEl.innerHTML='<div class="alt ai">&#x23F3; Serverdagi fayllar royxati olinmoqda...</div>';
   var allFiles=await listAllStorageObjects();
-  // XAVFSIZLIK 2: oxirgi 3 soat ichida yuklangan fayllarga TEGMAYMIZ - bu,
-  // masalan, aynan shu daqiqada boshqa ustoz tomonidan import qilinayotgan
-  // (rasm allaqachon yuklangan, lekin savol hali db'ga yozilmagan) fayllarni
-  // tasodifan ochirib qoyishning oldini oladi.
+  // XAVFSIZLIK 2
   var GRACE_MS=3*60*60*1000;
   var now=Date.now();
   var orphanPaths=allFiles.filter(function(f){
@@ -5945,9 +5480,7 @@ async function clearUserQs(){
   if(btn) btn.disabled=true;
   if(msg) msg.innerHTML='<div class="alt ai">&#x23F3; Savollaringiz tozalanmoqda...</div>';
   var db=getDB();
-  // MUHIM: faqat SHU ustozning oz savollarini olamiz - boshqa ustozlarning
-  // savollari/rasmlariga tegmaymiz (avval bu yerda filtr yoq edi va tugma
-  // BARCHA ustozlarning savollarini ochirib yuborar edi - xavfli xato edi).
+  // MUHIM
   var mine=(db.userQs||[]).filter(function(q){return q.teacherId===ME.id;});
   deleteStorageImagesFor(mine);
   db.userQs=(db.userQs||[]).filter(function(q){return q.teacherId!==ME.id;});
@@ -6082,8 +5615,7 @@ function submitGenModal(){
 }
 async function startBookGeneration(file, mode, count){
   var msg=document.getElementById('book-msg');
-  // Fayl hajmidan taxminiy bet sonini hisoblaymiz (aniq son server tomonda
-  // malum boladi, lekin limitni OLDINDAN tekshirish uchun tахmin yetarli).
+  // Fayl hajmidan taxminiy bet sonini hisoblaymiz (aniq son server
   var estimatedPages=Math.max(1, Math.round(file.size/3000));
   if(!checkAndIncrementUsage('pages', estimatedPages)) return;
   msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; Kitob yuklanmoqda va tahlil qilinmoqda...</div>';
@@ -6096,11 +5628,7 @@ async function startBookGeneration(file, mode, count){
       r.readAsDataURL(file);
     });
     var base64=dataUrl.substring(dataUrl.indexOf(',')+1);
-    // MUHIM: job_id serverga XOS (faqat o'sha VM'ning xotirasida saqlanadi),
-    // shuning uchun start va status so'rovlari ALBATTA bir xil serverga
-    // borishi kerak - shu sabab pickServer() BIR MARTA chaqirilib, natija
-    // o'zgaruvchiga saqlanadi (har safar qayta chaqirilsa, round-robin
-    // keyingi VM'ga o'tib ketib, "job not found" xatosiga olib kelardi).
+    // MUHIM
     var server=DB_SERVER; // 2026-10-04: AI (Cloudflare/Groq) faqat yangilangan asosiy serverda
     var startRes=await fetchVM(server,'/generate_test_start',{
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -6121,8 +5649,7 @@ async function startBookGeneration(file, mode, count){
       if(st.status==='done'){
         var results=st.results||[];
         if(!results.length){ msg.innerHTML='<div class="alt ar">&#x274C; Hech qanday savol yaratilmadi.</div>'; return; }
-        // Papka allaqachon foydalanuvchi tomonidan tanlangan (fp-modal orqali,
-        // _pendingImportFolder ichida saqlangan) - qayta sorash shart emas.
+        // Papka allaqachon foydalanuvchi tomonidan tanlangan (fp-modal
         var totalQs=0;
         window._batchImportMode=true; // duplikat mavzu nomida BLOKLOVCHI dialog chiqmasin
         for(var i=0;i<results.length;i++){
@@ -6144,47 +5671,12 @@ async function startBookGeneration(file, mode, count){
   }
 }
 
-// MUHIM: bu server FAQAT yengil, tez-tez keladigan sorovlar uchun -
-// db_get, db_save, ai_check va login/royxatdan otish (bularning barchasi
-// getDB()/saveDB() orqali ishlaydi). Bu ATAYLAB import-pool'dan (pastdagi
-// RENDER_SERVERS) ALOHIDA server - chunki avval ular BIR XIL server edi va
-// og'ir .exe import ishlab turganda (LibreOffice band bolganda) foydalanuvchi
-// tizimga kira olmay qolar edi (login/profil ochilmay qolardi). Endi
-// import qancha og'ir bolmasin, login/profil doim tez ishlaydi.
-// TUZATISH (2026-09-28): edutest-server-7 (Render) admin tomonidan SUSPEND
-// qilindi - shu manzilga borgan har qanday sorov endi doim 503 qaytaradi
-// (CORS header ham bo'lmagani uchun brauzerda "Failed to fetch" ko'rinadi).
-// r2_stats/upload_image/notify_teacher_status/parent_link_create endi
-// VM1'ga (DB_SERVER bilan bir xil manzil - ikkalasi ham bir xil Docker
-// image'ni ishlatadi, shuning uchun bu route'lar VM1'da ham mavjud) yo'naltirildi.
+// MUHIM: bu server FAQAT yengil, tez-tez keladigan sorovlar uchun
 var RENDER_SERVER=DB_SERVER;
-// 2026-08-09: import-server pool (avval 10 ta alohida bepul Render xizmati,
-// round-robin bilan) BUTUNLAY OLIB TASHLANDI va ORNIGA Oracle Cloud Always
-// Free VM(lar) (Docker+LibreOffice, Nginx+Let's Encrypt SSL bilan HTTPS'ga
-// chiqarilgan) ishlatiladi. RENDER_SERVER (=edutest-server-7) ozgarishsiz
-// qoladi - u FAQAT db_get/db_save/ai_check (login, profil, natija saqlash)
-// uchun ishlatiladi, import bilan bogliq emas, shuning uchun Oracle'ga
-// kochirilmadi.
-// 2026-08-11: IKKINCHI Oracle VM (edutest-oracle-2) qoshildi - endi ikkala
-// VM orasida ROUND-ROBIN qilinadi (pickServer() har chaqirilganda navbat
-// bilan keyingi serverni qaytaradi). Har ikkala VM bir xil Docker image
-// (shu repodagi Dockerfile) va bir xil sozlamalar (4GB swap, Nginx,
-// Certbot SSL) bilan ishlaydi - VM sozlash tarixi va uchragan xatolar
-// (OCI route-table bug, nginx default_server/IPv6 masalasi va h.k.)
-// uchun edutest-pro skill faylining Changelog bolimiga qarang.
+// import-server pool (avval 10 ta alohida bepul Render xizmati
 var IMPORT_SERVER='https://92-5-41-212.nip.io';               // VM1 (Oracle) - DuckDNS mobilda NXDOMAIN bergani uchun nip.io'ga otkazildi
 var IMPORT_SERVER_2='https://edutest-oracle-2.duckdns.org';  // VM2 (Oracle)
-// 2026-09-06: VM5 (Google Cloud e2-micro) HAVZADAN OLIB TASHLANDI - foydalanuvchi
-// tasdig'i bilan. Sabab: (1) e2-micro atigi 1GB RAM beradi, LibreOffice asosidagi
-// EMF/rasm konvertatsiyasi uchun bu doim ham yetarli emas - shu VM import
-// paytida boshqalarga qaraganda SEZILARLI kop xato berardi (aynan shu Render
-// 512MB tajribasida ilgari kuzatilgan OOM muammosining boshqa provayderdagi
-// oynasi); (2) GCP hisobida "kichik, hal qilinmagan tolovlar" bor edi (eng
-// ehtimoliy sabab: statik tashqi IP VM to'xtatilgan holatda ham HAQ olinadi -
-// GCP faqat IP RUNNING instance'ga biriktirilgan bolsa bepul qiladi).
-// Qayta yoqish kerak bolsa: pastdagi 3 ta qatorni ('var IMPORT_SERVER_3',
-// VM_FALLBACK yozuvi, SERVER_POOL yozuvi) izohdan chiqarish yetarli.
-// var IMPORT_SERVER_3='https://edutest-vm5.duckdns.org';    // VM5 (Google Cloud e2-micro) - 2026-09-06 OCHIRILDI
+// VM5 (Google Cloud e2-micro) HAVZADAN OLIB TASHLANDI
 var IMPORT_SERVER_4='https://edutest-vm4.duckdns.org';       // VM4 (Oracle Ampere, 2026-08-28 qoshildi)
 var IMPORT_SERVER_5='https://edutest-vm7.duckdns.org';       // VM7 (Oracle Ampere, oldinroq sozlangan, 2026-08-28 kodga ulandi)
 var IMPORT_SERVER_6='https://130-61-168-154.nip.io';         // VM8 (Oracle Ampere, DuckDNS limiti tugagani uchun nip.io ishlatilgan, 2026-08-28)
@@ -6197,18 +5689,11 @@ function pickServer(){
   return s;
 }
 
-// ─── VM DNS-BLOKLASH ZAXIRASI (nip.io fallback) ────────────────────────────
-// Ba'zi qurilmalar/operatorlar (masalan bitta Redmi Note 10 5G'da kuzatilgan)
-// duckdns.org domenini DNS darajasida bloklaydi - server ishlab tursa ham
-// "server javob bermadi" xatosi chiqadi. Har bir VM uchun IP-ga bogliq
-// muqobil domen (nip.io - hech qanday DNS provayderga bogliq emas, IP'ni
-// domen nomiga aylantiradi) qoshilgan. fetchVM() avval asosiy domenga
-// urinadi, tarmoq darajasidagi xato (DNS/connection) bolsa - avtomatik
-// nip.io manziliga otadi.
+// VM DNS-BLOKLASH ZAXIRASI (nip.io fallback)
 var VM_FALLBACK={};
 VM_FALLBACK[IMPORT_SERVER]='https://92-5-41-212.nip.io';
 VM_FALLBACK[IMPORT_SERVER_2]='https://92-5-126-0.nip.io';
-// VM_FALLBACK[IMPORT_SERVER_3]='https://34-58-106-227.nip.io'; // VM5 (Google) - 2026-09-06 ochirildi, yuqoridagi izohga qarang
+// VM_FALLBACK[IMPORT_SERVER_3]='https://34-58-106-227.nip.io'
 VM_FALLBACK[IMPORT_SERVER_4]='https://130-61-74-112.nip.io';
 VM_FALLBACK[IMPORT_SERVER_5]='https://130-61-172-212.nip.io';
 var FETCHVM_TIMEOUT_MS=120000; // 2 daqiqa
@@ -6242,50 +5727,20 @@ function uniqueTopicName(base){
   return base+' ('+i+')';
 }
 
-// ─── SERVER HAVZASI (server pool) - TARQATILGAN IMPORT ────────────────────
-// MUHIM: bu yerga qo'shilgan har bir server, .exe import paytida BARCHA
-// boshqa serverlar bilan BIRGA, umumiy EMF (formula/rasm) navbatidan ish
-// oladi - fayllar oldindan kichik guruhlarga bo'lib, alohida-alohida
-// serverlarga "qattiq" biriktirilmaydi. Yangi server (masalan yangi Oracle
-// Ampere VM, yoki Koyeb) tayyor bo'lganda, shunchaki shu ro'yxatga bitta
-// qator qo'shish YETARLI - kod avtomatik uni ishga qo'shadi.
-//
-// "weight" - bitta so'rovda shu serverga necha EMF beriladi. Bu HOZIRCHA
-// QO'LDA belgilanadi (haqiqiy tezlikni avtomatik olchash - benchmark -
-// bu sessiyada qilinmadi, keyingi qadam bo'lishi mumkin). Taxminiy
-// yo'riqnoma: 1 OCPU/6GB Oracle VM -> 12-15, kuchli AMD VM -> 15-20,
-// Koyeb bepul (0.1 vCPU/512MB) -> 2-3 (aks holda OOM/juda sekin bo'ladi).
-//
-// "dailyBudgetSec" - IXTIYORIY. Oracle va Koyeb'ning HAR IKKALASI ham
-// vaqt/soat chegarasiga ega EMAS (ikkalasi ham "always free", muddatsiz) -
-// shuning uchun hozircha bu maydon deyarli hech qaysi serverda ishlatilmaydi.
-// Faqat kelajakda Render kabi SOATLIK LIMITI bor provayder qo'shilsa foydali
-// bo'ladi - shu kunlik soniya byudjeti tugasa, server avtomatik navbatdan
-// chetlashadi va indikator DB'da (`db.serverBudgetUsed`) saqlanadi, ertasi
-// kun (UTC) qayta tiklanadi. null = cheklovsiz.
+// SERVER HAVZASI (server pool) - TARQATILGAN IMPORT
 var SERVER_POOL=[
   {url:IMPORT_SERVER,   name:'VM1 (Oracle AMD)',  weight:15, chunk:4, parallel:1, dailyBudgetSec:null},
   {url:IMPORT_SERVER_2, name:'VM2 (Oracle AMD)',  weight:15, chunk:4, parallel:1, dailyBudgetSec:null},
-  // {url:IMPORT_SERVER_3, name:'VM5 (Google e2-micro)', weight:8, dailyBudgetSec:null}, // 2026-09-06 ochirildi: kop xato + hal qilinmagan GCP tolovlari
+  // {url:IMPORT_SERVER_3, name:'VM5 (Google e2-micro)', weight:8
   {url:IMPORT_SERVER_4, name:'VM4 (Oracle Ampere)', weight:15, chunk:24, parallel:2, dailyBudgetSec:null}, // 2026-10-04: 1->2 (server LibreOffice'ni nice 15 bilan ishlatadi - baza tez qoladi)
   {url:IMPORT_SERVER_5, name:'VM7 (Oracle Ampere)', weight:15, chunk:24, parallel:2, dailyBudgetSec:null},
-  // {url:IMPORT_SERVER_6, name:'VM8 (Oracle Ampere)', weight:15, dailyBudgetSec:null}, // 2026-10-01: A1 limiti 2 OCPU - o'chirildi
-  // {url:IMPORT_SERVER_7, name:'VM9 (Oracle Ampere)', weight:15, dailyBudgetSec:null} // 2026-10-01: A1 limiti 2 OCPU - o'chirildi
-  // Yangi server tayyor bo'lganda, shu yerga qo'shiladi, masalan:
-  // {url:'https://edutest-vm3.duckdns.org', name:'VM3 (Ampere)', weight:12, dailyBudgetSec:null},
-  // {url:'https://edutest-koyeb.koyeb.app', name:'Koyeb (bepul)', weight:3,  dailyBudgetSec:null},
+  // {url:IMPORT_SERVER_6, name:'VM8 (Oracle Ampere)', weight:15
 ];
-// MUHIM: RENDER_SERVERS (pickServer/warmUpImportServers/parse_document va
-// h.k. ishlatadigan eski nom) endi SERVER_POOL'dan AVTOMATIK hosil bo'ladi -
-// shuning uchun yangi server qo'shishda FAQAT yuqoridagi SERVER_POOL'ga
-// qator qo'shish yetarli, ikkinchi joyni yangilash shart emas.
+// MUHIM
 RENDER_SERVERS=SERVER_POOL.map(function(s){return s.url;});
 
 function todayKey(){ var d=new Date(); return d.getUTCFullYear()+'-'+(d.getUTCMonth()+1)+'-'+d.getUTCDate(); }
-// Server kunlik soniya byudjetini DB'dan o'qiydi/yangilaydi - hozircha
-// deyarli hech qaysi serverda ishlatilmaydi (yuqoridagi izohga qarang),
-// lekin infratuzilma tayyor - kelajakda soatlik-limitli server qo'shilsa,
-// shunchaki dailyBudgetSec qiymatini to'ldirish kifoya.
+// Server kunlik soniya byudjetini DB'dan o'qiydi/yangilaydi
 function getServerBudgetUsed(url){
   var db=getDB();
   var rec=(db.serverBudgetUsed||{})[url];
@@ -6306,11 +5761,7 @@ function isServerBudgetAvailable(srv){
   return getServerBudgetUsed(srv.url) < srv.dailyBudgetSec;
 }
 
-// ─── UMUMIY EMF ISH-NAVBATI (work-stealing) ────────────────────────────────
-// Bitta katta ro'yxat ("bitta guruh") - har bir SERVER_POOL'dagi server
-// shu ro'yxatdan o'z tezligiga (weight) qarab bo'lib-bo'lib ish oladi.
-// Server o'z kunlik byudjetini tugatsa yoki javob bermasa - navbatdan
-// avtomatik chiqadi, qolganlar davom etadi.
+// UMUMIY EMF ISH-NAVBATI (work-stealing)
 function makeWorkQueue(items){
   var idx=0;
   return {
@@ -6326,9 +5777,7 @@ function makeWorkQueue(items){
   };
 }
 
-// Barcha EMF vazifalarini SERVER_POOL bo'yicha parallel konvertatsiya
-// qiladi. `onProgress(done,total,activeServers)` - UI yangilash uchun.
-// Qaytaradi: {id: png_data_url, ...}
+// Barcha EMF vazifalarini SERVER_POOL bo'yicha parallel
 async function distributeEmfConversion(emfTasks, onProgress){
   var results={};
   if(!emfTasks.length) return results;
@@ -6336,35 +5785,9 @@ async function distributeEmfConversion(emfTasks, onProgress){
   var done=0, total=emfTasks.length;
   var activeServers={};
   function sleepMs(ms){return new Promise(function(r){setTimeout(r,ms);});}
-  // MUHIM (2026-08-29 tuzatish): katta importlarda (10,000+ rasm) serverlar
-  // xotira yetishmasligidan "qulab tushishi" (Docker avtomatik qayta
-  // ishga tushiradi, lekin 5-15 soniya vaqt oladi) kuzatildi. Avvalgi kod
-  // bitta xatodan keyin serverni BUTUNLAY tashlab yuborardi - hatto server
-  // sekundlar ichida qayta tiklansa ham. Endi: (1) har so'rovda kamroq
-  // vazifa (server tezligidan qat'iy nazar maksimum 6 tagacha) yuboriladi -
-  // xotira bosimi va bitta xatoning "narxi" kamayadi; (2) server xato
-  // bersa, darhol tashlab yuborilmaydi - qisqa kutish bilan yana 2 marta
-  // qayta uriniladi (Docker avtomatik qayta ishga tushishi uchun vaqt
-  // berish maqsadida).
+  // MUHIM : katta importlarda (10,000+ rasm) serverlar
   var MAX_CHUNK=6;
-  // 2026-09-06 TUZATISH: avvalgi kod 2 marta ketma-ket xatodan keyin
-  // serverni SHU IMPORT uchun BUTUNLAY (doimiy) chetlatib qoyardi. Muammo:
-  // ekran ochirilganda (screen-off) yoki fon rejimiga otganda, TELEFONNING
-  // OZI barcha ochiq tarmoq sorovlarini bir vaqtda uzadi - demak ayni shu
-  // vaqtda deyarli HAMMA server bir xil sababdan (foydalanuvchi tomonidan,
-  // server ozi emas) 2 marta ketma-ket xato berib, birma-bir doimiy
-  // chetlanib qolardi. Natijada import oxiriga kelib atigi 1-2 ta server
-  // qolib, qolganlari "ochib qolgan" korinardi (aslida ular ISHLAYDI,
-  // shunchaki SHU IMPORT navbatidan chetlatilgan edi). Fallback-bosqichlar
-  // esa faqat HAMMA worker tugagandan keyin ishga tushadi - shuning uchun
-  // foydalanuvchi jonli progressda buni sezmasdi.
-  // Yechim: bitta xatodan keyin ENDI DOIMIY chetlatilmaydi - server
-  // JAMI necha soniya "yiqilgan" holatda bolganini hisoblab boradi va
-  // faqat shu jami vaqt MAX_TOTAL_DOWN_MS (5 daqiqa)dan oshsagina haqiqatan
-  // "bu import uchun ishlamayapti" deb hisoblanadi. Har xatodan keyingi
-  // kutish vaqti ham progressiv oshadi (8s, 16s, 24s... 30s bilan
-  // cheklangan) - qisqa vaqtinchalik uzilishlarda tezroq qaytadi, uzoq
-  // muammoda esa serverni ortiqcha "kaltaklamaydi".
+  // TUZATISH: avvalgi kod 2 marta ketma-ket xatodan keyin
   var RETRY_WAIT_BASE_MS=8000;
   var RETRY_WAIT_MAX_MS=30000;
   var MAX_TOTAL_DOWN_MS=5*60*1000; // 5 daqiqa jami "yiqilgan" vaqt - shundan keyingina chindan chetlatiladi
@@ -6410,14 +5833,10 @@ async function distributeEmfConversion(emfTasks, onProgress){
     }
   }
 
-  // 2026-10-03: o'lchov (vm4, 1-mavzu.exe): 6x1 -> 2.2 formula/s, 24x2 ~2x tez.
-  // Har server o'z 'parallel' soni qadar bir vaqtda so'rov oladi (tarmoq kutilayotganda CPU bo'sh qolmasin).
+  // o'lchov (vm4, 1-mavzu.exe): 6x1 -> 2.2 formula/s, 24x2 ~2x tez
   await Promise.all([].concat.apply([], SERVER_POOL.map(function(s){ var a=[]; for(var i=0;i<(s.parallel||1);i++) a.push(s); return a; })).map(worker));
 
-  // Agar hali ham vazifalar navbatda qolgan bo'lsa (masalan hammasi bir
-  // vaqtda vaqtincha ishdan chiqqan bo'lsa) - endi FAQAT VM1'ga emas,
-  // BARCHA serverlarga, bir necha bosqichda (har bosqich orasida kutib,
-  // Docker qayta tiklanishi uchun vaqt berib) qayta taqsimlaymiz.
+  // Agar hali ham vazifalar navbatda qolgan bo'lsa (masalan hammasi
   var FALLBACK_ROUNDS=6;
   var FALLBACK_WAIT_MS=12000;
   for(var round=0; round<FALLBACK_ROUNDS && queue.remaining()>0; round++){
@@ -6443,13 +5862,7 @@ async function distributeEmfConversion(emfTasks, onProgress){
     }
   }
   if(queue.remaining()>0){
-    // MUHIM (2026-08-29): oldin bu yerda hech narsa qilinmasdi - xom EMF
-    // ma'lumoti YO'QOLIB ketardi, faqat "__IMG_PENDING__" matni qolib
-    // ketaverardi, va uni HECH QACHON tuzatib bo'lmasdi (chunki manba .exe
-    // fayl allaqachon yopilgan). Endi: muvaffaqiyatsiz qolgan har bir
-    // vazifaning xom EMF baytlari "EMFPENDING:" belgisi bilan natijaga
-    // yoziladi - keyinroq (hatto boshqa kunda ham) "Tuzatish" tugmasi
-    // orqali qayta urinish mumkin bo'ladi, hech narsa yo'qolmaydi.
+    // MUHIM : oldin bu yerda hech narsa qilinmasdi - xom EMF
     var stillLeft=queue.claim(queue.remaining());
     stillLeft.forEach(function(t){ results[t.id]='EMFPENDING:'+t.emf_b64; });
     console.warn(stillLeft.length+' ta rasm/formula '+FALLBACK_ROUNDS+' bosqichdan keyin ham konvertatsiya qilinmadi - xom malumot saqlab qolindi, keyinroq "Tuzatish" tugmasi bilan qayta urinish mumkin.');
@@ -6457,10 +5870,7 @@ async function distributeEmfConversion(emfTasks, onProgress){
   return results;
 }
 
-// Ko'p qismli (rasm + formula) savol/javoblarni BITTA rasmga birlashtiradi.
-// Qismlar: tayyor rasm (img_b64) yoki konvertatsiya natijasi (emfResults[task_id]:
-// xom PNG base64, yoki eski serverdan kelgan URL/data-URL). Birlashtirishni
-// server (/compose_parts) bajaradi va R2'ga yuklaydi. Natija emfResults[key] ga yoziladi.
+// Ko'p qismli (rasm + formula) savol/javoblarni BITTA rasmga
 var _composeRR=0;
 async function composeOnePartsList(parts){
   var urls=SERVER_POOL.map(function(s){return s.url;});
@@ -6502,24 +5912,15 @@ async function composeMultiSpecs(specs, emfResults, onProgress){
   if(failed) console.warn(failed+' ta ko\'p qismli rasm birlashtirilmadi');
 }
 
-// Fayllarni (extract_batch_start orqali) EMF-siz ochib, keyin barcha
-// EMF vazifalarini bitta umumiy navbatga yig'ib, distributeEmfConversion()
-// orqali BUTUN server havzasiga tarqatadi. Bu — eski "fayl-guruh->bitta
-// server" modelidan farqli, EMF-darajasidagi tarqatish.
+// Fayllarni (extract_batch_start orqali) EMF-siz ochib, keyin
 async function distributedExeImport(files, folderName, msg){
   _pendingImportFolder=folderName;
-  // MUHIM (2026-08-30 tuzatish): oldin bu bayroq faqat SAQLASH bosqichida
-  // yoqilardi - lekin "internet yo'q" ogohlantirishi ko'proq ANIQ shu
-  // oldingi (fayl ochish + rasm/formula konvertatsiya) bosqichlarida
-  // chiqardi, chunki o'sha payt bayroq hali yoqilmagan edi. Endi butun
-  // import boshidan oxirigacha yoqilgan turadi.
+  // MUHIM : oldin bu bayroq faqat SAQLASH bosqichida
   window._batchImportMode=true;
   await acquireImportWakeLock();
   msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; Fayllar ochilmoqda (0/'+files.length+')...</div>';
 
-  // 1-BOSQICH: fayllarni kichik guruhlarga bo'lib, EXTRACT (tez, LibreOffice
-  // yo'q) - bir nechta serverga PARALLEL yuboramiz, chunki bu ham
-  // vaqt oladi (yuzlab fayl bo'lsa).
+  // 1-BOSQICH
   var EXTRACT_GROUP=4;
   var extractGroups=[];
   for(var i=0;i<files.length;i+=EXTRACT_GROUP){
@@ -6542,14 +5943,7 @@ async function distributedExeImport(files, folderName, msg){
   var srvIdx=0;
 
   function _sleepMs(ms){ return new Promise(function(res){ setTimeout(res,ms); }); }
-  // MUHIM: avval bu yerda RETRY YO'Q edi - bitta vaqtinchalik tarmoq xatosi
-  // (ekran o'chishi, ilova fonga o'tishi, qisqa uzilish) butun guruhni
-  // QAYTARIB BO'LMAS holda "xato" deb belgilardi (2026-08-xx kuzatilgan:
-  // 24 tadan 11 tasi shu sababdan "Failed to fetch" bilan tushib qolgan).
-  // Endi: har guruh uchun 3 marta urinadi (2s/5s/10s kutish bilan), va har
-  // urinishda BOSHQA serverga o'tadi (round-robin ichida) - agar bitta VM
-  // vaqtincha band/sekin bo'lsa, keyingi urinish avtomatik boshqa VM'ga
-  // tushadi.
+  // MUHIM
   async function extractOneGroup(fdPromiseGroup){
     var filesData=(await Promise.all(fdPromiseGroup)).filter(Boolean);
     if(!filesData.length) return;
@@ -6568,14 +5962,7 @@ async function distributedExeImport(files, folderName, msg){
         }).then(function(r){return r.json();});
         if(res.error) throw new Error(res.error);
         (res.files||[]).forEach(function(fr, localIdx){
-          // TUZATISH (2026-08-29): avval mavzu nomi faylning ICHIDAGI
-          // (<Name> tegidagi) nomdan olinardi - lekin ko'p .exe fayllarda
-          // bu ichki nom bir xil yoki juda umumiy bo'lib chiqadi (masalan
-          // hammasi "Yangi mavzu" yoki shunga oxshash), natijada import
-          // qilingandan keyin qaysi mavzu qaysi ekanini ajratish qiyin
-          // bo'lib qolardi. Endi mavzu nomi FAYL NOMINING o'zidan olinadi -
-          // bu har doim noyob va tushunarli bo'ladi (foydalanuvchi faylni
-          // qanday nomlagan bo'lsa, mavzu nomi ham shunday bo'ladi).
+          // TUZATISH : avval mavzu nomi faylning ICHIDAGI
           if(fr && !fr.error){
             var origFilename=filesData[localIdx] && filesData[localIdx].filename;
             if(origFilename){
@@ -6625,8 +6012,7 @@ async function distributedExeImport(files, folderName, msg){
   }
   await Promise.all(Array.from({length:EXTRACT_CONCURRENCY}, extractWorker));
 
-  // 2-BOSQICH: BARCHA fayllardan yig'ilgan EMF vazifalari - BITTA umumiy
-  // navbat, BARCHA serverlarga bir vaqtda tarqatiladi.
+  // 2-BOSQICH
   msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; '+allEmfTasks.length+' ta formula/rasm '+SERVER_POOL.length+' ta serverda birgalikda o\'girilmoqda (0/'+allEmfTasks.length+')...</div>';
   var emfResults=await distributeEmfConversion(allEmfTasks, function(done,total,activeServers){
     msg.innerHTML=importBgWarningHtml()+'<div class="alt ai">&#x23F3; Formula/rasmlar o\'girilmoqda: '+done+'/'+total+' ('+activeServers.length+' ta server ishlamoqda: '+activeServers.join(', ')+')</div>';
@@ -6659,12 +6045,7 @@ async function distributedExeImport(files, folderName, msg){
   for(var fi=0; fi<allFileResults.length; fi++){
     var fr=allFileResults[fi];
     if(!fr || fr.error){ errTotal++; failedNames.push((fr?fr.filename:'fayl')+(fr&&fr.error?' ('+fr.error+')':'')); continue; }
-    // TUZATISH (2026-08-18): bu yerda avval "if(q.image){}" - BO'SH BLOK
-    // edi, hech narsa qilmasdi. Natijada rasm q.image maydonida qolib
-    // ketardi, q.img'ga ko'chmasdi. Ustoz paneli va "Batafsil" ko'rinishi
-    // ikkalasi ham q.img||q.image tekshiradi (shu sabab ular to'g'ri
-    // ko'rsatardi), lekin test yechish ekrani (renderQ) FAQAT q.img'ni
-    // tekshiradi - shu sababdan aynan test ichida rasm ko'rinmasdi.
+    // TUZATISH : bu yerda avval "if(q.image){}" - BO'SH BLOK
     var qs=(fr.questions||[]).map(function(q){ if(q.image){q.img=q.image;delete q.image;} if(q.isMulti===undefined) q.isMulti=(q.correct||[]).length>1; return q; });
     await saveImportedQs({qs:qs, topic:fr.topic, questionsToAsk:fr.questionsToAsk}, msg);
     okTotal++;
@@ -6680,17 +6061,7 @@ async function distributedExeImport(files, folderName, msg){
 
 async function saveImportedQs(parsed,msg){
   if(_importCancel&&_importInProgress) return;
-  // MUHIM YANGILANISH (2026-09-19): avval bir xil nomli mavzu import
-  // qilinsa, avtomatik "Mavzu (2)" kabi NOYOB nomga o'tkazilardi - bu 2 ta
-  // bir xil testni yaratardi. Endi mavzu allaqachon mavjud bo'lsa, savollar
-  // MOS TOPILADI: agar savolda RASM bo'lsa - rasm MAZMUNI (perceptual hash
-  // orqali, tarmoqqa chiqmasdan, xotirada) solishtiriladi - bu ENG ANIQ
-  // usul, chunki "Hisoblang. 40 ta son bor." kabi bir xil matnli 10+ ta
-  // savol bitta mavzuda bo'lishi mumkin, ularni faqat RASM (formula)ning
-  // o'zi farqlaydi. Rasm bo'lmasa - matn o'xshashligi (bo'shliq/tinish
-  // belgisi farqiga chidamli) ishlatiladi. Mos savol topilib, javob/variant
-  // bir xil bo'lsa - TEGILMAYDI; boshqacha bo'lsa - O'SHA savol (eski ID
-  // saqlangan holda) YANGILANADI; mos topilmasa - YANGI qo'shiladi.
+  // MUHIM YANGILANISH : avval bir xil nomli mavzu import
   parsed.qs.forEach(function(q,idx){
     q.id=Date.now()+'_'+idx+'_'+Math.random().toString(36).slice(2,8);
     q.teacherId=ME.id;
@@ -6702,10 +6073,7 @@ async function saveImportedQs(parsed,msg){
     }
   });
 
-  // Rasm-asosli savollarni ANIQ farqlash uchun - har biriga tez (perceptual)
-  // hash hisoblab qo'yamiz. Bu FAQAT xotirada (hali R2'ga yuklanmagan
-  // data: URL ustida) ishlaydi - hech qanday tarmoq so'rovi ketmaydi,
-  // shuning uchun 10-100+ savol bo'lsa ham bir necha soniyada tugaydi.
+  // Rasm-asosli savollarni ANIQ farqlash uchun
   var imgQs=parsed.qs.filter(function(q){return q.img;});
   if(imgQs.length){
     msg.innerHTML='<div class="alt ai">&#x1F50D; '+imgQs.length+' ta rasm solishtirish uchun tahlil qilinmoqda...</div>';
@@ -6725,8 +6093,6 @@ async function saveImportedQs(parsed,msg){
   }
 
   // Rasmlarni Supabase Storage'ga yuklab, asosiy JSON ichida
-  // faqat qisqa havolalarni qoldiramiz (localStorage/Supabase
-  // ma'lumot bazasi tolib-toshib ketmasligi uchun)
   if(_sbReady && _sb){
     var items=[];
     parsed.qs.forEach(function(q){
@@ -6743,8 +6109,7 @@ async function saveImportedQs(parsed,msg){
     }
   }
 
-  // Rasm-yuklashdan KEYIN (haqiqiy R2/Storage havolalari tayyor bo'lgach)
-  // moslashtirilgan juftliklarni haqiqiy DB'dagi eski savolga tatbiq qilamiz
+  // Rasm-yuklashdan KEYIN (haqiqiy R2/Storage havolalari tayyor
   plan.pairs.forEach(function(p){
     p.old.options=p.nq.options;
     p.old.correct=p.nq.correct;
@@ -6773,15 +6138,7 @@ async function saveImportedQs(parsed,msg){
     msg.innerHTML='<div class="alt as">&#x2705; <strong>'+parsed.qs.length+' ta savol</strong>'+(imgCount?' ('+imgCount+' ta rasm bilan)':'')+' import qilindi: "<b>'+parsed.topic+'</b>" ('+parsed.questionsToAsk+' ta beriladi)</div>';
   }
 }
-// Ikki savolni MOS deb topish endi ANIQ matn tengligiga emas, balki
-// O'XSHASHLIK DARAJASIGA (bigram/Dice koeffitsienti) asoslanadi - shunda
-// AI bir xil faylni ikkinchi marta o'qib, bo'shliq/tinish belgisi/kichik
-// so'z tartibi farqi bilan chiqarsa ham, savol baribir TOPILADI (avvalgi
-// "aniq mos kelishi kerak" cheklovi shu bilan bartaraf etildi). Savol
-// matni bo'sh (faqat rasm) bo'lsa, variantlar matni ham hisobga olinadi -
-// shunda rasm-asosli savollar ham (agar variantlari matn bo'lsa) mos
-// topiladi. Rasm-maydonlarning o'zi hech qachon solishtirilmaydi (har
-// safar yuklashda yangi Storage-havola olinadi).
+// Ikki savolni MOS deb topish endi ANIQ matn tengligiga emas
 function _bigrams(s){
   s=(s||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
   var set={};
@@ -6818,12 +6175,7 @@ function _hamming(a,b){
   for(var i=0;i<a.length;i++) if(a[i]!==b[i]) d++;
   return d;
 }
-// Rasmning tez (perceptual) "difference hash"ini hisoblaydi - 64 bitli
-// '0'/'1' satr. Bu ODDIY baytlarni emas, RASM KO'RINISHINI hisobga oladi,
-// shuning uchun qayta yuklanganda (R2'ga saqlashda) bir necha bayt ozgarsa
-// ham (siqilish farqi va h.k.) natija baribir bir xil chiqadi. Butunlay
-// xotirada ishlaydi (tarmoqqa chiqmaydi) - juda tez, 100+ rasm bolsa ham
-// bir necha soniyada tugaydi.
+// Rasmning tez (perceptual) "difference hash"ini hisoblaydi
 async function computeImageDHash(dataUrl){
   var blob=await (await fetch(dataUrl)).blob();
   var bitmap=await createImageBitmap(blob);
@@ -6854,9 +6206,6 @@ function computeMergePlan(existingQs, newQs){
     var matched=null;
     if(nq._imgHash){
       // 1-BOSQICH: rasm bor - MATNGA QARAMASDAN, faqat rasm mazmuni
-      // (hash) boyicha eng yaqin nomzodni qidiramiz. Shu bilan "Hisoblang.
-      // 40 ta son bor." kabi bir xil matnli, lekin har xil formula-rasmli
-      // 10+ savol ham TOGRI (ozining aynan rasmiga qarab) moslashadi.
       var bestDist=999, bestI=-1;
       for(var i=0;i<pool.length;i++){
         if(pool[i]._imgHash){
@@ -6868,7 +6217,6 @@ function computeMergePlan(existingQs, newQs){
     }
     if(!matched){
       // 2-BOSQICH: rasm yoq (yoki eski savolda hali hash yoq - eski
-      // ma'lumot) - matn o'xshashligiga tayanamiz
       var bestScore=0, bestJ=-1;
       for(var j=0;j<pool.length;j++){
         var sc=_diceSim(_compareKeyOf(nq), _compareKeyOf(pool[j]));
@@ -6940,17 +6288,13 @@ function sendToServer(file,msg,server){
             msg.innerHTML='<div class="alt ai">&#x26A0;&#xFE0F; '+reasonMsg+' "'+file.name+'" uchun '+secs+' soniyadan keyin qayta uriniladi ('+(retryCount+1)+'/'+MAX_RETRIES+')...</div>';
             setTimeout(function(){ attempt(retryCount+1).then(resolve); },delay);
           } else {
-            // Hammasi behuda ketdi - rasmsiz usulga o'tmaymiz (sifat pasayib ketmasin),
-            // shunchaki bu faylni MUVAFFAQIYATSIZ deb hisoblab, ustozga aniq xabar beramiz.
+            // Hammasi behuda ketdi
             msg.innerHTML='<div class="alt ar">&#x274C; "'+file.name+'" import qilinmadi ('+MAX_RETRIES+' marta urinildi, server javob bermadi).</div>';
             resolve(false);
           }
         }
         xhr.onload=async function(){
-          // Server 200 dan boshqa kod qaytarsa (masalan 502/503/504 - hosting vaqtincha
-          // ishlamay qolgani) - buni haqiqiy serverga qayta urinib ko'ramiz, chunki
-          // odatda bir necha soniyadan keyin server o'ziga keladi va rasm bilan to'liq
-          // natija beradi.
+          // Server 200 dan boshqa kod qaytarsa (masalan 502/503/504
           if(xhr.status<200||xhr.status>=300){
             retryOrGiveUp('Server xatosi qaytardi (kod: '+xhr.status+').');
             return;
@@ -6969,9 +6313,6 @@ function sendToServer(file,msg,server){
         };
         xhr.onerror=function(){
           // MUHIM: bu aynan Redmi Note 10 5G'da DNS bloklashi sababli
-          // kuzatilgan xato turi (duckdns.org ochilmasa, brauzer buni
-          // "network error" deb beradi). Bir marta muqobil (nip.io) manzilga
-          // otamiz, keyin odatiy qayta urinish davom etadi.
           if(!_switchedHost && VM_FALLBACK[currentServer]){
             _switchedHost=true;
             currentServer=VM_FALLBACK[currentServer];
@@ -7073,8 +6414,7 @@ function submitFP(folderName,isNew){
   document.getElementById('fp-modal').style.display='none';
   _fpPendingFile=null;
   _pendingImportFolder=folderName;
-  // Fan: agar boshqa fan tanlangan bo'lsa, global o'zgaruvchiga saqlaymiz
-  // saveImportedQs() uni q.subject sifatida ishlatadi
+  // Fan
   if(_pendingImportSubject){
     window._fpOverrideSubject=_pendingImportSubject;
   } else {
@@ -7093,22 +6433,7 @@ function submitFP(folderName,isNew){
     importExe(file);
   }
 }
-// ─── IMPORT PAYTIDA EKRAN/FON MUAMMOSI ─────────────────────────────────────
-// TOPILGAN HAQIQIY SABAB (avvalgi sessiyada tahlil qilingan, lekin hech
-// qachon kodga aylantirilmagan): katta .exe fayllarda (yuzlab EMF/formula)
-// import 10-20+ daqiqa davom etishi mumkin. Shu vaqt ichida agar foydalanuvchi
-// ekranni ochirsa yoki boshqa ilovaga otsa - Android/Chrome (ayniqsa MIUI/
-// Xiaomi qurilmalarida, masalan Redmi Note 10 5G'da kuzatilgan) fon
-// tab'idagi tarmoq sorovlarini "muzlatib" qoyadi, natijada haqiqiy server
-// ishlab turgan bolsa ham "server javob bermadi" xatosi chiqadi. Bu VM_FALLBACK
-// (DNS bloklash)dan BUTUNLAY BOSHQA muammo edi - ikkalasi ham sodir bolishi
-// mumkin, shuning uchun ikkalasiga ham alohida yechim kerak.
-//
-// Yechim: (1) Wake Lock API orqali import davomida ekranni yonib turishga
-// majburlash (qollab-quvvatlansa), (2) foydalanuvchiga ochiq ogohlantirish,
-// (3) agar u baribir tab/ilovani fon qilib qoysa - buni aniqlab, natija
-// ekranida sababni tushuntirish (chalkash "server javob bermadi" xatosi
-// ornига).
+// IMPORT PAYTIDA EKRAN/FON MUAMMOSI
 var _importWakeLock=null;
 var _importInProgress=false;
 var _importWasBackgrounded=false;
@@ -7129,8 +6454,7 @@ function releaseImportWakeLock(){
     _importWakeLock=null;
   }
 }
-// Wake Lock spetsifikatsiyasi boyicha, tab fonga tushganda u AVTOMATIK bekor
-// bolib qoladi - foydalanuvchi qaytib kelganda qayta sorash kerak.
+// Wake Lock spetsifikatsiyasi boyicha, tab fonga tushganda u
 document.addEventListener('visibilitychange', function(){
   if(!_importInProgress) return;
   if(document.hidden){
@@ -7142,11 +6466,7 @@ document.addEventListener('visibilitychange', function(){
     }
   }
 });
-// ═══════════════════════════════════════════════════════════════════════
-// IMPORTNI TO'XTATISH (2026-10-02): import paytida pastda panel —
-// "To'xtatish" (shu paytgacha saqlanganlar qoladi) va "To'xtatish va o'chirish"
-// (shu importda qo'shilgan savollar o'chiriladi).
-// ═══════════════════════════════════════════════════════════════════════
+// IMPORTNI TO'XTATISH : import paytida pastda panel
 var _importCancel=false, _impCtrls=[], _impSavedIds=[];
 function _impBar(show){
   var b=document.getElementById('imp-stop-bar');
@@ -7201,11 +6521,7 @@ function importMultipleFiles(files,suggestedFolder){
   }
   var unsupportedNote=unsupported.length?(' ('+unsupported.length+' ta qollab-quvvatlanmaydigan fayl otkazib yuborildi)'):'';
 
-  // TUZATISH (2026-09-18): avval faqat BITTA fayl tashlanganda fan (subject)
-  // so'rov oynasi (fp-modal) chiqar, ko'p fayl/papka tashlanganda esa bu
-  // qadam butunlay o'tkazib yuborilar edi - natijada import har doim
-  // ustozning o'z faniga yozilardi. Endi 1 ta ham, 10 ta ham bir xil - har
-  // doim fan+papka so'raladi.
+  // TUZATISH : avval faqat BITTA fayl tashlanganda fan (subject)
   var totalCount=exeFiles.length+docFiles.length+imgFiles.length;
   if(totalCount===1 && !suggestedFolder){
     askFolderThenImport((docFiles[0]||imgFiles[0]||exeFiles[0]));
@@ -7213,9 +6529,7 @@ function importMultipleFiles(files,suggestedFolder){
   }
   askFolderThenImportBatch(exeFiles, docFiles, imgFiles, suggestedFolder, unsupportedNote);
 }
-// Bir nechta (yoki aralash turdagi) fayl uchun ham fp-modal orqali FAN va
-// PAPKA so'raladi, so'ng har bir turdagi fayl o'zining parallel importeriga
-// (SERVER_POOL bo'yicha taqsimlangan holda) yuboriladi.
+// Bir nechta (yoki aralash turdagi) fayl uchun ham fp-modal
 var _fpBatch=null;
 function askFolderThenImportBatch(exeFiles, docFiles, imgFiles, suggestedFolder, unsupportedNote){
   _fpMode='batch';
@@ -7258,20 +6572,7 @@ function importExeAsync(file){
   return sendToServer(file,msg);
 }
 
-// ─── WORD/PDF/TXT IMPORT (AI asosida) — PARALLEL (2026-09-18 tuzatish) ────
-// Bular EasyQuizzy kabi qatiy strukturaga ega emas, shuning uchun serverdagi
-// /parse_document AI (Groq) yordamida erkin formatdagi matnni strukturaga
-// solib beradi. Har bir fayl - alohida mavzu sifatida saqlanadi, hammasi
-// bitta "kitob" (papka) ostiga birlashtiriladi.
-//
-// MUHIM TUZATISH: avval bu yerda fayllar KETMA-KET (for...await) yuborilar
-// edi - 1 mavzu ham, 10 mavzu ham bitta serverga navbat bilan borar, 6 ta
-// import-serverdan (SERVER_POOL) faqat BITTASI ishlar edi. Endi fayllar
-// SERVER_POOL.length ta ishchi (worker) orqali PARALLEL yuboriladi - agar
-// 10-15 mavzu import qilinsa, hammasi bir vaqtda 6 ta serverga tarqaladi;
-// 1 ta mavzu bo'lsa ham, avval warmUpImportServers() bilan barcha serverlar
-// oldindan "uyg'otiladi", shu bilan yagona fayl uchun ham eng tez javob
-// beradigan (sovuq holatda bo'lmagan) serverga tez yetadi.
+// WORD/PDF/TXT IMPORT (AI asosida) — PARALLEL
 function sendDocumentToServer(file){
   return new Promise(function(resolve){
     var reader=new FileReader();
@@ -7354,10 +6655,7 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
   renderQT();
 }
 
-// ─── RASM (FOTO) IMPORT - Vision AI ───────────────────────────────────────
-// Test sahifasining fotosurati tashlanganda - server rasmning ozini AI'ga
-// yuboradi, AI esa savol/variant va TOGRI JAVOB BELGISINI (nuqta, doira va
-// h.k.) togridan-togri rasmdan oqiydi.
+// RASM (FOTO) IMPORT - Vision AI
 function sendImageToServer(file){
   return new Promise(function(resolve){
     var reader=new FileReader();
@@ -7545,13 +6843,12 @@ if('serviceWorker' in navigator){
         'cursor:pointer;white-space:nowrap;font-family:inherit">✅ Yangilash</button>' +
       '</div>';
     document.body.appendChild(banner);
-    // 2026-10-14: banner telefonda pastdagi "Muammo yozish" tugmasini yopib qo'yardi - tugmani banner ustiga ko'taramiz
+    // banner telefonda pastdagi "Muammo yozish" tugmasini yopib
     try{ var _rf=document.getElementById('rep-fab'), _bh=banner.firstElementChild?banner.firstElementChild.offsetHeight:0; if(_rf&&_bh) _rf.style.bottom=(_bh+12)+'px'; }catch(e){}
     window.swUpdate = function(){
       if(_importInProgress){ window._swPendingSW=newSW; var bb=document.getElementById('sw-update-banner'); if(bb) bb.remove(); try{ var _rf2=document.getElementById('rep-fab'); if(_rf2) _rf2.style.bottom=''; }catch(e){}
         alert("Import davom etmoqda — import tugagach yangilash taklif qilinadi."); return; }
-      // 2026-10-16: banner ko'rsatgan service worker orada yangisi bilan almashtirilgan (eskirgan) bo'lishi mumkin —
-      // unga yuborilgan xabar hech narsa qilmasdi. Endi hozirgi holat tekshiriladi va 1,5 soniyada baribir qayta yuklanadi.
+      // banner ko'rsatgan service worker orada yangisi bilan
       window._swUserReload=true;
       var _done=false;
       function _go(){ if(_done) return; _done=true; try{ var u=new URL(location.href); u.searchParams.set('v',String(Date.now())); location.replace(u.toString()); }catch(e){ location.reload(); } }
@@ -7583,19 +6880,16 @@ if('serviceWorker' in navigator){
           _showUpdateBanner(newSW);
         }
         // Yangi SW o'rnatildi va hech qanday eski SW yo'q (birinchi marta)
-        // — darhol faollashtir
         if(newSW.state === 'installed' && !navigator.serviceWorker.controller){
           newSW.postMessage({type:'SKIP_WAITING'});
         }
       });
     });
     // Har sahifa ochilganda yangilanishni MAJBURAN tekshiramiz
-    // Maktab kompyuterlarida brauzer avtomatik tekshirmaydi shuning uchun
     reg.update().catch(function(){});
   }).catch(function(){});
 
   // Yangi SW faollashgach sahifani qayta yuklaymiz
-  // 2026-10-02: faqat foydalanuvchi "Yangilash" ni bosganda (yoki sahifa ochilishida) qayta yuklanadi
   navigator.serviceWorker.addEventListener('controllerchange', function(){
     if(window._swUserReload) window.location.reload();
   });
@@ -7608,20 +6902,12 @@ if('serviceWorker' in navigator){
   });
 }
 
-// MUHIM: initMeta() endi shu yerda EMAS, pastda syncFromCloud() tugagandan
-// KEYIN chaqiriladi - aks holda "bo'sh" qurilmada (localStorage boʻsh -
-// masalan yangi telefon/tozalangan brauzer) initMeta() ulgurib bulutdagi
-// haqiqiy malumotni ustidan bosib, BOʻSH bazani bulutga yuborib yuborishi
-// mumkin edi (aynan shu xato butun bazaning tasodifan bosh qolishiga sabab
-// bolgan edi).
-// Load saved Supabase config on startup
+// MUHIM
 (function(){
   // URL va KEY kod ichida - localStorage dan o'qish shart emas
 })();
 
-// AI SAVOL TEKSHIRISH (Groq) - kalit endi bu yerda emas, Render serverida
-// (GROQ_API_KEY muhit ozgaruvchisi sifatida) saqlanadi. Brauzer /ai_check
-// orqali muroj oat qiladi, server esa haqiqiy kalit bilan Groq'ga yuboradi.
+// AI SAVOL TEKSHIRISH (Groq)
 
 var _aiResults = []; // global, detail modal shu yerdan o'qiydi
 
@@ -7643,9 +6929,7 @@ function toggleAiDetail(idx) {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-// ═══ AI TEKSHIRUV XOTIRASI (2026-10-04): natija har savol bo'yicha (matn+variant+javob imzosi
-// bilan) shu qurilmada saqlanadi. Qayta bosilsa — saqlangani darhol chiqadi, faqat yangi/o'zgargan
-// savollar tekshiriladi; chala qolgan tekshiruv to'xtagan joyidan davom etadi.
+// AI TEKSHIRUV XOTIRASI
 var _aiRun = null; // {topic, show:function} — ayni paytda ketayotgan tekshiruv
 function _aiKey(topic){ return 'et_aichk_' + (ME && ME.id) + '_' + topic; }
 function _aiSig(q){ var s = JSON.stringify([q.text || '', q.options || [], q.correct || [], q.image || '']), h = 0;
@@ -7666,8 +6950,7 @@ function aiCheckTopic(topic, force) {
   _aiResults = [];
   var _cache = force ? {} : _aiLoad(topic);
 
-  // Rasm/formula asosidagi savollar AI'ga yuborilmaydi - matn bo'lmagani uchun
-  // AI ularni baholay olmaydi, shunga "qo'lda tekshiring" deb belgilanadi
+  // Rasm/formula asosidagi savollar AI'ga yuborilmaydi
   function isImgQuestion(q) {
     if (q.image) return true;
     return (q.options || []).some(_aiIsImg);
@@ -7831,14 +7114,7 @@ function aiCheckTopic(topic, force) {
   checkBatch(0);
 }
 
-// ── INTERNET YOQLIGINI KUZATISH ──────────────────────────────────────────
-// MUHIM O'ZGARISH (offline-test qollab-quvvatlash qoshilgandan keyin):
-// avval bu overlay HAR QANDAY holatda (test yechilayotganda ham) butun
-// ekranni tosib qoyar edi - bu yangi talabga ("test paytida internet
-// ochib qolsa, test TOXTAMASIN") ZID edi. Endi test faol bolsa (S.mode
-// toldirilgan bolsa), bu tolib qoluvchi overlay UMUMAN korsatilmaydi -
-// uning ornini kichik, tolamaydigan #conn-banner bosadi (u ham aslida
-// test paytida ozi yashirin turadi, faqat test tashqarisida ishlaydi).
+// INTERNET YOQLIGINI KUZATISH
 function updateOfflineOverlay(){
   var ov=document.getElementById('offline-overlay');
   if(!ov)return;
@@ -7848,13 +7124,7 @@ function updateOfflineOverlay(){
     ov.style.display='none';
     return;
   }
-  // MUHIM (2026-08-30): navigator.onLine ba'zan bir necha soniyaga
-  // yolg'ondan "offline" deb korsatishi mumkin (Wi-Fi signalining
-  // qisqa tebranishi, tarmoq adapteri holatini almashtirishi va h.k.),
-  // garchi internet aslida ishlab tursa ham - bu FOYDALANUVCHIGA
-  // BEZOVTA QILUVCHI, kerak bolmagan to'la ekranli xabar korsatardi.
-  // Endi darhol korsatmaymiz - 4 soniya kutib, agar SHU VAQT ICHIDA ham
-  // hali "offline" bolib qolsa (haqiqiy uzilish), faqat SHUNDA korsatamiz.
+  // MUHIM : navigator.onLine ba'zan bir necha soniyaga
   if(_offlineOverlayTimer) return; // allaqachon kutilmoqda
   _offlineOverlayTimer=setTimeout(function(){
     _offlineOverlayTimer=null;
@@ -7866,30 +7136,14 @@ function updateOfflineOverlay(){
 var _offlineOverlayTimer=null;
 window.addEventListener('online', updateOfflineOverlay);
 window.addEventListener('offline', updateOfflineOverlay);
-// MUHIM: bu skript "#offline-overlay" divdan OLDIN joylashgan (u </body>
-// yaqinida). Shuning uchun updateOfflineOverlay()ni DARHOL chaqirsak, div
-// hali brauzerga yuklanmagan bolib, hech narsa topilmay qolar edi - shu
-// sabab "internet ochiq holda BIRINCHI marta ochilganda" xabar chiqmasdi,
-// faqat keyinroq (ilova ochiq turgan paytda) internetni ochirilsa ishlardi.
-// Endi DOMContentLoaded kutib, shundan keyin tekshiramiz - div allaqachon
-// mavjud boladi.
+// MUHIM
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded', updateOfflineOverlay);
 } else {
   updateOfflineOverlay();
 }
 
-// ── SERVERLARNI "UYGOQ" TUTISH ──────────────────────────────────────────
-// MUHIM (2026-08-04'da ozgartirildi): Avval BARCHA 9 ta import-server har
-// 10 daqiqada pinglanardi - bu Render'ning 750 soat/oy bepul limitini
-// juda tez tugatib qoyayotgan edi (chunki bu 8 ta serverning 7-8 tasi
-// import PAYTIDAGINA kerak, lekin ular kun boyi - sayt ochiq turgan har bir
-// foydalanuvchi uchun - uyg'oq tutilardi). Endi faqat ASOSIY server
-// (db_get/db_save/ai_check ishlaydigan, RENDER_SERVER) background'da
-// uygoq tutiladi - u doim kerak, chunki foydalanuvchilar istalgan vaqtda
-// tizimga kirishi mumkin. Qolgan import-serverlar endi faqat IMPORT
-// BOSHLANGANDA (warmUpImportServers() orqali) "uyg'otiladi" - qarang
-// pastda, importMultipleFiles() ichida chaqiriladi.
+// SERVERLARNI "UYGOQ" TUTISH
 function pingServersKeepAlive(){
   fetch(RENDER_SERVER+'/health').catch(function(){});
 }
@@ -7897,27 +7151,12 @@ setInterval(pingServersKeepAlive, 10*60*1000); // har 10 daqiqada
 pingServersKeepAlive(); // sahifa ochilganda ham darhol bir marta
 
 // Import boshlanishidan oldin BARCHA import-serverlarni PARALLEL
-// "uyg'otish" - shunda ular birinchi haqiqiy so'rovga qadar allaqachon
-// uygongan boladi (cold-start 50 soniyasi import umumiy vaqtiga qoshilib
-// ketmaydi). Bu funksiya faqat CHAQIRILGAN payida ishlaydi (doimiy fon
-// jarayoni emas) - shuning uchun compute-hours faqat haqiqiy import
-// vaqtida sarflanadi.
 function warmUpImportServers(){
-  // Oracle VM'lar doim yonib turadi (Render'dagi kabi "sovuq boshlanish"/uyqu
-  // holati yoq), lekin baribir har BIR VM'ga /health chaqirib, birinchi
-  // haqiqiy import so'rovidan oldin ikkalasi ham javob berayotganini
-  // tekshirib qoyamiz (bitta VM vaqtincha tushib qolgan bolsa, buni tez
-  // aniqlash uchun ham foydali).
+  // Oracle VM'lar doim yonib turadi (Render'dagi kabi "sovuq
   RENDER_SERVERS.forEach(function(s){ fetchVM(s,'/health').catch(function(){}); });
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// SINF JANGI (Class Battle) - jonli, sinfda birgalikda ishlanadigan viktorina
-// ═══════════════════════════════════════════════════════════════════════
-// MUHIM: bu qism ASOSIY edutest_store blobiga TEGMAYDI - alohida, kichik va
-// tez jadvallar (battle_sessions, battle_answers) ishlatiladi, chunki
-// asosiy blob 20s'da bir marta sinxronlanadi (o'yin uchun juda sekin).
-// Realtime Supabase kanali orqali darhol yangilanadi.
+// SINF JANGI (Class Battle)
 var BT={session:null,pin:null,role:'',qs:[],idx:0,chan:null,answered:{}};
 
 function genPin(){var s='';for(var i=0;i<6;i++)s+=Math.floor(Math.random()*10);return s;}
@@ -8080,10 +7319,7 @@ async function answerBattle(qIdx,optIdx,correctArr){
 var DL={mode:'',subject:'',level:'',topic:'',questions:[],idx:0,answers:[],startTs:0,matchId:null,queueId:null,isP1:false,chan:null,timerIv:null,botScore:0,botDone:false,myDone:false};
 var DUEL_LEVEL_SEC={easy:72,normal:45,hard:30};
 var DUEL_BOT_ACCURACY={easy:0.55,normal:0.75,hard:0.9};
-// 2026-09-06: haqiqiy Elo reyting tizimi uchun - botning "virtual reyting"i,
-// qiyinlik darajasiga qarab. Botni "Qiyin"da yutish endi "Oson"da yutishdan
-// KOP reyting bersin (haqiqiy Elo mantigi), shuning uchun har xil qiyinlikka
-// har xil son beriladi.
+// haqiqiy Elo reyting tizimi uchun - botning "virtual reyting"i
 var DUEL_BOT_RATING={easy:800,normal:1000,hard:1300};
 
 function openDuelHub(){
@@ -8262,10 +7498,7 @@ function finishMyDuelSide(){
   }
   finishOnlineDuel(myScore);
 }
-// Bot bilan duel yakunlanganda ham ENDI reyting qollaniladi (avval bot
-// rejimida applyDuelRating() umuman chaqirilmasdi - Duel reytingi faqat
-// online rejimda "korinmas" holda ozgarardi). Bot qiyinligiga qarab
-// DUEL_BOT_RATING'dan mos virtual reyting olinadi.
+// Bot bilan duel yakunlanganda ham ENDI reyting qollaniladi
 function finishBotDuelWithRating(myScore){
   var won=myScore>DL.botScore, draw=myScore===DL.botScore;
   var oppRating=DUEL_BOT_RATING[DL.level]||1000;
@@ -8287,9 +7520,7 @@ function checkDuelFinish(){
 function showDuelResult(myScore, oppScore, oppName, ratingDelta){
   var won=myScore>oppScore, draw=myScore===oppScore;
   var title=draw?'&#x1F91D; Durrang!':won?'&#x1F3C6; G\'alaba!':'&#x1F614; Mag\'lubiyat';
-  // 2026-09-06: Elo reytingi ozgarishini KORINADIGAN qilib chiqaramiz -
-  // avval bu ozgarish sodir bolar edi-yu, ekranda hech qayerda korinmas
-  // edi ("Duel'da ELO qani?" degan shikoyatning asosiy sababi shu edi).
+  // Elo reytingi ozgarishini KORINADIGAN qilib chiqaramiz
   var ratingHtml='';
   if(typeof ratingDelta==='number'){
     var newRating=ME.duelRating||1000;
@@ -8317,12 +7548,7 @@ async function startOnlineDuel(){
     var opp=existing.data[0];
     var qs=shuf(_choiceOnly(getQsByTopic(DL.topic))).slice(0,10);
     if(qs.length<3){ alert('Bu mavzuda yetarli savol yoq!'); closeDuelModal(); return; }
-    // 2026-09-06: har ikkala tomonning duel BOSHLANISHIDAGI reytingini
-    // qator ichiga "suratga olib" saqlaymiz - shunda duel tugaganda HAR
-    // IKKI klient ham bir xil (o'zgarmagan) pre-match qiymatlar asosida
-    // Elo formulasini mustaqil hisoblaydi va natija ikkalasida ham mos
-    // tushadi. Raqibning joriy reytingi mahalliy db.users'dan olinadi
-    // (butun blob allaqachon localda bor, alohida sorov shart emas).
+    // har ikkala tomonning duel BOSHLANISHIDAGI reytingini
     var _duelDb=getDB();
     var _oppUser=(_duelDb.users||[]).find(function(u){return u.login===opp.student_login;});
     var _oppRatingSnap=(_oppUser&&_oppUser.duelRating)||1000;
@@ -8335,9 +7561,6 @@ async function startOnlineDuel(){
     }).select().single();
     if(mres.error){
       // Agar sabab reyting ustunlari hali bazaga qoshilmagani bolsa (SQL
-      // migratsiya hali bajarilmagan) - ustunlarsiz qayta urinamiz, shunda
-      // duel funksiyasi baribir ishlayveradi (Elo vaqtincha neytral 1000
-      // zaxiraga tushadi, migratsiya bajarilgach avtomatik toliq ishlaydi).
       mres=await _sb.from('duel_matches').insert({
         player1_login:opp.student_login, player1_name:opp.student_name,
         player2_login:ME.login, player2_name:ME.name,
@@ -8416,24 +7639,13 @@ async function finishOnlineDuel(myScore){
     document.getElementById('duel-modal-body').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:32px">&#x23F3;</div><p class="ts tm mt8">Siz tugatdingiz! Raqib hali ishlamoqda, natija tayyor bolganda darhol korasiz...</p></div>';
   }
 }
-// 2026-09-06: HAQIQIY Elo reyting formulasi (avval shunchaki +1/-1 edi,
-// bu "reyting" emas, oddiy hisoblagich edi - foydalanuvchi tomonidan
-// "Duel'da Elo tizimi qani?" deb aniq soralgan). Standart Elo: kutilgan
-// natija raqib bilan reyting farqidan hisoblanadi, keyin haqiqiy natija
-// (g'alaba/durrang/mag'lubiyat) bilan solishtirilib, K koeffitsiyentiga
-// (32 - odatiy standart qiymat) ko'paytirib qo'shiladi. Shunda kuchli
-// o'yinchini yutish KOPROQ, zaif o'yinchini (yoki "Oson" botni) yutish
-// esa KAMROQ reyting beradi - haqiqiy Elo mantig'i.
+// HAQIQIY Elo reyting formulasi (avval shunchaki +1/-1 edi
 function computeEloDelta(myRating, oppRating, score){
   var K=32;
   var expected=1/(1+Math.pow(10,(oppRating-myRating)/400));
   return Math.round(K*(score-expected));
 }
-// oppRating - raqibning duel BOSHLANISHIDAGI reytingi (online duel'da
-// duel_matches jadvalidan, bot duel'da DUEL_BOT_RATING dan). Agar
-// berilmasa (masalan migratsiyadan OLDIN yaratilgan eski duel qatori,
-// unda player1_rating/player2_rating hali yoq) - neytral 1000 deb olinadi,
-// import qilinmagan/eski holatlar uchun zaxira.
+// oppRating
 function applyDuelRating(won, isDraw, oppRating){
   var db=getDB();
   var u=(db.users||[]).find(function(x){return x.id===ME.id;});
@@ -8447,9 +7659,7 @@ function applyDuelRating(won, isDraw, oppRating){
   return delta;
 }
 
-// ═══════════════════════════════════════════════════════════════════════
 // OTA-ONA TELEGRAM ULASH
-// ═══════════════════════════════════════════════════════════════════════
 async function createParentLink(){
   var msg=document.getElementById('parent-link-msg');
   var RETRY_DELAYS=[1500,3500,7000]; // sekin/beqaror mobil aloqa uchun avtomatik qayta urinish
@@ -8475,22 +7685,10 @@ async function createParentLink(){
 }
 
 sbInit();
-// Bulutdan malumot orqa fonda tortib olinadi - foydalanuvchiga korinmaydi.
-// initMeta() endi FAQAT shu tortib olish tugagandan keyin ishga tushadi -
-// shunda "bosh" qurilmada ham, avval haqiqiy bulutdagi malumot localStorage
-// ga yozib bolinadi, initMeta() esa endi HAQIQIY malumot ustida ishlaydi
-// (bosh standart baza ustida emas) va bekorga bulutga hech narsa yozmaydi.
-// 2026-10-04: keyingi <script> bloklaridagi funksiyalar (masalan fcDecks) hali yuklanmagan bo'lishi
-// mumkin edi — o'quvchi F5 da afterLogin xato berib, ish joyi tiklanmasdi. Endi hammasi yuklangach.
+// Bulutdan malumot orqa fonda tortib olinadi
 _lsLoad.then(function(){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ restoreSession(); }); else restoreSession(); });
 _lsLoad.then(function(){ return syncFromCloud(); }).then(function(){ initMeta(); restoreSession(); if(!ME) _endRestore(); });
-// Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash. sessionStorage
-// tab yopilganda o'chadi - umumiy kompyuterda keyingi odam hisobda qolmaydi.
-// ═══════════════════════════════════════════════════════════════════════
-// SAHIFA YANGILANGANDA (F5) ISH JOYI TIKLANADI (2026-10-03): ochiq papka,
-// mavzu ichi, aylantirish joyi, tahrirlanayotgan savol (saqlanmagan
-// o'zgarishlari bilan) va "Savol qo'shish" qoralamasi sessionStorage'da.
-// ═══════════════════════════════════════════════════════════════════════
+// Sahifa yangilanganda (F5) kirgan foydalanuvchini qayta tiklash
 function _vis(id){ var e=document.getElementById(id); return !!(e&&e.style.display!=='none'&&e.offsetParent!==null); }
 function saveViewState(){
   try{
@@ -8520,16 +7718,9 @@ window.addEventListener('pagehide',saveViewState);
 window.addEventListener('beforeunload',saveViewState);
 document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') saveViewState(); });
 
-// ═══════════════════════════════════════════════════════════════════════
-// F5 — HAMMA JOYDA AYNAN SHU HOLAT (2026-10-04): ishlanayotgan test (savollar,
-// javoblar, joriy savol, qolgan vaqt), natija sahifasi ("Batafsil" ochiqligi
-// bilan), o'quvchi bo'limi va sertifikat tanlovlari ham saqlanadi.
-// ═══════════════════════════════════════════════════════════════════════
+// F5 — HAMMA JOYDA AYNAN SHU HOLAT : ishlanayotgan test (savollar
 
-// ═══ TELEGRAM ORQALI KIRISH (2026-10-04) ═══════════════════════════════════
-// Sayt bir martalik kod oladi -> Telegram'da botni ochadi -> foydalanuvchi "Start" va
-// "Tasdiqlayman" bosadi -> sayt holatni so'rab turadi va avtomatik kiradi.
-// Avval hisob "Mening hisobim" bo'limida Telegram'ga ulanadi (bir marta).
+// TELEGRAM ORQALI KIRISH
 var _tgPoll = null;
 function _tgOpen(url){
   var tgUri=null;
@@ -8625,8 +7816,7 @@ function _setRuns(r){
   try{ _msRun=r.ms; }catch(e){} try{ _certRun=r.cert; }catch(e){} try{ _mockRun=r.mock; }catch(e){}
   try{ if(r.mockScripts) _mockScripts=r.mockScripts; }catch(e){} try{ _reviewQs=r.review; }catch(e){}
 }
-// 2026-10-07: F5 dan keyin test tiklanganda brauzer to'liq ekranni o'zi yoqa olmaydi (foydalanuvchi bosishi shart).
-// Savollar parda bilan yopiladi — "Davom ettirish" bosilgach to'liq ekran yoqiladi va parda yo'qoladi.
+// F5 dan keyin test tiklanganda brauzer to'liq ekranni o'zi yoqa
 function _fsGate(){
   var el=document.documentElement;
   var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
@@ -8763,9 +7953,7 @@ window.addEventListener('popstate', function(e) {
     } else history.back();
   }
 });
-// ═══ TELEFONNING "ORQAGA" TUGMASI (2026-10-04) — saytdan chiqib ketmay, ilova ichida orqaga:
-// ochiq oyna → yopiladi; ustoz mavzu/papkasi → ro'yxat; o'quvchi papkasi / sertifikat tanlovi →
-// orqaga; aks holda oldingi sahifa/tab. Boshlang'ich joyda bo'lsa — saytdan chiqiladi.
+// TELEFONNING "ORQAGA" TUGMASI
 var _navStack=[], _navBusy=false;
 function _navSnap(){ var pg=document.querySelector('.pg.on'); if(!pg) return null; var tc=pg.querySelector('.tc.on'); return {pg:pg.id, tab:tc?tc.id:null}; }
 function _navPush(){ if(_navBusy) return; var s=_navSnap(); if(!s||s.pg==='pg-test') return;
@@ -8814,15 +8002,7 @@ var _visWarnCount = 0;
 var _blurWarnCount = 0;
 var _ignoreBlur = false;
 
-// MUHIM: avval tab/oyna fokusdan chiqishi bilan test DARHOL tugardi - bu
-// hatto oddiy telefon qongiroqqa javob berish kabi qisqa uzilishlarda ham
-// testni bekor qilib qoyardi. Endi qisqa "kutish vaqti" (8 soniya) beriladi -
-// agar shu vaqt ichida foydalanuvchi ilovaga qaytsa, test davom etadi;
-// qaytmasa (haqiqatan chiqib ketgan/aldashga urinayotgan bolsa), test
-// avvalgidek yakunlanadi.
-// 2026-10-16 (foydalanuvchi qarori): testdan har qanday chiqish — qo'ng'iroq, Gemini, Siri, boshqa ilova yoki tab —
-// testni DARHOL tugatadi, kutish yo'q. Veb-sayt qo'ng'iroqni boshqa chiqishdan ajrata olmaydi, shuning uchun hammasi bir xil.
-// iPhone fonga tushgan sahifani muzlatishi mumkin: shu sabab qaytganda ham tekshiriladi (S._left).
+// MUHIM
 var _autoSubmitTimer = null;
 function _scheduleAutoSubmit(){
   if(!S.mode || _ignoreBlur) return;
@@ -8832,9 +8012,7 @@ function _scheduleAutoSubmit(){
 function _cancelAutoSubmit(){
   if(S.mode && S._left && !_ignoreBlur) submitTest(true);
 }
-// Kichik (suzuvchi) oyna yoki bo'lingan ekran: sahifa "ko'rinib" turadi, lekin ekranning katta qismini egallamaydi — boshqa ilova
-// yonida ochiq turibdi. Faqat sensorli qurilmalarda (telefon, planshet) tekshiriladi; klaviatura ochiq (matn yozilayotgan) paytda
-// maydon kichrayishi tabiiy, shuning uchun o'sha paytda tekshirilmaydi.
+// Kichik (suzuvchi) oyna yoki bo'lingan ekran
 function _winTooSmall(){
   try{
     if(!(navigator.maxTouchPoints>0)) return false;
@@ -8847,9 +8025,7 @@ function _checkWinSize(){ if(S.mode && !_ignoreBlur && _winTooSmall()){ S._left=
 window.addEventListener('resize', function(){ if(S.mode) setTimeout(_checkWinSize, 400); });
 setInterval(function(){ if(S.mode) _checkWinSize(); }, 1500);
 
-// ═══ TEST PAYTIDA EKRAN O'CHMASLIGI (2026-10-16) ═══
-// Screen Wake Lock API; u yo'q bo'lsa (eski iPhone, ba'zi ilova ichidagi brauzerlar) — ovozsiz 16x16 video aylanib turadi.
-// Test boshlanganda (tugma bosilganda) yoqiladi, tugaganda o'chadi; fonga tushib qaytilganda qayta olinadi.
+// TEST PAYTIDA EKRAN O'CHMASLIGI
 var _tWL = null, _tWLVid = null;
 var _NOSLEEP_MP4 = 'AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAMVbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAkB0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAG4bWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABAAAAAgABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABY21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAASNzdGJsAAAAt3N0c2QAAAAAAAAAAQAAAKdhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABFUxhdmM2MS4xOS4xMDAgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALWF2Y0MBQsAK/+EAFWdCwArd7ARAAAADAEAAAAMAg8SJ4AEABWjODyyAAAAAEHBhc3AAAAABAAAAAQAAABRidHJ0AAAAAAAACgwAAAoMAAAAGHN0dHMAAAAAAAAAAQAAAAIAAEAAAAAAHHN0c2MAAAAAAAAAAQAAAAEAAAACAAAAAQAAABxzdHN6AAAAAAAAAAAAAAACAAACcQAAABIAAAAUc3RjbwAAAAAAAAABAAADRQAAAGF1ZHRhAAAAWW1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALGlsc3QAAAAkqXRvbwAAABxkYXRhAAAAAQAAAABMYXZmNjEuNy4xMDAAAAAIZnJlZQAAAottZGF0AAACXgYF//9a3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzE5MiBjMjRlMDZjIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTAgcmVmPTEgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MToweDExMSBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0wIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MCBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0wIHdlaWdodHA9MCBrZXlpbnQ9MSBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjPWNyZiBtYnRyZWU9MCBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS40MCBhcT0xOjEuMDAAgAAAAAtliIQEvJigADijgAAAAA5liIIBf///w9FAAFXn4A==', _NOSLEEP_WEBM = 'GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAIdEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHWTbuMU6uEElTDZ1OsggEjTbuMU6uEHFO7a1OsggH17AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsCrXsYMPQkBNgIxMYXZmNjEuNy4xMDBXQYxMYXZmNjEuNy4xMDBEiYhAn0AAAAAAABZUrmvIrgEAAAAAAAA/14EBc8WIDzfP0cmrn+ucgQAitZyDdW5kiIEAhoVWX1ZQOIOBASPjg4Q7msoA4JCwgRC6gRCagQJVsIRVuYEBElTDZ/tzc59jwIBnyJlFo4dFTkNPREVSRIeMTGF2ZjYxLjcuMTAwc3PWY8CLY8WIDzfP0cmrn+tnyKFFo4dFTkNPREVSRIeUTGF2YzYxLjE5LjEwMCBsaWJ2cHhnyKFFo4hEVVJBVElPTkSHkzAwOjAwOjAyLjAwMDAwMDAwMAAfQ7Z1zeeBAKOjgQAAgBACAJ0BKhAAEAAARwiFhYiZhIgCAgAMDWAA/v+rUICjo4ED6IAQAgCdASoQABAAAEcIhYWImYSIAgIADA1gAP7/q1CAHFO7a6O7j7OBALeK94EB8YIBo/CBA7uQs4ID6LeK94EB8YIBo/CBKA==';
 function _tWLVideoOn(){
@@ -8907,9 +8083,7 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('blur', function() {
   if(!S.mode) return;
   if(_ignoreBlur) return;
-  // 2026-10-16: sahifa ko'rinib turgan holda fokus yo'qolsa (Gemini/Siri oynasi, bildirishnoma pardasi, boshqa oyna) —
-  // 1,5 soniyada fokus qaytmasa test tugaydi. Bir lahzalik soxta "blur" (brauzer ichki sababi) testni tugatmaydi.
-  // Sahifa yashirinsa (boshqa ilova, qo'ng'iroq oynasi) — visibilitychange orqali DARHOL tugaydi.
+  // sahifa ko'rinib turgan holda fokus yo'qolsa (Gemini/Siri
   if(document.hidden){ _scheduleAutoSubmit(); return; }
   setTimeout(function(){
     if(!S.mode || _ignoreBlur) return;
@@ -8922,7 +8096,6 @@ window.addEventListener('focus', function() {
 });
 
 // Fullscreen dan chiqsa (Esc) - test tugaydi
-// MUHIM: agar bu alert() sababli avtomatik chiqish bo'lsa (_ignoreBlur=true), tugatilmaydi
 document.addEventListener('fullscreenchange', function() {
   if(!document.fullscreenElement && S.mode && !_ignoreBlur) {
     submitTest(true);
@@ -8935,9 +8108,6 @@ document.addEventListener('webkitfullscreenchange', function() {
 });
 
 // Sahifadan ketsa (browser tab yopilsa, boshqa saytga o'tsa)
-// 2026-10-04: F5 da test endi tiklanadi (yuqoridagi _saveRun) — "test tugaydi" ogohlantirishi olib tashlandi.
-// ═══ F5: KIRISHDAN OLDINGI HOLAT (2026-10-04) — kirish/ro'yxat oynasi, rol, tab va
-// yozilgan maydonlar (PAROLLARSIZ) saqlanadi; yangilansa bosh sahifaga qaytib qolmaydi.
 function savePreLogin(){
   try{
     if(ME){ sessionStorage.removeItem('et_pre'); return; }
@@ -8989,11 +8159,7 @@ history.pushState(null, '', location.href);
   </div>
 
   <!-- CHIQISH OGOHLANTIRISH MODALI (test davomida) -->
-  <!-- native alert() o'rniga ATAYLAB shu modal ishlatiladi: alert() ko'pchilik
-       brauzerda fullscreen'dan avtomatik chiqarib yuboradi va buni ishonchli
-       qaytarib bo'lmaydi (2026-08-18: shu sabab "chiqish" bosilganda boshqa
-       brauzer panellariga otish imkoni paydo bolgan edi). Bu modal sahifa
-       ICHIDA ekani uchun fullscreen'ga umuman ta'sir qilmaydi. -->
+  <!-- native alert() o'rniga ATAYLAB shu modal ishlatiladi -->
   <div class="mbg" id="logout-warn-modal" style="display:none;z-index:300">
     <div class="modal" style="max-width:420px;text-align:center">
       <div id="logout-warn-body"></div>
@@ -9051,10 +8217,7 @@ history.pushState(null, '', location.href);
     </div>
   </div>
 <script>
-// ═══════════════════════════════════════════════════════════════════════
-// 2026-10-07: (1) javobsiz savollarga avtomatik o'tish, (2) parolni tiklash,
-// (3) Google orqali kirish, (4) birinchi kirishda panelni tanishtirish.
-// ═══════════════════════════════════════════════════════════════════════
+// 1) javobsiz savollarga avtomatik o'tish, (2) parolni tiklash
 function _cEsc(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function _isAns(i){ return typeof qAnswered==='function'?qAnswered(i):!!(S.answers[i]&&S.answers[i].length); }
 function _nextUnanswered(from){ var n=S.test.length; for(var k=1;k<=n;k++){ var j=(from+k)%n; if(!_isAns(j)) return j; } return -1; }
@@ -9123,8 +8286,7 @@ var GOOGLE_CLIENT_ID='456387534382-f04bbeboaj7jfg9l8o8fsrmgnr5s3uj5.apps.googleu
 function initGoogleLogin(){
   var box=document.getElementById('g-signin-box'); if(!box) return;
   if(!GOOGLE_CLIENT_ID){ box.style.display='none'; return; }
-  // 2026-10-16: Google tugmasi (iframe) ba'zi telefonlarda/ilova ichidagi brauzerlarda yuklanmay, kulrang "xafa yuz" qutisi
-  // chiqarardi. Iframe ishlasa accounts.google.com'dan xabar yuboradi (readyForConnect) — faqat shunda tugmani ko'rsatamiz.
+  // Google tugmasi (iframe) ba'zi telefonlarda/ilova ichidagi
   box.style.display='none';
   if(!window._gisMsgHook){ window._gisMsgHook=true;
     window.addEventListener('message',function(e){ try{ if(e.origin==='https://accounts.google.com'){ var bx=document.getElementById('g-signin-box'); if(bx) bx.style.display=''; } }catch(x){} });
@@ -9295,8 +8457,7 @@ window.addEventListener('resize',function(){ if(_tour) _tourShow(); });
 // ── 2026-10-07: ro'yxatda telefon (Telegram) va email (kod) tasdiqlash ──
 var _rgV={ptok:'',phone:'',tg:'',etok:'',email:'',poll:null};
 function _rgSt(id,t,ok){ var e=document.getElementById(id); if(e){ e.style.color=ok===true?'var(--ok)':ok===false?'var(--err)':''; e.innerHTML=t; } }
-// Umumiy: saytda yozilgan raqamni Telegram raqami bilan tasdiqlash. Kutish sessionStorage'da
-// saqlanadi — Telegram'dan qaytganda sahifa qayta yuklansa ham tekshiruv davom etadi.
+// Umumiy
 function _phNorm(v){ var d=String(v||'').replace(/\D/g,''); if(d.length===9) d='998'+d; return (d.length>=11&&d.length<=15)?'+'+d:''; }
 function _tgpGet(){ try{ var o=JSON.parse(sessionStorage.getItem('et_tgp')||'null'); return (o&&o.exp>Date.now())?o:null; }catch(e){ return null; } }
 function _tgpSet(o){ try{ if(o) sessionStorage.setItem('et_tgp',JSON.stringify(o)); else sessionStorage.removeItem('et_tgp'); }catch(e){} }
@@ -9464,8 +8625,7 @@ async function tgAuthLogin(){
     clearInterval(_tga.poll); var t0=Date.now();
     _tga.poll=setInterval(async function(){
       if(Date.now()-t0>10*60*1000){ clearInterval(_tga.poll); _fpMsg('Vaqt tugadi. Qayta urinib ko\'ring.'); return; }
-      // 2026-10-16: Telegram ochiq turganda (bu sahifa fonda) so'rov yubormaymiz. Aks holda bir martalik kodni shu yashirin sahifa
-      // olib qo'yardi va botdagi "Saytga kirish" havolasi ochgan sahifa "allaqachon ishlatilgan" deb kirolmasdi (iPhone).
+      // Telegram ochiq turganda (bu sahifa fonda) so'rov yubormaymiz
       if(document.hidden) return;
       try{ var s=await (await fetch(DB_SERVER+'/tg_auth_status?code='+encodeURIComponent(j.code))).json();
         if(s.st==='wait') return;
@@ -9602,7 +8762,7 @@ function sendReport(){
 }
 </script>
 <script>
-// ═══ HARAKAT QATLAMI (2026-10-16): sahifa ochilish to'lqini, tugma to'lqini, savol surilishi, tanlov "sakrashi" ═══
+// HARAKAT QATLAMI
 (function(){
   var reduce=false; // foydalanuvchi qarori: bezak animatsiyalari doim ishlaydi
   // 1) sahifa ochilganda kartalar ketma-ket chiqadi (faqat ochilish paytida)
@@ -9708,7 +8868,7 @@ function sendReport(){
 })();
 </script>
 <script>
-// ═══ 2D PIKSEL FON v2 (2026-10-16): TUN (oy, yulduzlar) va KUNDUZ (quyosh, qushlar) rejimi + almashtirish tugmasi ═══
+// 2D PIKSEL FON v2
 (function(){
   var cv=document.createElement('canvas'); cv.id='pxBg'; cv.setAttribute('aria-hidden','true');
   var ctx=cv.getContext&&cv.getContext('2d'); if(!ctx) return;
