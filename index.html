@@ -162,6 +162,100 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
 .pd{background:#f8fafc;border-radius:11px;padding:13px;margin-bottom:9px;border:1px solid var(--bdr)}
 .ts{font-size:13px}.tm{color:var(--mut)}
 .mt8{margin-top:8px}.mt12{margin-top:12px}
+/* ═══ HARAKAT QATLAMI (2026-10-16): silliq o'tishlar va animatsiyalar. Faqat transform/opacity — eski telefonlarda ham yengil. ═══ */
+:root{--ease-out:cubic-bezier(.22,1,.36,1);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
+html{scroll-behavior:smooth}
+/* sahifa almashishi */
+.pg{animation:pgIn2 .5s var(--ease-out)}
+@keyframes pgIn2{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+/* sahifa ochilganda kartalar ketma-ket chiqadi (faqat ochilish paytida — keyingi yangilanishlarda miltillamaydi) */
+.pg-enter .card,.pg-enter .tbtn,.pg-enter .hub-card,.pg-enter .rcard{animation:riseIn .55s var(--ease-out) both}
+.pg-enter .card:nth-child(2),.pg-enter .tbtn:nth-child(2),.pg-enter .hub-card:nth-child(2),.pg-enter .rcard:nth-child(2){animation-delay:.05s}
+.pg-enter .card:nth-child(3),.pg-enter .tbtn:nth-child(3),.pg-enter .hub-card:nth-child(3),.pg-enter .rcard:nth-child(3){animation-delay:.1s}
+.pg-enter .card:nth-child(4),.pg-enter .tbtn:nth-child(4),.pg-enter .hub-card:nth-child(4),.pg-enter .rcard:nth-child(4){animation-delay:.15s}
+.pg-enter .card:nth-child(5),.pg-enter .tbtn:nth-child(5),.pg-enter .hub-card:nth-child(5){animation-delay:.2s}
+.pg-enter .card:nth-child(6),.pg-enter .tbtn:nth-child(6),.pg-enter .hub-card:nth-child(6){animation-delay:.25s}
+.pg-enter .card:nth-child(n+7),.pg-enter .tbtn:nth-child(n+7),.pg-enter .hub-card:nth-child(n+7){animation-delay:.3s}
+@keyframes riseIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+/* tugmalar: bosilish hissi + to'lqin */
+.btn,.tbtn,.rcard,.hub-card,.opt,.tab,.qb{-webkit-tap-highlight-color:transparent}
+.et-rip-host{overflow:hidden!important}
+.btn{transition:transform .18s var(--ease-out),box-shadow .25s var(--ease-out),filter .18s}
+.btn:active{transform:scale(.95)}
+.tbtn,.rcard,.hub-card{transition:transform .28s var(--ease-out),box-shadow .28s var(--ease-out),border-color .2s,background .2s}
+.tbtn:active,.rcard:active,.hub-card:active{transform:scale(.96)}
+@media (hover:hover){
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(37,49,109,.25)}
+  .btn:active{transform:scale(.96)}
+  .tbtn:hover,.rcard:hover,.hub-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(20,24,60,.18)}
+  .card{transition:transform .35s var(--ease-out),box-shadow .35s var(--ease-out)}
+  .card:hover{box-shadow:0 18px 40px rgba(20,24,60,.16)}
+  .opt:hover{transform:translateX(4px)}
+}
+.et-ripple{position:absolute;border-radius:50%;pointer-events:none;background:currentColor;opacity:.22;transform:scale(0);animation:etRipple .6s var(--ease-out) forwards}
+@keyframes etRipple{to{transform:scale(1);opacity:0}}
+/* javob variantlari */
+.opt{transition:transform .22s var(--ease-out),border-color .2s,background .2s,box-shadow .2s}
+.opt:active{transform:scale(.98)}
+.opt.sel{box-shadow:0 6px 18px rgba(91,62,166,.18)}
+.opt.et-pop{animation:optPop .42s var(--ease-spring)}
+@keyframes optPop{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:none}}
+/* savol almashishi */
+#t-qbody.et-qin-n{animation:qInN .38s var(--ease-out)}
+#t-qbody.et-qin-p{animation:qInP .38s var(--ease-out)}
+@keyframes qInN{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes qInP{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+#t-prog{transition:width .45s var(--ease-out)}
+.qb{transition:transform .2s var(--ease-out),background .2s,color .2s}
+.qb.cur{transform:scale(1.08)}
+/* oynalar (modal): fon xiralashadi, oyna prujinali ochiladi */
+.mbg{animation:mbgIn .25s ease}
+.mbg>.modal,.mbg>div>.modal{animation:modalIn .45s var(--ease-spring)}
+@keyframes mbgIn{from{opacity:0}to{opacity:1}}
+@keyframes modalIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
+/* yorliqlar */
+.tab{transition:background .25s var(--ease-out),color .25s,transform .2s var(--ease-out)}
+.tab:active{transform:scale(.95)}
+/* natija sahifasi */
+#pg-res.pg-enter .card:first-child{animation:resPop .7s var(--ease-spring) both}
+@keyframes resPop{0%{opacity:0;transform:scale(.85)}60%{opacity:1;transform:scale(1.03)}100%{transform:none}}
+/* kirish maydonlari */
+input,textarea,select{transition:border-color .2s,box-shadow .25s var(--ease-out)}
+input:focus,textarea:focus,select:focus{box-shadow:0 0 0 4px rgba(91,62,166,.15)}
+/* ═══ HARAKAT QATLAMI 2 (2026-10-16): o'quvchi zerikmasin — jonli belgilar, rag'bat, natija bayrami ═══ */
+/* bosh sahifa va bo'lim kartalaridagi belgilar sekin "suzadi" */
+.rcard .ic,.hub-ic{display:inline-block;animation:icBob 3.4s ease-in-out infinite;transform-origin:50% 80%}
+.rcard:nth-child(2) .ic,.hub-card:nth-child(2) .hub-ic{animation-delay:-.6s}
+.hub-card:nth-child(3) .hub-ic{animation-delay:-1.2s}
+.hub-card:nth-child(4) .hub-ic{animation-delay:-1.8s}
+.hub-card:nth-child(5) .hub-ic{animation-delay:-2.4s}
+.hub-card:nth-child(n+6) .hub-ic{animation-delay:-3s}
+@keyframes icBob{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-5px) rotate(-4deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-3px) rotate(3deg)}}
+.rcard:active .ic,.hub-card:active .hub-ic{animation:icTap .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes icTap{0%{transform:scale(1)}40%{transform:scale(1.35) rotate(-8deg)}100%{transform:scale(1)}}
+/* logotip ochilishda aylanib keladi */
+.logo img{animation:logoIn .9s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes logoIn{from{opacity:0;transform:rotate(-200deg) scale(.3)}to{opacity:1;transform:none}}
+/* asosiy tugmalar ustidan vaqti-vaqti bilan nur o'tadi */
+.btn.bp,.btn.bpu{position:relative;overflow:hidden}
+.btn.bp::after,.btn.bpu::after{content:'';position:absolute;top:0;left:-70%;width:45%;height:100%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);transform:skewX(-20deg);animation:btnShine 5s ease-in-out infinite}
+@keyframes btnShine{0%,70%{left:-70%}100%{left:130%}}
+/* javob berilganda savol raqami "sakraydi" va uchqun chiqadi */
+.qb.et-ans-pop{animation:qbPop .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes qbPop{0%{transform:scale(1)}45%{transform:scale(1.32)}100%{transform:scale(1)}}
+.et-spark{position:fixed;pointer-events:none;z-index:9999;font-size:16px;animation:sparkUp .9s ease-out forwards}
+@keyframes sparkUp{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx,0),-46px) scale(1.25)}}
+/* hamma savolga javob berilganda "Yakunlash" tugmasi yurak urishidek chaqnaydi */
+#btn-sub.et-ready{animation:readyPulse 1.6s ease-in-out infinite}
+@keyframes readyPulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}50%{box-shadow:0 0 0 12px rgba(22,163,74,0)}}
+/* natija: doira nur sochadi, sarlavha sakrab chiqadi, emoji yomg'iri */
+#r-ring.et-glow{animation:ringGlow 1.8s ease-in-out 3}
+@keyframes ringGlow{0%,100%{box-shadow:0 0 0 0 rgba(240,180,41,0)}50%{box-shadow:0 0 34px 6px rgba(240,180,41,.45)}}
+#r-title.et-title{animation:titleIn .8s cubic-bezier(.34,1.56,.64,1) both;animation-delay:.35s}
+@keyframes titleIn{from{opacity:0;transform:translateY(16px) scale(.8)}to{opacity:1;transform:none}}
+.et-emoji{position:fixed;bottom:-50px;pointer-events:none;z-index:9998;animation:emojiUp var(--t,2.8s) cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes emojiUp{0%{opacity:0;transform:translateY(0) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateY(calc(-100vh - 60px)) rotate(var(--r,30deg))}}
 </style>
 <script>try{var _p=JSON.parse(sessionStorage.getItem('et_pre')||'null');if(sessionStorage.getItem('et_sess')||(_p&&_p.pg==='pg-auth'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},3000);</script>
 <style>html.et-restoring .pg{visibility:hidden}</style>
@@ -965,12 +1059,19 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
       <div class="fx" style="gap:16px">
         <label style="display:flex;gap:6px;cursor:pointer;font-weight:500;color:var(--txt);text-transform:none;letter-spacing:0"><input type="radio" name="aqtype" value="single" checked> Bir javobli</label>
         <label style="display:flex;gap:6px;cursor:pointer;font-weight:500;color:var(--txt);text-transform:none;letter-spacing:0"><input type="radio" name="aqtype" value="multi"> Ko'p javobli</label>
+        <label style="display:flex;gap:6px;cursor:pointer;font-weight:500;color:var(--txt);text-transform:none;letter-spacing:0"><input type="radio" name="aqtype" value="open"> Yozma javob</label>
       </div>
     </div>
-    <div class="fg">
+    <div class="fg" id="aq-opts-fg">
       <label>Variantlar</label>
       <div id="aq-opts"></div>
       <button class="btn bg bsm mt8" onclick="addOpt()">+ Variant</button>
+    </div>
+    <div class="fg" id="aq-open-fg" style="display:none">
+      <label>To'g'ri javoblar</label>
+      <div class="ts tm" style="margin-bottom:6px">O'quvchi faqat savolni ko'radi va javobni yozadi. Katta-kichik harf, kirill/lotin, so'z bilan yozilgan son (yigirma besh = 25), 0,5 = 1/2 avtomatik to'g'ri hisoblanadi. Boshqa to'g'ri yozilish bo'lsa, har birini yangi qatorga yozing.</div>
+      <textarea id="aq-open-ans" rows="3" placeholder="To'g'ri javob&#10;(ixtiyoriy) boshqacha to'g'ri yozilishi" style="width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:1.5px solid var(--bdr)"></textarea>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px"><input type="checkbox" id="aq-open-num" checked> Sonlar qiymati bo'yicha taqqoslansin (0,5 = 1/2 = .5)</label>
     </div>
     <div class="fx" style="justify-content:flex-end;gap:8px;margin-top:14px">
       <button class="btn bg bsm" onclick="closeAQ()">Bekor</button>
@@ -985,7 +1086,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v169';
+var APP_VER = 'edutest-v174';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -3377,6 +3478,7 @@ function startTest(mode){
   var toAsk=meta?meta.questionsToAsk:rawQs.length;
   toAsk=Math.min(toAsk,rawQs.length);
   var qs=shuf(rawQs).slice(0,toAsk).map(function(q){
+    if(q.type==='open') return Object.assign({},q,{options:[],shuffledCorrect:[]});
     var orig=q.options.slice(),sh=shuf(orig);
     var nc=q.correct.map(function(ci){return sh.indexOf(orig[ci]);});
     var newOptImg={};
@@ -3386,7 +3488,7 @@ function startTest(mode){
   precacheTestImages(qs,true);
   var _cb=document.getElementById('conn-banner'); if(_cb) _cb.style.display='none';
   var _ov=document.getElementById('offline-overlay'); if(_ov) _ov.style.display='none';
-  S.test=qs;S.idx=0;S.answers={};S.mode=mode;S.exits=0;S.awaySec=0;testAwakeOn();_backWarned=false;_visWarnCount=0;_blurWarnCount=0;S._blurWarnPending=false;_logoutWarned=false;_ignoreBlur=false;history.pushState(null,'',location.href);
+  S.test=qs;S.idx=0;S.answers={};S.mode=mode;S.exits=0;S.awaySec=0;S._left=false;testAwakeOn();_backWarned=false;_visWarnCount=0;_blurWarnCount=0;S._blurWarnPending=false;_logoutWarned=false;_ignoreBlur=false;history.pushState(null,'',location.href);
   // To'liq ekran rejimi
   var el=document.documentElement;
   if(el.requestFullscreen)el.requestFullscreen();
@@ -3764,6 +3866,88 @@ function _eduCanvasClick(e, canvasId) {
   }
 }
 
+// YOZMA JAVOB TEKSHIRUVI (2026-10-16): katta/kichik harf, kirill/lotin, apostrof turlari, raqam so'z bilan (o'zbekcha/inglizcha),
+// o'nli vergul/nuqta, kasr, foiz, daraja belgilari, birlik (5 sm = 5), "x=5" = "5". ES5 (eski iPhone uchun).
+var _OA_UNITS={nol:0,zero:0,bir:1,one:1,ikki:2,two:2,uch:3,three:3,tort:4,four:4,besh:5,five:5,olti:6,six:6,yetti:7,seven:7,sakkiz:8,eight:8,toqqiz:9,nine:9,
+  on:10,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,
+  yigirma:20,twenty:20,ottiz:30,thirty:30,qirq:40,forty:40,ellik:50,fifty:50,oltmish:60,sixty:60,yetmish:70,seventy:70,sakson:80,eighty:80,toqson:90,ninety:90};
+var _OA_MULT={yuz:100,hundred:100,ming:1000,thousand:1000,million:1e6,milliard:1e9,billion:1e9};
+var _OA_CYR={'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'j','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'x','ц':'ts','ч':'ch','ш':'sh','щ':'sh','ъ':"'",'ы':'i','ь':'','э':'e','ю':'yu','я':'ya','ў':"o'",'қ':'q','ғ':"g'",'ҳ':'h'};
+var _OA_SUP={'⁰':'^0','¹':'^1','²':'^2','³':'^3','⁴':'^4','⁵':'^5','⁶':'^6','⁷':'^7','⁸':'^8','⁹':'^9','⁻':'^-'};
+function _oaWordNum(w){ // bitta so'z (apostrofsiz): faqat son so'zlaridan iborat bo'lsa [{k,v}] qaytaradi, aks holda null
+  var out=[], n=w.length;
+  function seg(pos){
+    if(pos===n) return true;
+    for(var L=Math.min(9,n-pos);L>=2;L--){ var p=w.substr(pos,L);
+      if(_OA_UNITS.hasOwnProperty(p)){ out.push({k:'u',v:_OA_UNITS[p]}); if(seg(pos+L)) return true; out.pop(); }
+      else if(_OA_MULT.hasOwnProperty(p)){ out.push({k:'m',v:_OA_MULT[p]}); if(seg(pos+L)) return true; out.pop(); } }
+    return false; }
+  return (n>=2&&seg(0))?out:null;
+}
+function _oaWordsToDigits(s){ // matndagi son so'zlari ketma-ketligini raqamga almashtiradi
+  var toks=s.split(/(\s+|-)/), res=[], run=null;
+  function flush(){ if(run&&run.items.length){ var total=0,cur=0; run.items.forEach(function(x){ if(x.k==='u') cur+=x.v; else if(x.v===100) cur=(cur||1)*100; else { total+=(cur||1)*x.v; cur=0; } });
+      res.push(String(total+cur)); } run=null; }
+  for(var i=0;i<toks.length;i++){ var t=toks[i];
+    if(t==='') continue;
+    if(/^(\s+|-)$/.test(t)){ if(!run) res.push(t); else run.sep=(run.sep||'')+t; continue; }
+    var w=t.replace(/'/g,'');
+    if(run&&(w==='and'||w==='va')){ run.sep=(run.sep||'')+t; continue; }
+    var nw=_oaWordNum(w);
+    if(nw){ if(!run) run={items:[],sep:''}; run.items=run.items.concat(nw); run.sep=''; }
+    else { if(run){ var sp=run.sep; flush(); if(sp) res.push(sp); } res.push(t); } }
+  if(run) flush();
+  return res.join('');
+}
+function _oaCanon(s){
+  s=String(s==null?'':s);
+  for(var k in _OA_SUP) if(_OA_SUP.hasOwnProperty(k)) s=s.split(k).join(_OA_SUP[k]);
+  s=s.replace(/½/g,' 1/2 ').replace(/¼/g,' 1/4 ').replace(/¾/g,' 3/4 ');
+  try{ s=s.normalize('NFKC'); }catch(e){}
+  s=s.toLowerCase();
+  s=s.replace(/[’`ʻʼ‘´ʹ′]/g,"'").replace(/[−–—‒]/g,'-').replace(/[×·⋅]/g,'*').replace(/÷/g,'/');
+  s=s.replace(/[а-яёўқғҳ]/g,function(c){ return _OA_CYR[c]!==undefined?_OA_CYR[c]:c; });
+  return s.replace(/\s+/g,' ').trim();
+}
+function _oaParseNum(s){ // boshidagi son: {v,rest} yoki null
+  var m=/^([+-]?)\s*((?:\d{1,3}(?:[  ]\d{3})+|\d+)(?:[.,]\d+)?|[.,]\d+)(?:\s*\/\s*(\d+(?:[.,]\d+)?))?\s*(%)?\s*(.*)$/.exec(s);
+  if(!m) return null;
+  var v=parseFloat(m[2].replace(/[  ]/g,'').replace(',','.'));
+  if(m[3]){ var d=parseFloat(m[3].replace(',','.')); if(!d) return null; v=v/d; }
+  if(m[1]==='-') v=-v;
+  return {v:v,rest:m[5]||''};
+}
+function _oaKey(s){ return s.replace(/'/g,'').replace(/[^a-z0-9^*\/+\-=√.]/g,'').replace(/^\.+|\.+$/g,''); }
+function _oaUnit(r){ return r.replace(/'/g,'').replace(/[^a-z]/g,''); }
+function openMatch(user,accepted,opts){
+  opts=opts||{}; var numeric=opts.numeric!==false;
+  var u0=_oaWordsToDigits(_oaCanon(user)); if(!u0) return false;
+  for(var i=0;i<(accepted||[]).length;i++){
+    var a0=_oaWordsToDigits(_oaCanon(accepted[i])); if(!a0) continue;
+    var u=u0;
+    if(a0.indexOf('=')<0) u=u.replace(/^[a-z]\s*=\s*/,'');
+    if(_oaKey(u)===_oaKey(a0)) return true;
+    if(numeric){
+      var pu=_oaParseNum(u), pa=_oaParseNum(a0);
+      if(pu&&pa&&Math.abs(pu.v-pa.v)<=1e-9*Math.max(1,Math.abs(pa.v))){
+        var ru=_oaUnit(pu.rest), ra=_oaUnit(pa.rest);
+        var pw=function(r){return r==='foiz'||r==='percent'||r==='pct';};
+        if(ru===ra||!ru||!ra||(pw(ru)&&pw(ra))) return true;
+      }
+    }
+  }
+  return false;
+}
+function _oEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function _choiceOnly(a){ return (a||[]).filter(function(q){ return q.type!=='open'; }); }
+function setOpenAns(v){ if(String(v).trim()) S.answers[S.idx]=[v]; else delete S.answers[S.idx];
+  var b=document.querySelectorAll('#t-qnav .qb')[S.idx]; if(b) b.classList.toggle('ans',!!S.answers[S.idx]);
+  var c=document.getElementById('t-qans'); if(c) c.textContent=Object.keys(S.answers).length+' ta javoblandi'; }
+function openDetailHtml(d){
+  var u=(d.userAns||[])[0]||'', acc=d.accepted||[];
+  return '<div style="font-size:14px;line-height:1.7;padding:4px 2px">Javob: '+(d.ok?'<b style="color:#16a34a">'+_oEsc(u)+' &#9989;</b>':'<span style="color:#dc2626;text-decoration:line-through">'+_oEsc(u||'—')+'</span>')+
+    (d.ok?'':'<br>To\'g\'ri javob: <b style="color:#16a34a">'+_oEsc(acc[0]||'')+'</b>')+'</div>';
+}
 function renderQ(){
   setTimeout(_prefetchNextQImgs,0);
   var q=S.test[S.idx], ans=S.answers[S.idx]||[], isLast=S.idx===S.test.length-1;
@@ -3804,12 +3988,18 @@ function renderQ(){
       : '<span> '+opt+'</span>';
     return '<div class="opt'+(sel?' sel':'')+'" onclick="selAns('+i+')">'+ctrl+'<div style="flex:1"><span>'+String.fromCharCode(65+i)+'.</span>'+optContent+'</div></div>';
   }).join('');
+  if(q.type==='open'){
+    optsHtml='<input id="open-inp" value="'+_oEsc((ans&&ans[0])||'')+'" oninput="setOpenAns(this.value)" '+
+      'autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Javobingizni yozing" '+
+      'style="width:100%;box-sizing:border-box;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;border:1.5px solid #cbd5e1;margin-top:6px">';
+  }
   document.getElementById('t-qbody').innerHTML=
     '<div style="font-weight:700;font-size:17px;margin-bottom:8px;line-height:1.6">'+(S.idx+1)+'. '+(q.text||'')+'</div>'+
     imgHtml+
     (q.isMulti?'<div class="alt ai ts" style="margin-bottom:10px">Ko\'p javobli: bir nechta to\'g\'ri</div>':'')+
     optsHtml;
   renderMathIn(document.getElementById('t-qbody'));
+  if(q.type==='open'){ try{ if(!(navigator.maxTouchPoints>0)) setTimeout(function(){ var o=document.getElementById('open-inp'); if(o) o.focus(); },50); }catch(e){} }
 }
 function goQ(d){
   if(S.review&&d>0){ var j=_nextUnanswered(S.idx); if(j<0||j===S.idx&&_isAns(S.idx)){ S.review=false; submitTest(); return; } if(j===S.idx){ showTestToast('Bu savolga javob bering'); return; } S.idx=j; renderQ(); return; }
@@ -3826,6 +4016,7 @@ document.addEventListener('keydown',function(e){
   if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
   var q=S.test[S.idx];
   if(!q)return;
+  if(q.type==='open') return;
   var key=e.key;
   var idx=-1;
   if(key>='1'&&key<='9'){idx=key.charCodeAt(0)-'1'.charCodeAt(0);}
@@ -3961,7 +4152,7 @@ async function flagWrongAnswersForReview(res){
   res.details.forEach(function(d,i){
     if(d.ok) return;
     var q=S.test[i];
-    if(!q || !q.id || !q.teacherId) return;
+    if(!q || !q.id || !q.teacherId || q.type==='open') return;
     if((q.trustVotes||0) >= 5) return; // ishonchli - navbatga qoshilmaydi (2026-09-06: 10->5)
     var oq=(getDB().userQs||[]).find(function(x){return String(x.id)===String(q.id);})||null;
     var origSel=(d.userAns||[]).map(function(k){ var v=(q.options||[])[k], ii=oq?(oq.options||[]).indexOf(v):-1; return ii>=0?ii:k; });
@@ -3992,7 +4183,10 @@ async function doSubmitTest(){
     else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
     else if(document.mozCancelFullScreen)document.mozCancelFullScreen();
   }
-  var correct=0,details=S.test.map(function(q,i){var ans=S.answers[i]||[],right=q.shuffledCorrect,ok=right.length>0&&right.every(function(r){return ans.indexOf(r)>=0;})&&ans.every(function(a){return right.indexOf(a)>=0;})&&ans.length>0;if(ok)correct++;return{text:q.text,options:q.options,userAns:ans,correct:right,ok:ok,img:q.img||q.image||''};});
+  var correct=0,details=S.test.map(function(q,i){var ans=S.answers[i]||[];
+    if(q.type==='open'){ var okO=openMatch(ans[0],(q.data&&q.data.answers)||[],{numeric:!(q.data&&q.data.numeric===false)}); if(okO)correct++;
+      return {type:'open',text:q.text,options:[],userAns:ans,correct:[],accepted:(q.data&&q.data.answers)||[],ok:okO,img:q.img||q.image||''}; }
+    var right=q.shuffledCorrect,ok=right.length>0&&right.every(function(r){return ans.indexOf(r)>=0;})&&ans.every(function(a){return right.indexOf(a)>=0;})&&ans.length>0;if(ok)correct++;return{text:q.text,options:q.options,userAns:ans,correct:right,ok:ok,img:q.img||q.image||''};});
   var pct=Math.round(correct/S.test.length*100);
   var res={id:'res'+Date.now()+'_'+Math.random().toString(36).slice(2,8),student:ME.name,cls:ME.cls,topic:selTopic,mode:S.mode,correct:correct,total:S.test.length,pct:pct,date:new Date().toLocaleDateString('uz-UZ'),time:new Date().toLocaleTimeString('uz-UZ'),details:details};
   if(S.exits){ res.exits=S.exits; res.awaySec=S.awaySec||0; }
@@ -4095,7 +4289,7 @@ function fireConfetti(count){
 }
 function toggleDetail(){
   showDet=!showDet;var el=document.getElementById('r-det');el.style.display=showDet?'block':'none';
-  if(showDet&&S.lastRes){document.getElementById('r-det-body').innerHTML=S.lastRes.details.map(function(d,i){return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px"><div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+((d.img||d.image)?'<img src="'+imgSrcVal(d.img||d.image)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+d.options.map(function(opt,oi){var isR=d.correct.indexOf(oi)>=0,isU=d.userAns.indexOf(oi)>=0,bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent',ic=isR?'✅':(isU&&!isR)?'❌':'⬜';var isImg=isImgVal(opt);var optContent=isImg?'<img src="'+imgSrcVal(opt)+'" style="max-height:80px;border-radius:4px;vertical-align:middle;margin-left:4px">':opt;return '<div style="padding:6px 8px;border-radius:6px;font-size:13px;background:'+bg+';margin-bottom:4px">'+ic+' '+String.fromCharCode(65+oi)+'. '+optContent+(isR?'<span style="color:#16a34a;font-size:11px;font-weight:700;margin-left:6px">(To\'g\'ri)</span>':'')+'</div>';}).join('')+'</div>';}).join('');renderMathIn(document.getElementById('r-det-body'));}
+  if(showDet&&S.lastRes){document.getElementById('r-det-body').innerHTML=S.lastRes.details.map(function(d,i){return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px"><div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+((d.img||d.image)?'<img src="'+imgSrcVal(d.img||d.image)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+(d.type==='open'?openDetailHtml(d):'')+d.options.map(function(opt,oi){var isR=d.correct.indexOf(oi)>=0,isU=d.userAns.indexOf(oi)>=0,bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent',ic=isR?'✅':(isU&&!isR)?'❌':'⬜';var isImg=isImgVal(opt);var optContent=isImg?'<img src="'+imgSrcVal(opt)+'" style="max-height:80px;border-radius:4px;vertical-align:middle;margin-left:4px">':opt;return '<div style="padding:6px 8px;border-radius:6px;font-size:13px;background:'+bg+';margin-bottom:4px">'+ic+' '+String.fromCharCode(65+oi)+'. '+optContent+(isR?'<span style="color:#16a34a;font-size:11px;font-weight:700;margin-left:6px">(To\'g\'ri)</span>':'')+'</div>';}).join('')+'</div>';}).join('');renderMathIn(document.getElementById('r-det-body'));}
 }
 
 var _curQFolder=null;
@@ -4342,6 +4536,7 @@ function renderTopicDetail(t){
       return String.fromCharCode(65+oi)+(isImg?'.[rasm]':'. '+o.substring(0,30));
     }).join('<br>');
     var correctOpts=(q.correct||[]).map(function(ci){return String.fromCharCode(65+ci);}).join(',');
+    if(q.type==='open'){ opts='<b>Yozma javob</b> &middot; '+(((q.data&&q.data.answers)||[]).length)+' ta javob varianti'; correctOpts='&#x2713; '+_oEsc(((q.data&&q.data.answers)||[])[0]||''); }
     return '<tr>'+
       '<td>'+(qi+1)+'</td>'+
       '<td style="max-width:200px;font-size:13px">'+(q.image?'🖼 ':'')+(q.text||'').substring(0,60)+'...</td>'+
@@ -4409,6 +4604,10 @@ function editQ(qid,topic){
   var opts=q.options||[];
   var correct=q.correct||[];
   var container=document.getElementById('eq-opts');
+  if(q.type==='open'){
+    container.innerHTML='<div class="ts tm" style="margin-bottom:6px">To\'g\'ri javoblar (har biri yangi qatorda)</div><textarea id="eq-open-ans" rows="3" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--color-border);font-size:14px">'+_oEsc(((q.data&&q.data.answers)||[]).join('\n'))+'</textarea>';
+    return;
+  }
   container.innerHTML=opts.map(function(o,i){
     var isImg=isImgVal(o);
     var isCorrect=correct.indexOf(i)>=0;
@@ -4435,6 +4634,11 @@ function saveEditQ(){
   if(!uq) uq=db.userQs.find(function(x){return x.id===qid;}); // zaxira: eski malumotlar uchun
   if(!uq){closeEditQ();return;}
   if(newText)uq.text=newText;
+  if(uq.type==='open'){
+    var oa=document.getElementById('eq-open-ans'); var lines=oa?oa.value.split('\n').map(function(x){return x.trim();}).filter(Boolean):[];
+    if(lines.length){ uq.data=Object.assign({},uq.data||{},{answers:lines}); }
+    saveDB(db); closeEditQ(); renderTopicDetail(topic); return;
+  }
   // Javoblarni yangilash
   var newCorr=[];
   (uq.options||[]).forEach(function(o,i){
@@ -4464,6 +4668,8 @@ function openAddQ(){
   if(imgPrev)imgPrev.style.display='none';
   if(imgInp)imgInp.value='';
   document.querySelector('input[name="aqtype"][value="single"]').checked=true;
+  document.getElementById('aq-opts-fg').style.display=''; document.getElementById('aq-open-fg').style.display='none';
+  document.getElementById('aq-open-ans').value=''; document.getElementById('aq-open-num').checked=true;
   var subjSel=document.getElementById('aq-subj');
   if(!subjSel.options.length){subjSel.innerHTML=SUBJECTS.map(function(s){return '<option value="'+s.v+'">'+s.n+'</option>';}).join('');}
   if(ME&&ME.subject)subjSel.value=ME.subject;
@@ -4505,7 +4711,8 @@ function refreshSyms(){
   }).join('');
 }
 function closeAQ(){document.getElementById('aq-modal').style.display='none';}
-document.querySelectorAll('input[name="aqtype"]').forEach(function(r){r.addEventListener('change',function(){aqIsM=this.value==='multi';aqCorr=[];renderAQO();});});
+document.querySelectorAll('input[name="aqtype"]').forEach(function(r){r.addEventListener('change',function(){aqIsM=this.value==='multi';aqCorr=[];renderAQO();
+  var op=this.value==='open'; document.getElementById('aq-opts-fg').style.display=op?'none':''; document.getElementById('aq-open-fg').style.display=op?'':'none'; });});
 // TUZATISH (2026-09-27): telefonda klaviatura chiqqanda modal oynadagi
 // (masalan "Savol qo'shish") maydon klaviatura ostida qolib ketardi.
 // Klaviatura animatsiyasi tugagach, fokusdagi maydonni ekran markaziga
@@ -4543,6 +4750,16 @@ function rmO(i){aqOpts.splice(i,1);aqCorr=aqCorr.filter(function(c){return c!==i
 function saveQ(){
   var topic=document.getElementById('aq-topic').value.trim(),text=mathEditGetLatexString(document.getElementById('aq-text')).trim(),subj=document.getElementById('aq-subj').value,qcount=parseInt(document.getElementById('aq-qcount').value)||null;
   if(!topic){alert("Mavzu kiriting!");return;}if(!text){alert("Savol matnini kiriting!");return;}
+  var _op=document.querySelector('input[name="aqtype"]:checked');
+  if(_op&&_op.value==='open'){
+    var oans=document.getElementById('aq-open-ans').value.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+    if(!oans.length){alert("Kamida bitta to'g'ri javobni yozing!");return;}
+    var oq={id:Date.now(),subject:subj,topic:topic,type:'open',text:text,options:[],correct:[],data:{answers:oans,numeric:!!document.getElementById('aq-open-num').checked},teacherId:ME.id};
+    if(_aqImgData) oq.img=_aqImgData;
+    var odb=getDB();odb.userQs=odb.userQs||[];odb.userQs.push(oq);
+    if(qcount||_curQFolder){odb.topicsMeta=odb.topicsMeta||[];var of0=false;odb.topicsMeta.forEach(function(m){if(m.topic===topic&&m.teacherId===ME.id){if(qcount)m.questionsToAsk=qcount;if(_curQFolder)m.folder=_curQFolder;of0=true;}});if(!of0)odb.topicsMeta.push({topic:topic,questionsToAsk:qcount||1,teacherId:ME.id,subject:subj,folder:_curQFolder||undefined});}
+    saveDB(odb);closeAQ();renderQT();return;
+  }
   var opts=aqOpts.filter(function(o){return o.trim();});if(opts.length<2){alert("Kamida 2 ta variant!");return;}if(!aqCorr.length){alert("To'g'ri javobni belgilang!");return;}
   var q={id:Date.now(),subject:subj,topic:topic,text:text,options:opts,correct:aqCorr.filter(function(c){return c<opts.length;}),isMulti:aqIsM,teacherId:ME.id};
   if(_aqImgData) q.img=_aqImgData;
@@ -4850,6 +5067,7 @@ function showResultDetail(id){
       return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px">'+
         '<div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+
         (imgSrc?'<img src="'+imgSrcVal(imgSrc)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+
+        (d.type==='open'?openDetailHtml(d):'')+
         (d.options||[]).map(function(opt,oi){
           var isR=(d.correct||[]).indexOf(oi)>=0,isU=(d.userAns||[]).indexOf(oi)>=0;
           var bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent';
@@ -7409,7 +7627,9 @@ function aiCheckTopic(topic, force) {
 
   var textQs = [];
   qs.forEach(function(q, origIdx) {
-    if (isImgQuestion(q)) {
+    if (q.type === 'open') {
+      _aiResults[origIdx] = { q: q, result: 'Yozma javobli savol - qo\'lda ko\'ring', ok: true, skipped: true };
+    } else if (isImgQuestion(q)) {
       _aiResults[origIdx] = { q: q, result: 'Rasm/formula savoli - AI tekshira olmaydi, qo\'lda ko\'ring', ok: true, skipped: true };
     } else {
       var c = _cache[String(q.id)];
@@ -7768,7 +7988,7 @@ async function joinBattle(){
   var session=res.data[0];
   if(session.status==='finished'){msg.innerHTML='<div class="alt ar">Bu o\'yin allaqachon tugagan.</div>';return;}
   BT.session=session; BT.role='student'; BT.answered={};
-  var qs=getQsByTopic(session.topic);
+  var qs=_choiceOnly(getQsByTopic(session.topic));
   BT.qs=qs;
   await _sb.from('battle_answers').insert({session_id:session.id,student_login:ME.login,student_name:ME.name,q_idx:-1,correct:false,answer_ms:0}).select();
   openBattleModal();
@@ -7789,7 +8009,7 @@ function renderBattleStudentView(){
   }
   var qi=BT.session.current_q_idx;
   if(qi===_battleAnsweredIdx)return;
-  var origQs=getQsByTopic(BT.session.topic);
+  var origQs=_choiceOnly(getQsByTopic(BT.session.topic));
   var q=shuf(origQs)[qi%origQs.length];
   if(!q)return;
   _battleQStart=Date.now();
@@ -7897,7 +8117,7 @@ function renderDuelTopicPick(){
   document.getElementById('duel-modal-body').innerHTML=html;
 }
 function renderDuelLevelPick(){
-  var cnt=getAllQs().filter(function(q){return q.topic===DL.topic;}).length;
+  var cnt=getAllQs().filter(function(q){return q.topic===DL.topic&&q.type!=='open';}).length;
   document.getElementById('duel-modal-body').innerHTML=
     '<button class="btn bg bsm" onclick="renderDuelTopicPick()" style="margin-bottom:10px">&#8592; Orqaga</button>'+
     '<p class="ts tm" style="margin-bottom:4px">Mavzu: <b>'+DL.topic+'</b> ('+cnt+' savol)</p>'+
@@ -7922,7 +8142,7 @@ function startDuel(){
   else startOnlineDuel();
 }
 function startBotDuel(){
-  var qs=shuf(getQsByTopic(DL.topic)).slice(0,10);
+  var qs=shuf(_choiceOnly(getQsByTopic(DL.topic))).slice(0,10);
   if(qs.length<3){ alert('Bu mavzuda yetarli savol yoq!'); closeDuelModal(); return; }
   DL.questions=qs; DL.idx=0; DL.answers=[]; DL.botScore=0; DL.botDone=false; DL.myDone=false; DL.startTs=Date.now();
   ME.duelRating=ME.duelRating||1000;
@@ -8047,7 +8267,7 @@ async function startOnlineDuel(){
   var existing=await _sb.from('duel_queue').select('*').eq('subject',DL.subject).eq('topic',DL.topic).eq('level',DL.level).eq('status','waiting').neq('student_login',ME.login).order('created_at').limit(1);
   if(existing.data && existing.data.length){
     var opp=existing.data[0];
-    var qs=shuf(getQsByTopic(DL.topic)).slice(0,10);
+    var qs=shuf(_choiceOnly(getQsByTopic(DL.topic))).slice(0,10);
     if(qs.length<3){ alert('Bu mavzuda yetarli savol yoq!'); closeDuelModal(); return; }
     // 2026-09-06: har ikkala tomonning duel BOSHLANISHIDAGI reytingini
     // qator ichiga "suratga olib" saqlaymiz - shunda duel tugaganda HAR
@@ -8371,7 +8591,7 @@ function _fsGate(){
       '<p style="font-size:14px;color:#475569;margin-bottom:16px">Sahifa yangilandi. Javoblaringiz saqlangan. Davom ettirish uchun tugmani bosing — test yana to\'liq ekranda ochiladi.</p>'+
       '<button type="button" class="btn bpu" style="width:100%" id="fs-gate-btn">&#x25B6; Testni davom ettirish</button></div>';
     document.body.appendChild(g); }
-  if(!req){ var pp=g.querySelector('p'); if(pp) pp.innerHTML='Sahifa yangilandi. Javoblaringiz saqlangan.<br><b>Diqqat:</b> test davomida boshqa ilovaga o\'tsangiz yoki ekranni o\'chirsangiz, uzoq (3 daqiqadan ortiq) yoki 2 martadan ortiq chiqib ketsangiz test yakunlanadi.'; }
+  if(!req){ var pp=g.querySelector('p'); if(pp) pp.innerHTML='Sahifa yangilandi. Javoblaringiz saqlangan.<br><b>Diqqat:</b> test davomida boshqa ilovaga o\'tsangiz yoki ekranni o\'chirsangiz, chiqib ketsangiz (telefon qo\'ng\'irog\'i, boshqa ilova, Gemini, Siri) test darhol yakunlanadi.'; }
   g.style.display='flex';
   document.getElementById('fs-gate-btn').onclick=function(){
     if(req){ try{ var p=req.call(el); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
@@ -8552,39 +8772,32 @@ var _ignoreBlur = false;
 // agar shu vaqt ichida foydalanuvchi ilovaga qaytsa, test davom etadi;
 // qaytmasa (haqiqatan chiqib ketgan/aldashga urinayotgan bolsa), test
 // avvalgidek yakunlanadi.
-// 2026-10-16: telefonda qo'ng'iroq/xabar/ekran o'chishi testni DARROV tugatmaydi. Sensorli ekranda (telefon, planshet)
-// bir marta chiqib ketishga 3 daqiqagacha, test davomida 2 martagacha ruxsat; undan ortig'i yoki kompyuterda —
-// avvalgidek 8 soniya. Har chiqish natijaga yoziladi (res.exits, res.awaySec) — ustoz ko'radi.
-var AUTO_SUBMIT_GRACE_MS = 8000;      // kompyuter (sichqoncha) va ruxsat tugagandan keyin
-var AWAY_TOUCH_MAX_MS = 180000;       // telefon: bir marta chiqib ketishning eng ko'pi (3 daqiqa)
-var AWAY_TOUCH_MAX_EXITS = 2;         // telefon: test davomida shunday chiqishlar soni
-var AWAY_NOTE_MIN_MS = 4000;          // bundan qisqa uzilish (bildirishnoma pardasi) hisobga olinmaydi
-var _autoSubmitTimer = null, _awayAt = 0, _awayLim = AUTO_SUBMIT_GRACE_MS;
-function _isTouchDev(){ try{ return !!(navigator.maxTouchPoints>0 && window.matchMedia && matchMedia('(pointer:coarse)').matches); }catch(e){ return false; } }
-function _awayLimitMs(){ return (_isTouchDev() && (S.exits||0) < AWAY_TOUCH_MAX_EXITS) ? AWAY_TOUCH_MAX_MS : AUTO_SUBMIT_GRACE_MS; }
+// 2026-10-16 (foydalanuvchi qarori): testdan har qanday chiqish — qo'ng'iroq, Gemini, Siri, boshqa ilova yoki tab —
+// testni DARHOL tugatadi, kutish yo'q. Veb-sayt qo'ng'iroqni boshqa chiqishdan ajrata olmaydi, shuning uchun hammasi bir xil.
+// iPhone fonga tushgan sahifani muzlatishi mumkin: shu sabab qaytganda ham tekshiriladi (S._left).
+var _autoSubmitTimer = null;
 function _scheduleAutoSubmit(){
   if(!S.mode || _ignoreBlur) return;
-  if(_autoSubmitTimer) return; // allaqachon kutilmoqda
-  _awayAt = Date.now(); _awayLim = _awayLimitMs();
-  _autoSubmitTimer = setTimeout(function(){
-    _autoSubmitTimer = null;
-    if(S.mode) submitTest(true);
-  }, _awayLim);
+  S._left = true;
+  submitTest(true);
 }
-// iPhone fonda taymerlarni to'xtatadi — qaytganda o'tgan vaqt soat bo'yicha tekshiriladi
 function _cancelAutoSubmit(){
-  var away = _awayAt ? Date.now() - _awayAt : 0; _awayAt = 0;
-  if(!_autoSubmitTimer) return;
-  clearTimeout(_autoSubmitTimer); _autoSubmitTimer = null;
-  if(!S.mode || _ignoreBlur) return;
-  if(away > _awayLim){ submitTest(true); return; }
-  if(_isTouchDev() && away >= AWAY_NOTE_MIN_MS){
-    S.exits = (S.exits||0) + 1; S.awaySec = (S.awaySec||0) + Math.round(away/1000);
-    try{ showTestToast(S.exits < AWAY_TOUCH_MAX_EXITS
-      ? 'Siz testdan chiqib ketdingiz ('+S.exits+'/'+AWAY_TOUCH_MAX_EXITS+'). Test davom etmoqda — lekin yana chiqmang.'
-      : 'Siz testdan '+S.exits+'-marta chiqib ketdingiz. Yana chiqsangiz test yakunlanadi!'); }catch(e){}
-  }
+  if(S.mode && S._left && !_ignoreBlur) submitTest(true);
 }
+// Kichik (suzuvchi) oyna yoki bo'lingan ekran: sahifa "ko'rinib" turadi, lekin ekranning katta qismini egallamaydi — boshqa ilova
+// yonida ochiq turibdi. Faqat sensorli qurilmalarda (telefon, planshet) tekshiriladi; klaviatura ochiq (matn yozilayotgan) paytda
+// maydon kichrayishi tabiiy, shuning uchun o'sha paytda tekshirilmaydi.
+function _winTooSmall(){
+  try{
+    if(!(navigator.maxTouchPoints>0)) return false;
+    var sw=screen.width, sh=screen.height; if(!sw||!sh) return false;
+    var ae=document.activeElement; if(ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return false;
+    return (window.innerWidth*window.innerHeight)/(sw*sh) < 0.6;
+  }catch(e){ return false; }
+}
+function _checkWinSize(){ if(S.mode && !_ignoreBlur && _winTooSmall()){ S._left=true; submitTest(true); } }
+window.addEventListener('resize', function(){ if(S.mode) setTimeout(_checkWinSize, 400); });
+setInterval(function(){ if(S.mode) _checkWinSize(); }, 1500);
 
 // ═══ TEST PAYTIDA EKRAN O'CHMASLIGI (2026-10-16) ═══
 // Screen Wake Lock API; u yo'q bo'lsa (eski iPhone, ba'zi ilova ichidagi brauzerlar) — ovozsiz 16x16 video aylanib turadi.
@@ -8646,7 +8859,15 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('blur', function() {
   if(!S.mode) return;
   if(_ignoreBlur) return;
-  _scheduleAutoSubmit();
+  // 2026-10-16: sahifa ko'rinib turgan holda fokus yo'qolsa (Gemini/Siri oynasi, bildirishnoma pardasi, boshqa oyna) —
+  // 1,5 soniyada fokus qaytmasa test tugaydi. Bir lahzalik soxta "blur" (brauzer ichki sababi) testni tugatmaydi.
+  // Sahifa yashirinsa (boshqa ilova, qo'ng'iroq oynasi) — visibilitychange orqali DARHOL tugaydi.
+  if(document.hidden){ _scheduleAutoSubmit(); return; }
+  setTimeout(function(){
+    if(!S.mode || _ignoreBlur) return;
+    var f=true; try{ f=document.hasFocus(); }catch(e){ f=false; }
+    if(!f || document.hidden) _scheduleAutoSubmit();
+  }, 1500);
 });
 window.addEventListener('focus', function() {
   _cancelAutoSubmit();
@@ -9190,6 +9411,9 @@ async function tgAuthLogin(){
     clearInterval(_tga.poll); var t0=Date.now();
     _tga.poll=setInterval(async function(){
       if(Date.now()-t0>10*60*1000){ clearInterval(_tga.poll); _fpMsg('Vaqt tugadi. Qayta urinib ko\'ring.'); return; }
+      // 2026-10-16: Telegram ochiq turganda (bu sahifa fonda) so'rov yubormaymiz. Aks holda bir martalik kodni shu yashirin sahifa
+      // olib qo'yardi va botdagi "Saytga kirish" havolasi ochgan sahifa "allaqachon ishlatilgan" deb kirolmasdi (iPhone).
+      if(document.hidden) return;
       try{ var s=await (await fetch(DB_SERVER+'/tg_auth_status?code='+encodeURIComponent(j.code))).json();
         if(s.st==='wait') return;
         clearInterval(_tga.poll);
@@ -9323,6 +9547,112 @@ function sendReport(){
   }).catch(function(){m.style.color='#c0392b';m.textContent='Internet aloqasini tekshirib, qayta urinib ko\'ring.';})
   .then(function(){b.disabled=false;});
 }
+</script>
+<script>
+// ═══ HARAKAT QATLAMI (2026-10-16): sahifa ochilish to'lqini, tugma to'lqini, savol surilishi, tanlov "sakrashi" ═══
+(function(){
+  var reduce=false; // foydalanuvchi qarori: bezak animatsiyalari doim ishlaydi
+  // 1) sahifa ochilganda kartalar ketma-ket chiqadi (faqat ochilish paytida)
+  if(typeof showPg==='function'){
+    var _sp=showPg;
+    showPg=function(id){
+      var r=_sp.apply(this,arguments);
+      try{ var el=document.getElementById(id); if(el){ el.classList.remove('pg-enter'); void el.offsetWidth; el.classList.add('pg-enter');
+        clearTimeout(el._etEnter); el._etEnter=setTimeout(function(){ el.classList.remove('pg-enter'); },900); } }catch(e){}
+      return r;
+    };
+  }
+  // 2) tugma to'lqini (ripple)
+  if(!reduce) document.addEventListener('pointerdown',function(e){
+    try{
+      var b=e.target.closest&&e.target.closest('.btn,.tbtn,.rcard,.hub-card,.opt,.tab');
+      if(!b||b.disabled) return;
+      var r=b.getBoundingClientRect(), d=Math.max(r.width,r.height)*2.2, s=document.createElement('span');
+      s.className='et-ripple'; s.style.width=s.style.height=d+'px';
+      s.style.left=(e.clientX-r.left-d/2)+'px'; s.style.top=(e.clientY-r.top-d/2)+'px';
+      var st=getComputedStyle(b), setPos=st.position==='static'; if(setPos) b.style.position='relative';
+      b.classList.add('et-rip-host'); b.appendChild(s);
+      setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); if(!b.querySelector('.et-ripple')){ b.classList.remove('et-rip-host'); if(setPos) b.style.position=''; } },650);
+    }catch(err){}
+  },{passive:true});
+  // 3) savol almashganda surilish, javob tanlanganda "sakrash"
+  var lastIdx=-1, lastTest=null;
+  function hook(){
+    var qb=document.getElementById('t-qbody'); if(!qb||!window.MutationObserver) return;
+    new MutationObserver(function(){
+      try{
+        if(typeof S==='undefined'||!S.test) return;
+        if(S.test!==lastTest){ lastTest=S.test; lastIdx=-1; }
+        if(S.idx!==lastIdx){
+          var cls=S.idx<lastIdx?'et-qin-p':'et-qin-n'; lastIdx=S.idx;
+          qb.classList.remove('et-qin-n','et-qin-p'); void qb.offsetWidth; qb.classList.add(cls);
+        } else {
+          var sel=qb.querySelectorAll('.opt.sel'); for(var i=0;i<sel.length;i++) sel[i].classList.add('et-pop');
+        }
+      }catch(e){}
+    }).observe(qb,{childList:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',hook); else hook();
+})();
+</script>
+<script>
+// ═══ HARAKAT QATLAMI 2 (2026-10-16): javob uchqunlari, har 5 ta javobda rag'bat, natija bayrami ═══
+(function(){
+  var reduce=false; // foydalanuvchi qarori: bezak animatsiyalari doim ishlaydi
+  var CHEER=["Zo'r! Davom eting 🔥","Ajoyib ketyapsiz 💪","Barakalla! ⭐","Shu tezlikda davom! 🚀","Juda yaxshi! 🌟"];
+  function isAns(i){ try{ return typeof _isAns==='function'?_isAns(i):!!(S.answers[i]&&S.answers[i].length); }catch(e){ return false; } }
+  function countAns(){ var n=0; for(var i=0;i<S.test.length;i++) if(isAns(i)) n++; return n; }
+  function spark(el){
+    if(reduce||!el) return;
+    var r=el.getBoundingClientRect(), em=['✨','⭐','🌟'];
+    for(var k=0;k<3;k++){ var s=document.createElement('span'); s.className='et-spark'; s.textContent=em[k%3];
+      s.style.left=(r.left+r.width/2-8)+'px'; s.style.top=(r.top-4)+'px'; s.style.setProperty('--dx',((k-1)*22)+'px');
+      s.style.animationDelay=(k*60)+'ms'; document.body.appendChild(s);
+      (function(x){ setTimeout(function(){ if(x.parentNode) x.parentNode.removeChild(x); },1100); })(s); }
+  }
+  var lastTest=null, lastCnt=0;
+  function onTestChange(){
+    try{
+      if(typeof S==='undefined'||!S.test||!S.test.length) return;
+      if(S.test!==lastTest){ lastTest=S.test; lastCnt=countAns(); return; }
+      var c=countAns();
+      if(c>lastCnt){
+        var b=document.querySelectorAll('#t-qnav .qb')[S.idx];
+        if(b){ b.classList.remove('et-ans-pop'); void b.offsetWidth; b.classList.add('et-ans-pop'); spark(b); }
+        if(c%5===0 && c<S.test.length && typeof showTestToast==='function') showTestToast(c+' ta savol! '+CHEER[Math.floor(Math.random()*CHEER.length)]);
+      }
+      lastCnt=c;
+      var sub=document.getElementById('btn-sub'); if(sub) sub.classList.toggle('et-ready', c===S.test.length);
+    }catch(e){}
+  }
+  function hook(){
+    var qb=document.getElementById('t-qbody'); if(qb&&window.MutationObserver) new MutationObserver(onTestChange).observe(qb,{childList:true});
+    document.addEventListener('input',function(e){ if(e.target&&e.target.closest&&e.target.closest('#t-qbody')) setTimeout(onTestChange,0); },true);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',hook); else hook();
+  // natija bayrami
+  if(typeof showResult==='function'){
+    var _sr=showResult;
+    showResult=function(r){
+      var out=_sr.apply(this,arguments);
+      try{
+        var t=document.getElementById('r-title'); if(t){ t.classList.remove('et-title'); void t.offsetWidth; t.classList.add('et-title'); }
+        var ring=document.getElementById('r-ring');
+        if(ring&&r&&r.pct>=70){ ring.classList.remove('et-glow'); void ring.offsetWidth; ring.classList.add('et-glow'); }
+        if(!reduce&&r){
+          var set=r.pct>=90?['🏆','⭐','🎉','🥇','✨']:r.pct>=70?['👍','⭐','🎉','😊']:r.pct>=50?['💪','🙂','📚']:['💪','📚','🌱'];
+          var n=r.pct>=70?18:8;
+          for(var k=0;k<n;k++){ var e=document.createElement('span'); e.className='et-emoji'; e.textContent=set[k%set.length];
+            e.style.left=(Math.random()*92+2)+'vw'; e.style.fontSize=(20+Math.random()*18)+'px';
+            e.style.setProperty('--t',(2.2+Math.random()*1.6)+'s'); e.style.setProperty('--r',(Math.random()*80-40)+'deg');
+            e.style.animationDelay=(300+Math.random()*900)+'ms'; document.body.appendChild(e);
+            (function(x){ setTimeout(function(){ if(x.parentNode) x.parentNode.removeChild(x); },5200); })(e); }
+        }
+      }catch(e){}
+      return out;
+    };
+  }
+})();
 </script>
 </body>
       </html>
