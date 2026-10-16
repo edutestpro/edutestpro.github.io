@@ -1110,7 +1110,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v181';
+var APP_VER = 'edutest-v182';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -7550,7 +7550,20 @@ if('serviceWorker' in navigator){
     window.swUpdate = function(){
       if(_importInProgress){ window._swPendingSW=newSW; var bb=document.getElementById('sw-update-banner'); if(bb) bb.remove(); try{ var _rf2=document.getElementById('rep-fab'); if(_rf2) _rf2.style.bottom=''; }catch(e){}
         alert("Import davom etmoqda — import tugagach yangilash taklif qilinadi."); return; }
-      window._swUserReload=true; newSW.postMessage({type:'SKIP_WAITING'});
+      // 2026-10-16: banner ko'rsatgan service worker orada yangisi bilan almashtirilgan (eskirgan) bo'lishi mumkin —
+      // unga yuborilgan xabar hech narsa qilmasdi. Endi hozirgi holat tekshiriladi va 1,5 soniyada baribir qayta yuklanadi.
+      window._swUserReload=true;
+      var _done=false;
+      function _go(){ if(_done) return; _done=true; try{ var u=new URL(location.href); u.searchParams.set('v',String(Date.now())); location.replace(u.toString()); }catch(e){ location.reload(); } }
+      try{
+        if(newSW && newSW.state!=='redundant'){ newSW.postMessage({type:'SKIP_WAITING'}); }
+        navigator.serviceWorker.getRegistration().then(function(reg){
+          if(!reg) return;
+          if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+          else reg.update().catch(function(){});
+        }).catch(function(){});
+      }catch(e){}
+      setTimeout(_go,1500);
     };
   }
   window._swShowBanner=_showUpdateBanner;
