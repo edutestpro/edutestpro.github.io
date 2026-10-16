@@ -1088,7 +1088,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v175';
+var APP_VER = 'edutest-v176';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -4291,7 +4291,7 @@ function fireConfetti(count){
 }
 function toggleDetail(){
   showDet=!showDet;var el=document.getElementById('r-det');el.style.display=showDet?'block':'none';
-  if(showDet&&S.lastRes){document.getElementById('r-det-body').innerHTML=S.lastRes.details.map(function(d,i){return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px"><div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+((d.img||d.image)?'<img src="'+imgSrcVal(d.img||d.image)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+(d.type==='open'?openDetailHtml(d):'')+d.options.map(function(opt,oi){var isR=d.correct.indexOf(oi)>=0,isU=d.userAns.indexOf(oi)>=0,bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent',ic=isR?'✅':(isU&&!isR)?'❌':'⬜';var isImg=isImgVal(opt);var optContent=isImg?'<img src="'+imgSrcVal(opt)+'" style="max-height:80px;border-radius:4px;vertical-align:middle;margin-left:4px">':opt;return '<div style="padding:6px 8px;border-radius:6px;font-size:13px;background:'+bg+';margin-bottom:4px">'+ic+' '+String.fromCharCode(65+oi)+'. '+optContent+(isR?'<span style="color:#16a34a;font-size:11px;font-weight:700;margin-left:6px">(To\'g\'ri)</span>':'')+'</div>';}).join('')+'</div>';}).join('');renderMathIn(document.getElementById('r-det-body'));}
+  if(showDet&&S.lastRes){document.getElementById('r-det-body').innerHTML=S.lastRes.details.map(function(d,i){return '<div style="padding:12px;border-radius:9px;background:'+_dBg(d)+';border:1px solid '+_dBd(d)+';margin-bottom:9px">'+_dTag(d)+'<div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+((d.img||d.image)?'<img src="'+imgSrcVal(d.img||d.image)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+(d.type==='open'?openDetailHtml(d):'')+d.options.map(function(opt,oi){var isR=d.correct.indexOf(oi)>=0,isU=d.userAns.indexOf(oi)>=0,bg=isR?'#dcfce7':(isU&&!isR)?'#fee2e2':'transparent',ic=isR?'✅':(isU&&!isR)?'❌':'⬜';var isImg=isImgVal(opt);var optContent=isImg?'<img src="'+imgSrcVal(opt)+'" style="max-height:80px;border-radius:4px;vertical-align:middle;margin-left:4px">':opt;return '<div style="padding:6px 8px;border-radius:6px;font-size:13px;background:'+bg+';margin-bottom:4px">'+ic+' '+String.fromCharCode(65+oi)+'. '+optContent+(isR?'<span style="color:#16a34a;font-size:11px;font-weight:700;margin-left:6px">(To\'g\'ri)</span>':'')+'</div>';}).join('')+'</div>';}).join('');renderMathIn(document.getElementById('r-det-body'));}
 }
 
 var _curQFolder=null;
@@ -5055,6 +5055,17 @@ function renderResults(){
   var f=res.filter(function(r){return(!sn||r.student.toLowerCase().indexOf(sn)>=0)&&(!cl||r.cls===cl||r.class===cl)&&(!mo||r.mode===mo);}).slice().reverse();
   document.getElementById('r-tbody').innerHTML=f.slice(0,200).map(function(r,i){var bc=r.pct>=70?'bgr':r.pct>=50?'byl':'brd';var c=r.cls||r.class||'';var idAttr=r.id?"'"+r.id+"'":'null';return '<tr><td>'+(i+1)+'</td><td><strong>'+r.student+'</strong></td><td>'+c+'</td><td class="ts">'+r.topic+'</td><td>'+r.correct+'/'+r.total+'</td><td><span class="bdg '+bc+'">'+r.pct+'%</span></td><td><span class="bdg '+(r.mode==='exam'?'bbl':'bgy')+'">'+(r.mode==='exam'?'Imtihon':'Sinov')+'</span></td><td class="ts tm">'+r.date+'</td><td>'+(r.details&&r.details.length?'<button class="btn bpu bsm" onclick="showResultDetail('+idAttr+')">&#x1F50D; Batafsil</button>':'<span class="ts tm">-</span>')+'</td></tr>';}).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--mut)">Natijalar yo\'q</td></tr>';
 }
+// 2026-10-16: javob belgilanmagan savol natija ro'yxatida xato emas, "Belgilanmagan" deb ko'rsatiladi
+function _dUnm(d){
+  try{
+    var a=d.userAns||[];
+    if(d.type==='open') return !String(a[0]==null?'':a[0]).trim();
+    return !a.some(function(x){ return x!=null && String(x).trim()!==''; });
+  }catch(e){ return false; }
+}
+function _dBg(d){ return _dUnm(d)?'#f3f4f6':(d.ok?'#f0fdf4':'#fff7f7'); }
+function _dBd(d){ return _dUnm(d)?'#d1d5db':(d.ok?'#bbf7d0':'#fecaca'); }
+function _dTag(d){ return _dUnm(d)?'<div style="display:inline-block;font-size:11px;font-weight:700;color:#475569;background:#e2e8f0;border-radius:999px;padding:2px 10px;margin-bottom:7px">&#9675; Belgilanmagan</div>':''; }
 function showResultDetail(id){
   if(!id){alert('Bu natija uchun batafsil malumot saqlanmagan (eski yozuv).');return;}
   var db=getDB();
@@ -5066,7 +5077,7 @@ function showResultDetail(id){
     (r.exits?'<div class="alt aw" style="margin-bottom:10px">&#x26A0;&#xFE0F; Test davomida ilovadan '+r.exits+' marta chiqib ketgan (jami '+(r.awaySec||0)+' soniya).</div>':'')+
     r.details.map(function(d,i){
       var imgSrc=d.img||d.image||'';
-      return '<div style="padding:12px;border-radius:9px;background:'+(d.ok?'#f0fdf4':'#fff7f7')+';border:1px solid '+(d.ok?'#bbf7d0':'#fecaca')+';margin-bottom:9px">'+
+      return '<div style="padding:12px;border-radius:9px;background:'+_dBg(d)+';border:1px solid '+_dBd(d)+';margin-bottom:9px">'+_dTag(d)+
         '<div style="font-weight:700;margin-bottom:7px">'+(i+1)+'. '+d.text+'</div>'+
         (imgSrc?'<img src="'+imgSrcVal(imgSrc)+'" style="max-width:100%;max-height:320px;border-radius:6px;margin-bottom:8px;display:block;background:#fff;padding:4px">':'')+
         (d.type==='open'?openDetailHtml(d):'')+
