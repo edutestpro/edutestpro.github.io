@@ -259,7 +259,9 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 4px rgba(91,62,166,.15)
 .tg-logo{display:inline-block;width:1.25em;height:1.25em;vertical-align:-.28em;margin-right:.35em;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='%2337aee2'/><path fill='%23fff' d='M54 118.4l112.4-48.3c5.2-2.3 9.8 1.3 8.1 9.1l-19.1 90.2c-1.4 6.4-5.2 7.9-10.6 4.9l-29.1-21.5-14 13.5c-1.5 1.5-2.9 2.9-5.8 2.9l2.1-29.6 53.9-48.7c2.3-2.1-.5-3.2-3.6-1.2L81.6 137.2l-28.7-9c-6.2-2-6.4-6.2 1.3-9.2z'/></svg>") center/contain no-repeat;border-radius:50%;box-shadow:0 0 0 0 rgba(55,174,226,.5);animation:tgPulse 2.8s ease-in-out infinite}
 @keyframes tgPulse{0%,100%{box-shadow:0 0 0 0 rgba(55,174,226,.45)}50%{box-shadow:0 0 0 6px rgba(55,174,226,0)}}
 /* ═══ 2D PIKSEL FON (2026-10-16) ═══ */
-#pxBg{position:fixed;inset:0;width:100%;height:100%;z-index:-3;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+html{background:#0a0e2c!important}
+#pxBg{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100lvh;z-index:-3;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges;display:block;
+  transform:translate3d(0,0,0);will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#0a0e2c}
 #heroArt{display:none!important}
 body{animation:none!important;background:#0a0e2c!important}
 #mathBg span{color:rgba(255,255,255,.2)!important;text-shadow:2px 2px 0 rgba(10,14,44,.35)}
@@ -1095,7 +1097,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v177';
+var APP_VER = 'edutest-v178';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -9679,7 +9681,7 @@ function sendReport(){
 (function(){
   var cv=document.createElement('canvas'); cv.id='pxBg'; cv.setAttribute('aria-hidden','true');
   var ctx=cv.getContext&&cv.getContext('2d'); if(!ctx) return;
-  var H=200, W=100, st=null, last=0, T0=Date.now(), raf=0;
+  var H=200, W=100, st=null, last=0, T0=Date.now(), raf=0, scrollUntil=0;
   var SKY=['#0a0e2c','#111650','#1a1f6a','#2a2584','#40338f','#6a3f98','#a14f94','#d4647a','#f08a62','#f7b663'];
   function hex(c){ var n=parseInt(c.slice(1),16); return [n>>16&255,n>>8&255,n&255]; }
   var BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
@@ -9752,7 +9754,7 @@ function sendReport(){
   function frame(now){
     raf=requestAnimationFrame(frame);
     if(document.hidden||!st) return;
-    if(now-last<66) return; last=now;
+    if(now-last<100) return; if(Date.now()<scrollUntil) return; last=now;
     var t=(Date.now()-T0)/1000, i;
     ctx.drawImage(st.off,0,0);
     // yulduzlar miltillaydi
@@ -9761,7 +9763,7 @@ function sendReport(){
       if(s.big&&a>.7){ px('#fff6cf',s.x-1,s.y,3,1); px('#fff6cf',s.x,s.y-1,1,3); }
       ctx.globalAlpha=1; }
     // bulutlar suzadi
-    for(i=0;i<st.clouds.length;i++){ var c=st.clouds[i]; c.x+=c.v*0.066*8; if(c.x>W+16) c.x=-18; cloud(c); }
+    for(i=0;i<st.clouds.length;i++){ var c=st.clouds[i]; c.x+=c.v*0.1*8; if(c.x>W+16) c.x=-18; cloud(c); }
     // maktab oynalari chaqnaydi
     for(i=0;i<st.wins.length;i++){ var lit=((Math.floor(t/2.5)+i*3)%5)!==0; px(lit?'#ffd86b':'#6b5aa8',st.wins[i][0],st.wins[i][1],2,2); }
     // uchar yulduz
@@ -9776,6 +9778,8 @@ function sendReport(){
     document.body.insertBefore(cv,document.body.firstChild);
     build(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame);
     var rt=0; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,250); });
+    window.addEventListener('scroll',function(){ scrollUntil=Date.now()+220; },{passive:true,capture:true});
+    window.addEventListener('touchmove',function(){ scrollUntil=Date.now()+220; },{passive:true});
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
