@@ -1166,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v195';
+var APP_VER = 'edutest-v196';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -7977,6 +7977,7 @@ function _fsGate(){
     g.innerHTML='<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:360px;text-align:center;color:#0f172a">'+
       '<div style="font-size:40px">&#x1F4DD;</div><h3 style="margin:8px 0">Test davom etmoqda</h3>'+
       '<p style="font-size:14px;color:#475569;margin-bottom:16px">Sahifa yangilandi. Javoblaringiz saqlangan. Davom ettirish uchun ekranning istalgan joyini bosing — test yana to\'liq ekranda ochiladi.</p>'+
+      '<p id="fs-gate-warn" style="font-size:14px;font-weight:700;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;margin:0 0 16px">&#x26A0;&#xFE0F; Diqqat: boshqa ilovaga yoki oynaga o\'tib ketsangiz, test to\'xtatiladi va tugaydi.</p>'+
       '<button type="button" class="btn bpu" style="width:100%" id="fs-gate-btn">&#x25B6; Testni davom ettirish</button></div>';
     document.body.appendChild(g); }
   if(!req){ var pp=g.querySelector('p'); if(pp) pp.innerHTML='Sahifa yangilandi. Javoblaringiz saqlangan.<br><b>Diqqat:</b> test davomida boshqa ilovaga o\'tsangiz yoki ekranni o\'chirsangiz, chiqib ketsangiz (telefon qo\'ng\'irog\'i, boshqa ilova, Gemini, Siri) test darhol yakunlanadi.'; }
