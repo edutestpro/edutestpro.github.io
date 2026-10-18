@@ -273,6 +273,58 @@ html[data-px=day] #pxModeBtn{background:rgba(255,255,255,.85);border-color:rgba(
 #pxModeBtn:active{transform:scale(.88) rotate(25deg)}
 @media (hover:hover){#pxModeBtn:hover{transform:scale(1.1) rotate(-12deg)}}
 body:has(#pg-test.on) #pxModeBtn{display:none}
+/* ═══ TUNGI REJIM (2026-10-18): tun tanlanganda asosiy kartalar, oynalar va maydonlar ham qorong'u bo'ladi ═══ */
+html[data-px=night]{--txt:#e8ecff;--mut:#9aa6d4;--bdr:rgba(150,165,240,.26);--card:#141a4a;--bg:#0a0e2c;color-scheme:dark}
+/* asosiy sirtlar */
+html[data-px=night] .card{background:rgba(14,19,58,.9)!important;border-color:rgba(150,165,240,.2)!important;color:var(--txt);box-shadow:0 10px 34px -10px rgba(0,0,0,.6)}
+html[data-px=night] .modal,html[data-px=night] .tour-modal,html[data-px=night] #rep-box,html[data-px=night] #tour-tip{background:#121850!important;color:var(--txt)!important;border:1px solid rgba(150,165,240,.25)}
+html[data-px=night] .rcard,html[data-px=night] .tbtn,html[data-px=night] .hub-card,html[data-px=night] .sg-card,html[data-px=night] .fc-deck,html[data-px=night] .fc-box,html[data-px=night] .aqt-card,
+html[data-px=night] .gm-card,html[data-px=night] .gm-opt,html[data-px=night] .ms-tile,html[data-px=night] .ms-subj,html[data-px=night] .en-lv,html[data-px=night] .en-pass,html[data-px=night] .qb,
+html[data-px=night] .opt,html[data-px=night] .symb,html[data-px=night] .pb,html[data-px=night] .tmr,html[data-px=night] .sarea,html[data-px=night] .brd,html[data-px=night] .lv-badge,html[data-px=night] .fc-back{background:rgba(24,31,92,.84)!important;color:var(--txt)!important;border-color:var(--bdr)!important}
+html[data-px=night] .rcard:hover,html[data-px=night] .tbtn:hover,html[data-px=night] .sg-card:hover,html[data-px=night] .opt:hover,html[data-px=night] .symb:hover,html[data-px=night] .darea:hover,html[data-px=night] tr:hover td{background:rgba(130,150,255,.18)!important}
+html[data-px=night] .opt.sel,html[data-px=night] .tbtn.on,html[data-px=night] .hub-card.on,html[data-px=night] .aqt-card.on,html[data-px=night] .en-lv.on,html[data-px=night] .qb.cur{background:rgba(120,140,255,.28)!important;border-color:#8a9bff!important}
+html[data-px=night] .qb.ans{background:rgba(34,197,94,.25)!important}
+html[data-px=night] .tabs,html[data-px=night] .sg-bar,html[data-px=night] .ms-bar,html[data-px=night] .fc-bar,html[data-px=night] .aqf-words,html[data-px=night] .aqf-w,html[data-px=night] .aqf-ans{background:rgba(255,255,255,.08)!important;color:var(--txt)!important}
+html[data-px=night] .tab{color:#aeb9ea}
+html[data-px=night] .tab.on{background:rgba(120,140,255,.3)!important;color:#fff!important}
+/* tugmalar */
+html[data-px=night] .btn.bg,html[data-px=night] .bg,html[data-px=night] .bgy,html[data-px=night] .bwh,html[data-px=night] .byl,html[data-px=night] .bpu2{background:rgba(255,255,255,.1)!important;color:#e8ecff!important;border-color:var(--bdr)!important}
+html[data-px=night] .btn.bp{background:#4658d4!important;color:#fff!important}
+/* maydonlar */
+html[data-px=night] input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=submit]):not([type=button]),html[data-px=night] select,html[data-px=night] textarea{background:rgba(255,255,255,.08)!important;color:var(--txt)!important;border-color:var(--bdr)!important}
+html[data-px=night] ::placeholder{color:#8591c4!important;opacity:1}
+html[data-px=night] math-field,html[data-px=night] .mathedit{background:rgba(255,255,255,.06)!important;color:var(--txt)!important;--text-color:#e8ecff}
+html[data-px=night] option{background:#121850;color:#e8ecff}
+/* xabarlar (alert) */
+html[data-px=night] .alt.ai,html[data-px=night] .ai{background:rgba(90,130,255,.18)!important;color:#bcd0ff!important}
+html[data-px=night] .alt.as,html[data-px=night] .as{background:rgba(34,197,94,.17)!important;color:#9ae6b4!important}
+html[data-px=night] .alt.ar,html[data-px=night] .ar{background:rgba(239,68,68,.2)!important;color:#fecaca!important}
+html[data-px=night] .alt.aw,html[data-px=night] .aw{background:rgba(245,158,11,.2)!important;color:#fde68a!important}
+/* jadvallar */
+html[data-px=night] th{background:rgba(255,255,255,.1)!important;color:#dfe5ff!important}
+html[data-px=night] td{border-color:var(--bdr)!important;color:var(--txt)}
+/* inline berilgan och ranglar */
+html[data-px=night] [style*="background:#fff;"],html[data-px=night] [style*="background:#fff\""],html[data-px=night] [style*="background: #fff"],html[data-px=night] [style*="background:#ffffff"],
+html[data-px=night] [style*="background:#f8fafc"],html[data-px=night] [style*="background:#f1f5f9"],html[data-px=night] [style*="background:#f3f4f6"],html[data-px=night] [style*="background:#e5e7eb"],html[data-px=night] [style*="background:#f8faff"],html[data-px=night] [style*="background:#fafbff"],
+html[data-px=night] [style*="background:#f5f6fb"],html[data-px=night] [style*="background:#f8f9fa"],html[data-px=night] [style*="background:#f2f2f2"],html[data-px=night] [style*="background:#eef0f5"],html[data-px=night] [style*="background:#eef1f9"]{background:rgba(255,255,255,.07)!important;color:var(--txt)}
+html[data-px=night] [style*="background:#eef1ff"],html[data-px=night] [style*="background:#eef2ff"],html[data-px=night] [style*="background:#f5f3ff"],html[data-px=night] [style*="background:#ede9fe"],html[data-px=night] [style*="background:#e8eaf6"],html[data-px=night] [style*="background:#dbeafe"],html[data-px=night] [style*="background:#e8f4fd"],html[data-px=night] [style*="background:#e2e8f0"]{background:rgba(120,140,255,.2)!important;color:#dbe4ff}
+html[data-px=night] [style*="background:#f0fdf4"],html[data-px=night] [style*="background:#dcfce7"],html[data-px=night] [style*="background:#e8f5e9"]{background:rgba(34,197,94,.18)!important;color:#c9f7da}
+html[data-px=night] [style*="background:#fff7f7"],html[data-px=night] [style*="background:#fee2e2"]{background:rgba(239,68,68,.2)!important;color:#ffd5d5}
+html[data-px=night] [style*="background:#fef3c7"],html[data-px=night] [style*="background:#fff7ed"],html[data-px=night] [style*="background:#fefce8"]{background:rgba(245,158,11,.2)!important;color:#ffe7a8}
+/* inline to'q matn ranglari */
+html[data-px=night] [style*="color:#111"],html[data-px=night] [style*="color:#1e2a3a"],html[data-px=night] [style*="color:#111827"],html[data-px=night] [style*="color:#334155"],html[data-px=night] [style*="color:#0f172a"],html[data-px=night] [style*="color:#1e293b"],html[data-px=night] [style*="color:#25316d"]{color:var(--txt)!important}
+html[data-px=night] [style*="color:#64748b"],html[data-px=night] [style*="color:#475569"],html[data-px=night] [style*="color:#94a3b8"],html[data-px=night] [style*="color:#9ca3af"],html[data-px=night] [style*="color:#888"]{color:var(--mut)!important}
+html[data-px=night] [style*="color:#166534"],html[data-px=night] [style*="color:#15803d"],html[data-px=night] [style*="color:#16a34a"]{color:#86efac!important}
+html[data-px=night] [style*="color:#991b1b"],html[data-px=night] [style*="color:#b91c1c"],html[data-px=night] [style*="color:#dc2626"]{color:#fca5a5!important}
+html[data-px=night] [style*="color:#9a3412"],html[data-px=night] [style*="color:#92400e"],html[data-px=night] [style*="color:#713f12"]{color:#fcd34d!important}
+html[data-px=night] [style*="color:#1e40af"],html[data-px=night] [style*="color:#1565c0"],html[data-px=night] [style*="color:#4338ca"],html[data-px=night] [style*="color:#5b3ea6"]{color:#a9bcff!important}
+/* boshqa */
+html[data-px=night] .tm,html[data-px=night] .ts.tm,html[data-px=night] small{color:var(--mut)}
+html[data-px=night] h1,html[data-px=night] h2,html[data-px=night] h3,html[data-px=night] label{color:var(--txt)}
+html[data-px=night] a{color:#a9bcff}
+html[data-px=night] #rep-fab{background:rgba(18,24,80,.9)!important;color:#e8ecff!important;border-color:var(--bdr)!important}
+html[data-px=night] #g-signin-box .or:before,html[data-px=night] #g-signin-box .or:after{background:var(--bdr)!important}
+html[data-px=night] .card::-webkit-scrollbar-thumb{background:rgba(150,165,240,.3)}
 </style>
 <script>try{var _p=JSON.parse(sessionStorage.getItem('et_pre')||'null');if(sessionStorage.getItem('et_sess')||(_p&&_p.pg==='pg-auth'))document.documentElement.classList.add('et-restoring');}catch(e){}setTimeout(function(){document.documentElement.classList.remove('et-restoring');},3000);</script>
 <style>html.et-restoring .pg{visibility:hidden}</style>
@@ -1100,7 +1152,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v185';
+var APP_VER = 'edutest-v186';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
