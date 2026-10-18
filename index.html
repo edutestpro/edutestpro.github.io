@@ -57,6 +57,7 @@ body{background:linear-gradient(125deg,#151b3d,var(--purd) 30%,var(--pri) 55%,va
 .nav{background:rgba(21,27,61,.55);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#fff;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 20px rgba(15,23,42,.3);border-bottom:1px solid rgba(255,255,255,.12)}
 .logo{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.2px}
 .nav-r{display:flex;gap:8px;align-items:center;font-size:13px}
+.nav .logo{flex-shrink:0;white-space:nowrap}.nav-r{min-width:0;justify-content:flex-end}#nav-user{min-width:0;max-width:30vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:10px}@media(max-width:430px){#nav-user{display:none}}
 .main{max-width:860px;margin:0 auto;padding:20px 14px}
 /* TUZATISH */
 button,input,select,textarea{font-family:inherit}
@@ -447,7 +448,7 @@ html[data-px=night] #tab-rg.on{background:#7a4fd6!important;color:#fff!important
       </div>
       <div id="form-li">
         <div class="fg"><label>Login</label><input type="text" id="li-u" placeholder="Login" enterkeyhint="next" onkeydown="if(event.key==='Enter'){event.preventDefault();var p=document.getElementById('li-p');p.removeAttribute('readonly');p.focus();}" autocomplete="off" data-lpignore="true" data-1p-ignore readonly onfocus="this.removeAttribute('readonly')"></div>
-        <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="li-p" placeholder="Parol" enterkeyhint="go" style="padding-right:38px" autocomplete="new-password" data-lpignore="true" data-1p-ignore onkeydown="if(event.key==='Enter')doLogin()" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('li-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
+        <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="li-p" placeholder="Parol" enterkeyhint="go" style="padding-right:38px" autocomplete="current-password" data-lpignore="true" data-1p-ignore onkeydown="if(event.key==='Enter')doLogin()" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('li-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
         <a class="fp-link" onclick="openForgot()">Parolni unutdingizmi?</a>
         <button class="btn bp bfw blg mt8" onclick="doLogin()">Kirish</button>
         <div id="g-signin-box" style="display:none"><div class="or">yoki</div><div id="g-signin"></div></div>
@@ -821,9 +822,9 @@ html[data-px=night] #tab-rg.on{background:#7a4fd6!important;color:#fff!important
       <div class="darea" id="drop-area" onclick="document.getElementById('exe-inp').click()">
         <div style="font-size:36px">📂</div>
         <div style="font-weight:700;margin-top:6px">Bosing yoki faylni shu yerga tashlang</div>
-        <div class="ts tm">.exe, .docx, .pdf, .txt, .jpg, .png</div>
+        <div class="ts tm">.exe, Word, Excel, CSV, PDF, TXT, rasm</div>
       </div>
-      <input type="file" id="exe-inp" accept=".exe,.docx,.pdf,.txt,.jpg,.jpeg,.png" multiple style="display:none">
+      <input type="file" id="exe-inp" accept=".exe,.docx,.doc,.xlsx,.xls,.csv,.pdf,.txt,.rtf,.odt,.ods,.jpg,.jpeg,.png" multiple style="display:none">
       <div id="imp-msg" style="margin-top:10px"></div>
     </div>
     <div class="card" style="border:2px solid var(--purd)">
@@ -1162,7 +1163,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v188';
+var APP_VER = 'edutest-v189';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -4217,7 +4218,8 @@ function renderTopicDetail(t){
       '<td>'+(qi+1)+'</td>'+
       '<td style="max-width:200px;font-size:13px">'+(q.image?'🖼 ':'')+(q.text||'').substring(0,60)+'...</td>'+
       '<td style="font-size:12px;color:var(--color-text-secondary)">'+opts+'</td>'+
-      '<td><span class="bdg" style="background:#e8f5e9;color:#2e7d32">'+correctOpts+'</span></td>'+
+      '<td>'+((q.correct||[]).length||q.type==='open'?'<span class="bdg" style="background:#e8f5e9;color:#2e7d32">'+correctOpts+'</span>':'<span class="bdg" style="background:#fee2e2;color:#b91c1c" title="Javob belgilanmagan — tahrirlab belgilang">Javob yo\'q</span>')+
+        (q.aiAnswer?' <span class="bdg" style="background:#fef3c7;color:#92400e" title="Javob faylda belgilanmagan edi — AI tanladi. Tekshirib saqlang">AI</span>':'')+'</td>'+
       '<td style="display:flex;gap:4px">'+
         '<button class="btn bs bsm" onclick="editQByIdx('+qi+')" title="Tahrirlash">✏️</button>'+
         '<button class="btn bd bsm" onclick="deleteQByIdx('+qi+')" title="Ochirish">🗑️</button>'+
@@ -4322,6 +4324,7 @@ function saveEditQ(){
     if(cor&&cor.checked)newCorr.push(i);
   });
   if(newCorr.length)uq.correct=newCorr;
+  if(newCorr.length){ delete uq.aiAnswer; delete uq.noAnswer; delete uq.aiWarn; }
   saveDB(db);
   closeEditQ();
   renderTopicDetail(topic);
@@ -4448,7 +4451,7 @@ function sendCollabRequest(){
   if(dup){ msg.innerHTML='<div class="alt aw">Bu ustozga allaqachon sorov yuborilgan yoki hamkorlik faol.</div>'; return; }
   var c={id:'cb'+Date.now(), fromId:ME.id, toId:target.id, status:'pending', createdAt:Date.now()};
   db.collaborations.push(c);
-  addNotification(db, target.id, '\u1F91D Hamkorlik sorovi', ME.name+' sizga hamkorlik taklif qilmoqda - "Hamkorlik" bolimida korib, qabul yoki rad etishingiz mumkin.');
+  addNotification(db, target.id, '🤝 Hamkorlik so\'rovi', ME.name+' sizga hamkorlik taklif qilmoqda - "Hamkorlik" bolimida korib, qabul yoki rad etishingiz mumkin.');
   saveDB(db);
   msg.innerHTML='<div class="alt as">So\'rov yuborildi!</div>';
   document.getElementById('collab-target-login').value='';
@@ -5678,7 +5681,7 @@ document.getElementById('book-inp').addEventListener('change',function(){
   this.value='';
 });
 function checkAndAskFolderForBook(file){
-  if(!isDocFile(file.name)){
+  if(!/\.(docx|pdf|txt)$/i.test(file.name)){
     document.getElementById('book-msg').innerHTML='<div class="alt ar">&#x274C; Faqat .docx, .pdf, .txt fayllar qabul qilinadi.</div>';
     return;
   }
@@ -6058,7 +6061,7 @@ async function distributedExeImport(files, folderName, msg){
           if(fr && !fr.error){
             var origFilename=filesData[localIdx] && filesData[localIdx].filename;
             if(origFilename){
-              fr.topic=origFilename.replace(/\.(exe|docx|pdf|txt|jpe?g|png)$/i,'');
+              fr.topic=origFilename.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'');
             }
           }
           allFileResults[startFileIdx+localIdx]=fr;
@@ -6396,7 +6399,7 @@ function sendToServer(file,msg,server){
             if(result.error)throw new Error(result.error);
             if(!result.questions||!result.questions.length)throw new Error('Savollar topilmadi');
             var qs=result.questions.map(function(q){if(q.image){q.img=q.image;delete q.image;}if(q.isMulti===undefined)q.isMulti=(q.correct||[]).length>1;return q;});
-            var topicFromFilename=file.name.replace(/\.(exe|docx|pdf|txt|jpe?g|png)$/i,'');
+            var topicFromFilename=file.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'');
             await saveImportedQs({qs:qs,topic:topicFromFilename,questionsToAsk:result.questionsToAsk},msg);
             resolve(true);
           }catch(e){
@@ -6435,7 +6438,7 @@ function getMyFolders(){
 }
 var _fpPendingFile=null;
 var _pendingImportSubject=null; // fan tanlash
-function isDocFile(name){ return /\.(docx|pdf|txt)$/i.test(name); }
+function isDocFile(name){ return /\.(docx|doc|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods)$/i.test(name); }
 function isExeFile(name){ return /\.exe$/i.test(name); }
 function isImageFile(name){ return /\.(jpe?g|png)$/i.test(name); }
 var _fpMode='import';
@@ -6468,7 +6471,7 @@ function askFolderThenImport(file,mode){
       return '<div class="tbtn" style="text-align:left;padding:10px 12px" onclick="submitFP(\''+esc+'\',false)">&#x1F4D8; '+fn+'</div>';
     }).join('');
   }
-  var defaultName=file.name.replace(/\.(exe|docx|pdf|txt|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||'Yangi fayl';
+  var defaultName=file.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||'Yangi fayl';
   document.getElementById('fp-newname').value=defaultName;
   document.getElementById('fp-modal').style.display='flex';
 }
@@ -6608,7 +6611,7 @@ function importMultipleFiles(files,suggestedFolder){
   var imgFiles=valid.filter(function(f){return isImageFile(f.name);});
   var unsupported=valid.filter(function(f){return !isExeFile(f.name)&&!isDocFile(f.name)&&!isImageFile(f.name);});
   if(!exeFiles.length && !docFiles.length && !imgFiles.length){
-    msg.innerHTML='<div class="alt ar">&#x274C; Qollab-quvvatlanmaydigan fayl turi. Faqat .exe, .docx, .pdf, .txt, .jpg, .png fayllar qabul qilinadi.</div>';
+    msg.innerHTML='<div class="alt ar">&#x274C; Qollab-quvvatlanmaydigan fayl turi. Faqat .exe, Word (.docx, .doc), Excel (.xlsx, .xls), .csv, .pdf, .txt, .rtf, .odt, .jpg, .png fayllar qabul qilinadi.</div>';
     return;
   }
   var unsupportedNote=unsupported.length?(' ('+unsupported.length+' ta qollab-quvvatlanmaydigan fayl otkazib yuborildi)'):'';
@@ -6649,7 +6652,7 @@ function askFolderThenImportBatch(exeFiles, docFiles, imgFiles, suggestedFolder,
   }
   var totalCount=(exeFiles?exeFiles.length:0)+(docFiles?docFiles.length:0)+(imgFiles?imgFiles.length:0);
   var firstFile=(docFiles&&docFiles[0])||(imgFiles&&imgFiles[0])||(exeFiles&&exeFiles[0])||{name:''};
-  var defaultName=suggestedFolder||firstFile.name.replace(/\.(exe|docx|pdf|txt|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||('Kitob ('+totalCount+' ta fayl)');
+  var defaultName=suggestedFolder||firstFile.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||('Kitob ('+totalCount+' ta fayl)');
   document.getElementById('fp-newname').value=defaultName;
   document.getElementById('fp-modal').style.display='flex';
 }
@@ -6665,6 +6668,22 @@ function importExeAsync(file){
 }
 
 // WORD/PDF/TXT IMPORT (AI asosida) — PARALLEL
+// Import natijasi: javob qayerdan olingani (fayldan / AI / yo'q)
+function _docImportSummary(name, d, qs){
+  var _esc=function(t){ return String(t||'').replace(/<[^>]+>/g,' ').replace(/[<>&"]/g,'').slice(0,45); };
+  var out='&#x2705; "'+_esc(name)+'" — '+qs.length+' ta savol';
+  if(d&&d.method==='smart'){
+    out+=': '+(d.marked||0)+' tasining javobi fayldan topildi';
+    if(d.aiAnswered) out+=', <b style="color:#b45309">'+d.aiAnswered+' tasini AI tanladi — tekshiring</b>';
+    if(d.noAnswer) out+=', <b style="color:#dc2626">'+d.noAnswer+' tasida javob yo\'q — o\'zingiz belgilang</b>';
+    var w=qs.filter(function(q){ return q.aiAnswer||q.noAnswer; });
+    if(w.length) out+='<br><span class="ts">'+w.slice(0,5).map(function(q){ return '"'+_esc(q.text)+'…"'; }).join('; ')+(w.length>5?' …':'')+'</span>';
+  } else {
+    var _w=qs.filter(function(q){return q.aiWarn;});
+    out+=' (AI orqali o\'qildi)'+(_w.length?' — &#x26A0;&#xFE0F; '+_w.length+' ta savol shubhali, javobini tekshiring: '+_w.slice(0,3).map(function(q){ return '"'+_esc(q.text)+'…"'; }).join('; '):'');
+  }
+  return out;
+}
 function sendDocumentToServer(file){
   return new Promise(function(resolve){
     var reader=new FileReader();
@@ -6694,7 +6713,7 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
   var msg=document.getElementById('imp-msg');
   var folderName=suggestedFolder;
   if(!folderName && files.length>1){
-    var defaultName=files[0].name.replace(/\.(docx|pdf|txt)$/i,'').replace(/[\s_-]*\d+$/,'')||'Kitob 1';
+    var defaultName=files[0].name.replace(/\.(docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods)$/i,'').replace(/[\s_-]*\d+$/,'')||'Kitob 1';
     folderName=prompt('Bu '+files.length+' ta faylni bitta "kitob" nomiga birlashtiramiz.\nKitob nomini tasdiqlang yoki ozgartiring:', defaultName);
     if(folderName===null)return;
     folderName=folderName.trim()||'Kitob';
@@ -6715,7 +6734,7 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
     while(nextIdx<files.length){
       var i=nextIdx++;
       if(!checkAndIncrementUsage('questions', 5)){ status[i]='&#x23F8; to\'xtatildi (oylik limit)'; renderStatus(); continue; }
-      status[i]='&#x23F3; "'+files[i].name+'" AI orqali tahlil qilinmoqda... ('+(i+1)+'/'+files.length+')';
+      status[i]='&#x23F3; "'+files[i].name+'" o\'qilmoqda... ('+(i+1)+'/'+files.length+')';
       renderStatus();
       var res=await sendDocumentToServer(files[i]);
       if(res.ok){
@@ -6723,9 +6742,7 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
         var pMsg={set innerHTML(html){status[i]=html.replace(/<[^>]+>/g,'');renderStatus();}};
         await saveImportedQs({qs:qs, topic:res.data.topic, questionsToAsk:res.data.questionsToAsk}, pMsg);
         okTotal++;
-        var _w=qs.filter(function(q){return q.aiWarn;});
-        status[i]='&#x2705; "'+files[i].name+'" tayyor'+(_w.length?' — &#x26A0;&#xFE0F; '+_w.length+' ta savol AI tekshiruvida shubhali, javobini tekshiring: '+
-          _w.slice(0,3).map(function(q){ return '"'+String(q.text||'').replace(/<[^>]+>/g,'').slice(0,40)+'…" ('+q.aiWarn+')'; }).join('; ')+(_w.length>3?' …':''):'');
+        status[i]=_docImportSummary(files[i].name, res.data, qs);
       } else {
         errTotal++;
         failedNames.push(res.filename+' ('+res.error+')');
@@ -6740,7 +6757,7 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
   _pendingImportFolder=null;
   window._batchImportMode=false;
   var bgNote=_importWasBackgrounded?'<div class="ts tm" style="margin-top:6px">&#x2139;&#xFE0F; Ekran/ilova fonga otganini aniqladik - agar xato uchragan bolsa, shu sabab bolishi mumkin.</div>':'';
-  var summary='<div class="alt '+(errTotal?'aw':'as')+'">'+(okTotal?('&#x2705; '+okTotal+' ta fayldan savollar import qilindi!'):'')+
+  var summary='<div class="alt '+(errTotal?'aw':'as')+'">'+(okTotal?status.filter(function(x){ return x&&x.indexOf('&#x2705;')===0; }).join('<br>'):'')+
     (errTotal?('<br>&#x274C; '+errTotal+' ta faylda xato: '+failedNames.join('; ')):'')+'</div>'+bgNote;
   msg.innerHTML=summary;
   releaseImportWakeLock();
