@@ -450,7 +450,7 @@ html[data-px=night] #tab-rg.on{background:#7a4fd6!important;color:#fff!important
       </div>
       <div id="form-li">
         <div class="fg"><label>Login</label><input type="text" id="li-u" placeholder="Login" enterkeyhint="next" onkeydown="if(event.key==='Enter'){event.preventDefault();var p=document.getElementById('li-p');p.removeAttribute('readonly');p.focus();}" autocomplete="off" data-lpignore="true" data-1p-ignore readonly onfocus="this.removeAttribute('readonly')"></div>
-        <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="li-p" placeholder="Parol" enterkeyhint="go" style="padding-right:38px" autocomplete="current-password" data-lpignore="true" data-1p-ignore onkeydown="if(event.key==='Enter')doLogin()" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('li-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
+        <div class="fg"><label>Parol</label><div style="position:relative"><input type="text" id="li-p" class="pwmask" placeholder="Parol" enterkeyhint="go" style="padding-right:38px" autocomplete="off" data-lpignore="true" data-1p-ignore onkeydown="if(event.key==='Enter')doLogin()" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('li-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
         <a class="fp-link" onclick="openForgot()">Parolni unutdingizmi?</a>
         <button class="btn bp bfw blg mt8" onclick="doLogin()">Kirish</button>
         <div id="g-signin-box" style="display:none"><div class="or">yoki</div><div id="g-signin"></div></div>
@@ -500,7 +500,7 @@ html[data-px=night] #tab-rg.on{background:#7a4fd6!important;color:#fff!important
           <p class="ts tm" style="margin-top:5px">Mavjud sinflardan dars beradiganlaringizni bosib belgilang. Ro'yxatda yo'q sinf bo'lsa, pastga vergul bilan yozing. Keyin "Sozlamalar" da o'zgartirish mumkin.</p>
         </div>
         <div class="fg"><label>Login</label><input type="text" id="rg-u" placeholder="Foydalanuvchi nomi" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
-        <div class="fg"><label>Parol</label><div style="position:relative"><input type="password" id="rg-p" placeholder="Parol" style="padding-right:38px" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('rg-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
+        <div class="fg"><label>Parol</label><div style="position:relative"><input type="text" id="rg-p" class="pwmask" placeholder="Parol" style="padding-right:38px" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"><span onclick="togglePw('rg-p',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">&#x1F441;</span></div></div>
         <button class="btn bpu bfw blg mt8" onclick="doRegister()">Ro'yxatdan o'tish</button>
       </div>
       <div id="auth-err" style="margin-top:10px"></div>
@@ -1165,7 +1165,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v191';
+var APP_VER = 'edutest-v192';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -2855,8 +2855,14 @@ document.addEventListener('keydown', function(e){
     }
   }
 });
+(function(){ try{ var t=document.createElement('input'); if(!('webkitTextSecurity' in t.style)&&!('textSecurity' in t.style)){
+  document.addEventListener('DOMContentLoaded',function(){ ['li-p','rg-p'].forEach(function(i){ var e=document.getElementById(i); if(e){ e.type='password'; e.classList.remove('pwmask'); } }); }); } }catch(e){} })();
 function togglePw(id,el){
   var inp=document.getElementById(id);
+  if(inp.classList.contains('pwmask')){
+    var shown=inp.classList.toggle('pwshow');
+    el.innerHTML=shown?'&#x1F576;&#xFE0F;':'&#x1F441;'; return;
+  }
   if(inp.type==='password'){inp.type='text';el.innerHTML='&#x1F576;&#xFE0F;';}
   else{inp.type='password';el.innerHTML='&#x1F441;';}
 }
@@ -8843,6 +8849,7 @@ async function _tgaEnter(a){
 #rep-fab{position:fixed;left:14px;bottom:14px;z-index:900;background:#fff;color:var(--pri,#25316d);border:1px solid rgba(37,49,109,.18);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer}
 #rep-fab:hover{transform:translateY(-1px)}
 body:has(#pg-test.on) #rep-fab{display:none}
+.pwmask{-webkit-text-security:disc;text-security:disc}.pwmask.pwshow{-webkit-text-security:none;text-security:none}
 html.et-auth .pg.on{padding-bottom:76px}   /* oxirgi kartalar pastdagi "Muammo yozish" tugmasi ostida qolmasin */
 /* 2026-10-14: muammo faqat tizimga kirgandan keyin yoziladi (admin javobi bildirishnomaga keladi) */
 html:not(.et-auth) #rep-fab{display:none!important}
