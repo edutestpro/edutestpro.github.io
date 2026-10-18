@@ -822,9 +822,9 @@ html[data-px=night] #tab-rg.on{background:#7a4fd6!important;color:#fff!important
       <div class="darea" id="drop-area" onclick="document.getElementById('exe-inp').click()">
         <div style="font-size:36px">📂</div>
         <div style="font-weight:700;margin-top:6px">Bosing yoki faylni shu yerga tashlang</div>
-        <div class="ts tm">.exe, Word, Excel, CSV, PDF, TXT, rasm</div>
+        <div class="ts tm">.exe, Word, Excel, PowerPoint, CSV, PDF, TXT, rasm</div>
       </div>
-      <input type="file" id="exe-inp" accept=".exe,.docx,.doc,.xlsx,.xls,.csv,.pdf,.txt,.rtf,.odt,.ods,.jpg,.jpeg,.png" multiple style="display:none">
+      <input type="file" id="exe-inp" accept=".exe,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.csv,.pdf,.txt,.rtf,.odt,.ods,.odp,.jpg,.jpeg,.png" multiple style="display:none">
       <div id="imp-msg" style="margin-top:10px"></div>
     </div>
     <div class="card" style="border:2px solid var(--purd)">
@@ -1163,7 +1163,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v189';
+var APP_VER = 'edutest-v190';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -6061,7 +6061,7 @@ async function distributedExeImport(files, folderName, msg){
           if(fr && !fr.error){
             var origFilename=filesData[localIdx] && filesData[localIdx].filename;
             if(origFilename){
-              fr.topic=origFilename.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'');
+              fr.topic=origFilename.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|pptx?|odp|jpe?g|png)$/i,'');
             }
           }
           allFileResults[startFileIdx+localIdx]=fr;
@@ -6399,7 +6399,7 @@ function sendToServer(file,msg,server){
             if(result.error)throw new Error(result.error);
             if(!result.questions||!result.questions.length)throw new Error('Savollar topilmadi');
             var qs=result.questions.map(function(q){if(q.image){q.img=q.image;delete q.image;}if(q.isMulti===undefined)q.isMulti=(q.correct||[]).length>1;return q;});
-            var topicFromFilename=file.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'');
+            var topicFromFilename=file.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|pptx?|odp|jpe?g|png)$/i,'');
             await saveImportedQs({qs:qs,topic:topicFromFilename,questionsToAsk:result.questionsToAsk},msg);
             resolve(true);
           }catch(e){
@@ -6438,7 +6438,7 @@ function getMyFolders(){
 }
 var _fpPendingFile=null;
 var _pendingImportSubject=null; // fan tanlash
-function isDocFile(name){ return /\.(docx|doc|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods)$/i.test(name); }
+function isDocFile(name){ return /\.(docx|doc|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|pptx|ppt|odp)$/i.test(name); }
 function isExeFile(name){ return /\.exe$/i.test(name); }
 function isImageFile(name){ return /\.(jpe?g|png)$/i.test(name); }
 var _fpMode='import';
@@ -6471,7 +6471,7 @@ function askFolderThenImport(file,mode){
       return '<div class="tbtn" style="text-align:left;padding:10px 12px" onclick="submitFP(\''+esc+'\',false)">&#x1F4D8; '+fn+'</div>';
     }).join('');
   }
-  var defaultName=file.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||'Yangi fayl';
+  var defaultName=file.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|pptx?|odp|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||'Yangi fayl';
   document.getElementById('fp-newname').value=defaultName;
   document.getElementById('fp-modal').style.display='flex';
 }
@@ -6611,7 +6611,7 @@ function importMultipleFiles(files,suggestedFolder){
   var imgFiles=valid.filter(function(f){return isImageFile(f.name);});
   var unsupported=valid.filter(function(f){return !isExeFile(f.name)&&!isDocFile(f.name)&&!isImageFile(f.name);});
   if(!exeFiles.length && !docFiles.length && !imgFiles.length){
-    msg.innerHTML='<div class="alt ar">&#x274C; Qollab-quvvatlanmaydigan fayl turi. Faqat .exe, Word (.docx, .doc), Excel (.xlsx, .xls), .csv, .pdf, .txt, .rtf, .odt, .jpg, .png fayllar qabul qilinadi.</div>';
+    msg.innerHTML='<div class="alt ar">&#x274C; Qollab-quvvatlanmaydigan fayl turi. Faqat .exe, Word (.docx, .doc), Excel (.xlsx, .xls), PowerPoint (.pptx, .ppt), .csv, .pdf, .txt, .rtf, .odt, .jpg, .png fayllar qabul qilinadi.</div>';
     return;
   }
   var unsupportedNote=unsupported.length?(' ('+unsupported.length+' ta qollab-quvvatlanmaydigan fayl otkazib yuborildi)'):'';
@@ -6652,7 +6652,7 @@ function askFolderThenImportBatch(exeFiles, docFiles, imgFiles, suggestedFolder,
   }
   var totalCount=(exeFiles?exeFiles.length:0)+(docFiles?docFiles.length:0)+(imgFiles?imgFiles.length:0);
   var firstFile=(docFiles&&docFiles[0])||(imgFiles&&imgFiles[0])||(exeFiles&&exeFiles[0])||{name:''};
-  var defaultName=suggestedFolder||firstFile.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||('Kitob ('+totalCount+' ta fayl)');
+  var defaultName=suggestedFolder||firstFile.name.replace(/\.(exe|docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|pptx?|odp|jpe?g|png)$/i,'').replace(/[\s_-]*\d+$/,'')||('Kitob ('+totalCount+' ta fayl)');
   document.getElementById('fp-newname').value=defaultName;
   document.getElementById('fp-modal').style.display='flex';
 }
@@ -6713,7 +6713,7 @@ async function importDocumentFiles(files, suggestedFolder, unsupportedNote){
   var msg=document.getElementById('imp-msg');
   var folderName=suggestedFolder;
   if(!folderName && files.length>1){
-    var defaultName=files[0].name.replace(/\.(docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods)$/i,'').replace(/[\s_-]*\d+$/,'')||'Kitob 1';
+    var defaultName=files[0].name.replace(/\.(docx?|pdf|txt|xlsx|xlsm|xls|csv|rtf|odt|ods|pptx?|odp)$/i,'').replace(/[\s_-]*\d+$/,'')||'Kitob 1';
     folderName=prompt('Bu '+files.length+' ta faylni bitta "kitob" nomiga birlashtiramiz.\nKitob nomini tasdiqlang yoki ozgartiring:', defaultName);
     if(folderName===null)return;
     folderName=folderName.trim()||'Kitob';

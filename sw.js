@@ -1,4 +1,4 @@
-const CACHE = 'edutest-v189';
+const CACHE = 'edutest-v190';
 const IMG_CACHE = 'edutest-img-v1';
 const FILES = ['./', './index.html'];
 
