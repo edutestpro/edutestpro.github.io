@@ -1166,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v194';
+var APP_VER = 'edutest-v195';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -3833,6 +3833,7 @@ function preloadTopicImages(qs){
 }
 
 function submitTest(forced){
+  try{ _fsGateHide(); }catch(e){}   // parda ochiq qolib ketmasin (test tugadi)
   if(!forced){
     var unanswered=[];
     S.test.forEach(function(q,i){
@@ -7961,24 +7962,36 @@ function _setRuns(r){
   try{ if(r.mockScripts) _mockScripts=r.mockScripts; }catch(e){} try{ _reviewQs=r.review; }catch(e){}
 }
 // F5 dan keyin test tiklanganda brauzer to'liq ekranni o'zi yoqa
+function _fsGateHide(g){
+  g=g||document.getElementById('fs-gate'); if(g) g.style.display='none';
+  [].forEach.call(document.body.children,function(c){ c.removeAttribute('inert'); });
+  document.documentElement.style.overflow='';
+}
 function _fsGate(){
   var el=document.documentElement;
   var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
   if(document.fullscreenElement||document.webkitFullscreenElement) return;
   var g=document.getElementById('fs-gate');
-  if(!g){ g=document.createElement('div'); g.id='fs-gate';
-    g.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.96);display:flex;align-items:center;justify-content:center;padding:16px';
+  if(!g){ g=document.createElement('div'); g.id='fs-gate'; g.tabIndex=-1;
+    g.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.97);display:flex;align-items:center;justify-content:center;padding:16px;cursor:pointer';
     g.innerHTML='<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:360px;text-align:center;color:#0f172a">'+
       '<div style="font-size:40px">&#x1F4DD;</div><h3 style="margin:8px 0">Test davom etmoqda</h3>'+
-      '<p style="font-size:14px;color:#475569;margin-bottom:16px">Sahifa yangilandi. Javoblaringiz saqlangan. Davom ettirish uchun tugmani bosing — test yana to\'liq ekranda ochiladi.</p>'+
+      '<p style="font-size:14px;color:#475569;margin-bottom:16px">Sahifa yangilandi. Javoblaringiz saqlangan. Davom ettirish uchun ekranning istalgan joyini bosing — test yana to\'liq ekranda ochiladi.</p>'+
       '<button type="button" class="btn bpu" style="width:100%" id="fs-gate-btn">&#x25B6; Testni davom ettirish</button></div>';
     document.body.appendChild(g); }
   if(!req){ var pp=g.querySelector('p'); if(pp) pp.innerHTML='Sahifa yangilandi. Javoblaringiz saqlangan.<br><b>Diqqat:</b> test davomida boshqa ilovaga o\'tsangiz yoki ekranni o\'chirsangiz, chiqib ketsangiz (telefon qo\'ng\'irog\'i, boshqa ilova, Gemini, Siri) test darhol yakunlanadi.'; }
   g.style.display='flex';
-  document.getElementById('fs-gate-btn').onclick=function(){
+  // parda ostidagi hamma narsa bosilmaydi va Tab bilan yetib bo'lmaydi — davom ettirishdan oldin boshqa panelga o'tib bo'lmaydi
+  [].forEach.call(document.body.children,function(c){ if(c!==g) c.setAttribute('inert',''); });
+  document.documentElement.style.overflow='hidden';
+  var go=function(ev){
+    if(ev&&ev.type==='keydown'&&ev.key!=='Enter'&&ev.key!==' ') return;
+    if(ev&&ev.preventDefault) ev.preventDefault();
     if(req){ try{ var p=req.call(el); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
-    g.style.display='none'; try{ testAwakeOn(); }catch(e){}
+    _fsGateHide(g); try{ testAwakeOn(); }catch(e){}
   };
+  g.onclick=go; g.onkeydown=go;
+  var b=document.getElementById('fs-gate-btn'); if(b){ b.onclick=null; try{ b.focus({preventScroll:true}); }catch(e){} }
 }
 function _restoreRun(v){
   if(v.certSel&&typeof CERT!=='undefined'){ try{ Object.assign(CERT,v.certSel); if(typeof renderCert==='function'&&document.getElementById('cert-body')) renderCert(); }catch(e){} }
