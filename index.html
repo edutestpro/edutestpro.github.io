@@ -1165,7 +1165,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v192';
+var APP_VER = 'edutest-v193';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -1254,8 +1254,16 @@ var _sb = null;
 var _authToken=null;
 try{ var _es0=JSON.parse(sessionStorage.getItem('et_sess')||'null'); if(_es0&&_es0.t) _authToken=_es0.t; }catch(e){}
 if(!_authToken){ try{ var _lp0=JSON.parse(localStorage.getItem('et_sess_persist')||'null'); if(_lp0&&_lp0.t&&_lp0.exp&&Date.now()<_lp0.exp) _authToken=_lp0.t; }catch(e){} }
+// Token muddati o'tgan / server tanimadi: sessiyani tozalaymiz (test paytida chiqarmaymiz).
+function _sessionExpired(){
+  _authToken=null; try{ sessionStorage.removeItem('et_sess'); localStorage.removeItem('et_sess_persist'); }catch(e){}
+  if(typeof ME!=='undefined' && ME){
+    try{ showSyncNotice('Sessiya muddati tugadi. Iltimos, qayta kiring.'); }catch(e){}
+    try{ if(!S.mode) logout(); }catch(e){}
+  }
+}
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|report_issue|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:db_get|db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|report_issue|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -1273,11 +1281,7 @@ var _AUTH_PATHS=/^\/(?:db_save|ai_check|parse|parse_batch|parse_batch_start|pars
     var p=origFetch(input,init);
     if(!prot) return p;
     return p.then(function(res){
-      if(res.status===401){
-        _authToken=null;
-        try{ sessionStorage.removeItem('et_sess'); localStorage.removeItem('et_sess_persist'); }catch(e){}
-        try{ showSyncNotice('Sessiya muddati tugadi. Iltimos, chiqib qayta kiring.'); }catch(e){}
-      }
+      if(res.status===401) _sessionExpired();
       return res;
     });
   };
@@ -1507,6 +1511,8 @@ async function sbPull() {
       finally { if (_tm) clearTimeout(_tm); }
     }
     markConnOk();
+    // server bizni tanimadi (token muddati o'tgan) - bazaning qisqa nusxasi keldi
+    if (data && data.view==='anon' && _authToken) _sessionExpired();
     if (data && data.value) return JSON.parse(data.value);
   } catch(e) { markConnLost(); }
   return null;
@@ -2521,7 +2527,7 @@ async function syncFromCloud() {
     var local = localGetDB();
     // TUZATISH: avval faqat v > local.v bo'lgandagina yangilardi
     var localEmpty = !(local.users && local.users.length > 1);
-    if ((remote.v||0) > (local.v||0) || localEmpty) {
+    if (true) { // 2026-10-19: har doim server nusxasi (server - haqiqat manbai; kirgach rolga mos to'liq baza kelishi shart)
       var _adds = localEmpty ? 0 : mergeLocalAdds(remote, local);
       if (_adds) remote.v = (remote.v||0) + 1;
       try { dbSetRaw(JSON.stringify(remote)); } catch(e) {}
@@ -2938,6 +2944,7 @@ async function doLogin(){
     else showErr("Login yoki parol noto'g'ri!");
     return;
   }
+  if(srv) _authToken=srv.token; // token bilan to'liq (rolga mos) baza keladi
   // Har doim serverdan eng so'nggi ma'lumotni yuklaymiz
   try{ await syncFromCloud(); }catch(e){}
   var db=getDB(),found=null;
@@ -2996,21 +3003,29 @@ async function doRegister(){
   if(_rgV.email) nu.email=_rgV.email;
   if(_rgV.ptok) nu._ptok=_rgV.ptok;
   if(_rgV.etok) nu._etok=_rgV.etok;
-  db.users.push(nu);
-  saveDB(db);
-  if(authRole==='teacher' && !nu.approved){
+  // 2026-10-19: ro'yxatdan o'tish SERVERDA (baza endi kirmaganlarga yozish uchun ochiq emas)
+  var reg=null;
+  document.getElementById('auth-err').innerHTML='<div class="alt ai">&#x23F3; Saqlanmoqda...</div>';
+  try{
+    var rbody=Object.assign({},nu,{ptok:_rgV.ptok||'',etok:_rgV.etok||''}); delete rbody._ptok; delete rbody._etok;
+    var rr=await fetch(DB_SERVER+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rbody)});
+    if(rr.status===409){showErr("Bu login band! Boshqa login tanlang.");return;}
+    if(rr.status===429){showErr("Juda ko'p urinish. Birozdan so'ng qayta urinib ko'ring.");return;}
+    if(rr.status===400){ var re4={}; try{ re4=await rr.json(); }catch(e){} showErr(_cEsc(re4.error||"Ma'lumotlar noto'g'ri")); return; }
+    if(!rr.ok){showErr("Serverda xato. Qaytadan urinib ko'ring.");return;}
+    reg=await rr.json();
+  }catch(e){ showErr("&#x26A0;&#xFE0F; Server bilan bog'lanib bo'lmadi. Internetni tekshiring."); return; }
+  if(!reg||!reg.ok){ showErr("Ro'yxatdan o'tib bo'lmadi. Qaytadan urinib ko'ring."); return; }
+  _authToken=reg.token||null;
+  try{ await syncFromCloud(); }catch(e){}
+  if(!reg.approved){
     showAuthTab('li');
     document.getElementById('auth-err').innerHTML='<div class="alt as mt8">&#x2705; Ma\'lumotlaringiz adminga jo\'natildi! Admin tasdiqlagandan keyin tizimga kirishingiz mumkin bo\'ladi.'+(email?' Admin tasdiqlagach (yoki rad etsa), natija <b>'+_cEsc(email)+'</b> manziliga xabar qilinadi.':' Holatini bilish uchun keyinroq qayta kirishga urinib ko\'ring.')+'</div>';
     return;
   }
-  // Yangi hisob serverga yetib borguncha biroz kutib, token olamiz
-  for(var ti=0; ti<4 && !_authToken; ti++){
-    await new Promise(function(r){ setTimeout(r, ti?1500:600); });
-    var sl=await serverLogin(user,pass,authRole);
-    if(sl && sl.ok) _authToken=sl.token;
-    else if(!sl || sl.status===429) break;
-  }
-  ME=nu;afterLogin();
+  var meU=(getDB().users||[]).find(function(x){return x.id===reg.id;});
+  if(!meU){ showErr("Ro'yxatdan o'tdingiz, lekin ma'lumotlar yuklanmadi. Kirishni qaytadan urinib ko'ring."); return; }
+  ME=meU;afterLogin();
 }
 // 2026-10-12: natija sahifasidagi "Bosh sahifa" — hisobdan chiqarmaydi, o'z paneliga qaytaradi
 function goMyPanel(){ if(typeof ME!=='undefined'&&ME){ afterLogin(); } else showPg('pg-home'); }
@@ -3073,7 +3088,7 @@ function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;document.documentE
 var _curSubjFilter=null;
 var _curFolder=null;
 function renderTopics(){
-  document.getElementById('tp-gr').textContent='Salom, '+ME.name+'!';
+  document.getElementById('tp-gr').textContent='Salom, '+_cEsc(ME.name)+'!';
   document.getElementById('tp-sub').textContent='Qaysi mavzuni ishlaysiz?';
   selTopic=null;document.getElementById('mode-card').style.display='none';
   var allQs=getAllQs();
@@ -4725,7 +4740,7 @@ function loadResults(){
 function renderResults(){
   var res=myVisibleResults(),sn=(document.getElementById('rf-n').value||'').toLowerCase(),cl=document.getElementById('rf-c').value,mo=document.getElementById('rf-m').value;
   var f=res.filter(function(r){return(!sn||r.student.toLowerCase().indexOf(sn)>=0)&&(!cl||r.cls===cl||r.class===cl)&&(!mo||r.mode===mo);}).slice().reverse();
-  document.getElementById('r-tbody').innerHTML=f.slice(0,200).map(function(r,i){var bc=r.pct>=70?'bgr':r.pct>=50?'byl':'brd';var c=r.cls||r.class||'';var idAttr=r.id?"'"+r.id+"'":'null';return '<tr><td>'+(i+1)+'</td><td><strong>'+r.student+'</strong></td><td>'+c+'</td><td class="ts">'+r.topic+'</td><td>'+r.correct+'/'+r.total+'</td><td><span class="bdg '+bc+'">'+r.pct+'%</span></td><td><span class="bdg '+(r.mode==='exam'?'bbl':'bgy')+'">'+(r.mode==='exam'?'Imtihon':'Sinov')+'</span></td><td class="ts tm">'+r.date+'</td><td>'+(r.details&&r.details.length?'<button class="btn bpu bsm" onclick="showResultDetail('+idAttr+')">&#x1F50D; Batafsil</button>':'<span class="ts tm">-</span>')+'</td></tr>';}).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--mut)">Natijalar yo\'q</td></tr>';
+  document.getElementById('r-tbody').innerHTML=f.slice(0,200).map(function(r,i){var bc=r.pct>=70?'bgr':r.pct>=50?'byl':'brd';var c=r.cls||r.class||'';var idAttr=r.id?"'"+r.id+"'":'null';return '<tr><td>'+(i+1)+'</td><td><strong>'+_cEsc(r.student)+'</strong></td><td>'+c+'</td><td class="ts">'+r.topic+'</td><td>'+r.correct+'/'+r.total+'</td><td><span class="bdg '+bc+'">'+r.pct+'%</span></td><td><span class="bdg '+(r.mode==='exam'?'bbl':'bgy')+'">'+(r.mode==='exam'?'Imtihon':'Sinov')+'</span></td><td class="ts tm">'+r.date+'</td><td>'+(r.details&&r.details.length?'<button class="btn bpu bsm" onclick="showResultDetail('+idAttr+')">&#x1F50D; Batafsil</button>':'<span class="ts tm">-</span>')+'</td></tr>';}).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--mut)">Natijalar yo\'q</td></tr>';
 }
 // 2026-10-16: javob belgilanmagan savol natija ro'yxatida xato emas, "Belgilanmagan" deb ko'rsatiladi
 function _dUnm(d){
@@ -4745,7 +4760,7 @@ function showResultDetail(id){
   if(!r||!r.details){alert('Malumot topilmadi.');return;}
   if(!resultVisibleToMe(r)){alert('Bu natija sizga tegishli emas.');return;}
   var body=document.getElementById('rd-modal-body');
-  body.innerHTML='<div style="margin-bottom:10px"><strong>'+r.student+'</strong> - '+(r.cls||'')+' &middot; <span class="ts tm">'+r.topic+' &middot; '+r.correct+'/'+r.total+' ('+r.pct+'%) &middot; '+r.date+'</span></div>'+
+  body.innerHTML='<div style="margin-bottom:10px"><strong>'+_cEsc(r.student)+'</strong> - '+(r.cls||'')+' &middot; <span class="ts tm">'+r.topic+' &middot; '+r.correct+'/'+r.total+' ('+r.pct+'%) &middot; '+r.date+'</span></div>'+
     (r.exits?'<div class="alt aw" style="margin-bottom:10px">&#x26A0;&#xFE0F; Test davomida ilovadan '+r.exits+' marta chiqib ketgan (jami '+(r.awaySec||0)+' soniya).</div>':'')+
     r.details.map(function(d,i){
       var imgSrc=d.img||d.image||'';
@@ -4883,7 +4898,7 @@ function renderAdminOverview(){
   // Xotira holatini har safar "Umumiy" bo'limi ochilganda avtomatik
   loadStorageStats();
   document.getElementById('admin-teachers-tbody').innerHTML=teachers.map(function(t){
-    return '<tr><td>'+t.name+'</td><td class="ts tm">'+t.login+'</td></tr>';
+    return '<tr><td>'+_cEsc(t.name)+'</td><td class="ts tm">'+_cEsc(t.login)+'</td></tr>';
   }).join('')||'<tr><td colspan="2" style="text-align:center;padding:14px;color:var(--mut)">Ustozlar yoq</td></tr>';
   var topics=getTopics();
   document.getElementById('admin-topics-tbody').innerHTML=topics.map(function(t){
@@ -4894,7 +4909,7 @@ function renderAdminResults(){
   var db=getDB(),res=(db.results||[]).slice().reverse();
   document.getElementById('admin-results-tbody').innerHTML=res.slice(0,300).map(function(r,i){
     var bc=r.pct>=70?'bgr':r.pct>=50?'byl':'brd';var c=r.cls||r.class||'';var idAttr=r.id?"'"+r.id+"'":'null';
-    return '<tr><td>'+(i+1)+'</td><td><strong>'+r.student+'</strong></td><td>'+c+'</td><td class="ts">'+r.topic+'</td><td>'+r.correct+'/'+r.total+'</td><td><span class="bdg '+bc+'">'+r.pct+'%</span></td><td><span class="bdg '+(r.mode==='exam'?'bbl':'bgy')+'">'+(r.mode==='exam'?'Imtihon':'Sinov')+'</span></td><td class="ts tm">'+r.date+'</td><td>'+(r.details&&r.details.length?'<button class="btn bpu bsm" onclick="showResultDetail('+idAttr+')">&#x1F50D;</button>':'')+'</td></tr>';
+    return '<tr><td>'+(i+1)+'</td><td><strong>'+_cEsc(r.student)+'</strong></td><td>'+c+'</td><td class="ts">'+r.topic+'</td><td>'+r.correct+'/'+r.total+'</td><td><span class="bdg '+bc+'">'+r.pct+'%</span></td><td><span class="bdg '+(r.mode==='exam'?'bbl':'bgy')+'">'+(r.mode==='exam'?'Imtihon':'Sinov')+'</span></td><td class="ts tm">'+r.date+'</td><td>'+(r.details&&r.details.length?'<button class="btn bpu bsm" onclick="showResultDetail('+idAttr+')">&#x1F50D;</button>':'')+'</td></tr>';
   }).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--mut)">Natijalar yoq</td></tr>';
 }
 function renderAdminErrors(){
@@ -5173,7 +5188,7 @@ function renderAdminAllUsers(){
     var roleLbl=u.role==='teacher'?'Ustoz':'O\'quvchi';
     var extra=u.role==='teacher'?(u.subject||''):(u.cls||'');
     var passShown=_adminShowPass?u.pass:'&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;';
-    return '<tr><td><strong>'+u.name+'</strong></td><td>'+u.login+'</td><td class="ts tm" style="font-family:monospace">'+passShown+'</td><td><span class="bdg '+(u.role==='teacher'?'bbl':'bgy')+'">'+roleLbl+'</span></td><td class="ts">'+extra+'</td><td style="display:flex;gap:4px"><button class="btn bp bsm" onclick="adminEditUser(\''+u.id+'\')">&#x270F;&#65039;</button><button class="btn bd bsm" onclick="adminDelUser(\''+u.id+'\')">&#x1F5D1;&#65039;</button></td></tr>';
+    return '<tr><td><strong>'+_cEsc(u.name)+'</strong></td><td>'+_cEsc(u.login)+'</td><td class="ts tm" style="font-family:monospace">'+passShown+'</td><td><span class="bdg '+(u.role==='teacher'?'bbl':'bgy')+'">'+roleLbl+'</span></td><td class="ts">'+extra+'</td><td style="display:flex;gap:4px"><button class="btn bp bsm" onclick="adminEditUser(\''+u.id+'\')">&#x270F;&#65039;</button><button class="btn bd bsm" onclick="adminDelUser(\''+u.id+'\')">&#x1F5D1;&#65039;</button></td></tr>';
   }).join('')||'<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--mut)">Foydalanuvchilar yoq</td></tr>';
 }
 function adminEditUser(uid){
@@ -5223,11 +5238,11 @@ function renderPendingTeachers(){
     var locHtml=[u.viloyat,u.tuman].filter(Boolean).join(', ');
     var clsHtml=(u.teachClasses&&u.teachClasses.length)?u.teachClasses.join(', '):'-';
     return '<div class="pd"><div class="fx between" style="align-items:flex-start;gap:10px">'+
-      '<div><div style="font-weight:700">'+u.name+'</div>'+
+      '<div><div style="font-weight:700">'+_cEsc(u.name)+'</div>'+
       '<div class="ts tm">'+(u.maktab||'')+(u.subject?' &middot; '+subjName(u.subject):'')+'</div>'+
       '<div class="ts tm" style="margin-top:2px">'+locHtml+'</div>'+
       '<div class="ts tm" style="margin-top:2px">Sinflar: '+clsHtml+'</div>'+
-      '<div class="ts tm" style="margin-top:2px">Login: '+u.login+'</div></div>'+
+      '<div class="ts tm" style="margin-top:2px">Login: '+_cEsc(u.login)+'</div></div>'+
       '<div class="fx" style="gap:6px;flex-shrink:0">'+
         '<button class="btn bs bsm" onclick="approveTeacher(\''+u.id+'\')">&#x2705; Tasdiqlash</button>'+
         '<button class="btn bd bsm" onclick="rejectTeacher(\''+u.id+'\')">&#x1F5D1;&#65039; Rad etish</button>'+
@@ -5247,7 +5262,7 @@ function notifyTeacherEmailHonestly(u, status, db){
   if(!u.email){
     if(db){
       notifyAdmins(db, '📧 Email yuborilmadi (manzil yo\'q)',
-        u.name+' ('+u.login+') '+statusText+', lekin ro\'yxatdan o\'tishda email manzil kiritilmagan.');
+        u.name+' ('+_cEsc(u.login)+') '+statusText+', lekin ro\'yxatdan o\'tishda email manzil kiritilmagan.');
       saveDB(db);
     }
     return;
@@ -5260,7 +5275,7 @@ function notifyTeacherEmailHonestly(u, status, db){
       var db2=getDB();
       if(res && res.sent){
         notifyAdmins(db2, '✅ Email muvaffaqiyatli yuborildi',
-          u.name+' ('+u.login+') '+statusText+'. Email manzil: '+u.email);
+          u.name+' ('+_cEsc(u.login)+') '+statusText+'. Email manzil: '+u.email);
       } else {
         var err=(res&&res.error)||'nomalum sabab';
         notifyAdmins(db2, '⚠️ Email YUBORILMADI — '+u.name,
@@ -5286,8 +5301,8 @@ function approveTeacher(uid){
   var u=db.users.find(function(x){return x.id===uid;});
   if(!u)return;
   u.approved=true;
-  addNotification(db, u.id, '✅ Ro\'yxatdan muvaffaqiyatli o\'tdingiz!', 'Login: '+u.login+' - Admin hisobingizni tasdiqladi, endi tizimga kirishingiz mumkin.');
-  notifyAdmins(db, '👤 Ustoz tasdiqlandi', u.name+' ('+u.login+') tasdiqlandi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
+  addNotification(db, u.id, '✅ Ro\'yxatdan muvaffaqiyatli o\'tdingiz!', 'Login: '+_cEsc(u.login)+' - Admin hisobingizni tasdiqladi, endi tizimga kirishingiz mumkin.');
+  notifyAdmins(db, '👤 Ustoz tasdiqlandi', u.name+' ('+_cEsc(u.login)+') tasdiqlandi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
   saveDB(db);
   renderPendingTeachers();
   renderAdminAllUsers();
@@ -5298,8 +5313,8 @@ function rejectTeacher(uid){
   var db=getDB();
   var u=db.users.find(function(x){return x.id===uid;});
   if(!u)return;
-  if(!confirm(u.name+' ("'+u.login+'") hisobini butunlay ochirasizmi?'))return;
-  notifyAdmins(db, '🚫 Ustoz rad etildi', u.name+' ('+u.login+') hisobi rad etildi va o\'chirildi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
+  if(!confirm(u.name+' ("'+_cEsc(u.login)+'") hisobini butunlay ochirasizmi?'))return;
+  notifyAdmins(db, '🚫 Ustoz rad etildi', u.name+' ('+_cEsc(u.login)+') hisobi rad etildi va o\'chirildi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
   saveDB(db);
   notifyTeacherEmailHonestly(u,'blocked',db);
   db=getDB(); // reload after possible notif save
@@ -5460,7 +5475,7 @@ function testSbConnection(){
 
 function renderUsersT(){
   var sts=myVisibleStudents();
-  document.getElementById('users-tbody').innerHTML=sts.map(function(u){return '<tr><td><strong>'+u.name+'</strong></td><td>'+u.login+'</td><td>'+(u.cls||'')+'</td><td><button class="btn bp bsm" onclick="editUser(\''+u.id+'\')">✏️</button></td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;padding:14px;color:var(--mut)">O\'quvchilar yo\'q</td></tr>';
+  document.getElementById('users-tbody').innerHTML=sts.map(function(u){return '<tr><td><strong>'+_cEsc(u.name)+'</strong></td><td>'+_cEsc(u.login)+'</td><td>'+(u.cls||'')+'</td><td><button class="btn bp bsm" onclick="editUser(\''+u.id+'\')">✏️</button></td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;padding:14px;color:var(--mut)">O\'quvchilar yo\'q</td></tr>';
 }
 function editUser(uid){
   var db=getDB();
@@ -7377,7 +7392,7 @@ async function renderBattleLeaderboard(){
   var el=document.getElementById('battle-leaderboard');
   if(!el)return;
   el.innerHTML='<table><thead><tr><th>#</th><th>Ism</th><th>Ball</th></tr></thead><tbody>'+
-    arr.slice(0,10).map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+r.name+'</td><td><b>'+r.score+'</b></td></tr>';}).join('')+
+    arr.slice(0,10).map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+_cEsc(r.name)+'</td><td><b>'+r.score+'</b></td></tr>';}).join('')+
     '</tbody></table>'+(!arr.length?'<p class="ts tm" style="text-align:center">Hali javoblar yoq</p>':'');
 }
 async function nextBattleQuestion(){
