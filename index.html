@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <!-- tun/kunduz rejimi sahifa chizilishidan OLDIN (yangilanganda oq lahza bo'lmasin) -->
+<script>function _cEsc(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }</script>
 <script>try{var _pm=localStorage.getItem("et_px_mode");document.documentElement.setAttribute("data-px",_pm==="day"?"day":"night");}catch(e){document.documentElement.setAttribute("data-px","night");}</script>
 <!-- et-lite-redirect -->
 <script>(function(){try{var u=navigator.userAgent||"";var k=/KAIOS/i.test(u);if(!k&&/Android|iPhone|iPad|iPod|Windows NT|Macintosh|X11|CrOS|Linux x86/i.test(u))return;if(location.search.indexOf("full=1")>=0)return;if(k||/Opera Mini|MAUI|Series ?(30|40|60)|MIDP|J2ME|CLDC|UCWEB|Obigo|Teleca|NetFront|Polaris|SymbianOS|MRE\/|Spreadtrum|BREW|Nokia/i.test(u))location.replace("https://130-61-74-112.nip.io/m");}catch(e){}})();</script>
@@ -1165,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v193';
+var APP_VER = 'edutest-v194';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -3088,7 +3089,7 @@ function logout(){var _lr=ME&&ME.role;ME=null;_authToken=null;document.documentE
 var _curSubjFilter=null;
 var _curFolder=null;
 function renderTopics(){
-  document.getElementById('tp-gr').textContent='Salom, '+_cEsc(ME.name)+'!';
+  document.getElementById('tp-gr').textContent='Salom, '+ME.name+'!';
   document.getElementById('tp-sub').textContent='Qaysi mavzuni ishlaysiz?';
   selTopic=null;document.getElementById('mode-card').style.display='none';
   var allQs=getAllQs();
@@ -5262,7 +5263,7 @@ function notifyTeacherEmailHonestly(u, status, db){
   if(!u.email){
     if(db){
       notifyAdmins(db, '📧 Email yuborilmadi (manzil yo\'q)',
-        u.name+' ('+_cEsc(u.login)+') '+statusText+', lekin ro\'yxatdan o\'tishda email manzil kiritilmagan.');
+        u.name+' ('+u.login+') '+statusText+', lekin ro\'yxatdan o\'tishda email manzil kiritilmagan.');
       saveDB(db);
     }
     return;
@@ -5275,7 +5276,7 @@ function notifyTeacherEmailHonestly(u, status, db){
       var db2=getDB();
       if(res && res.sent){
         notifyAdmins(db2, '✅ Email muvaffaqiyatli yuborildi',
-          u.name+' ('+_cEsc(u.login)+') '+statusText+'. Email manzil: '+u.email);
+          u.name+' ('+u.login+') '+statusText+'. Email manzil: '+u.email);
       } else {
         var err=(res&&res.error)||'nomalum sabab';
         notifyAdmins(db2, '⚠️ Email YUBORILMADI — '+u.name,
@@ -5301,8 +5302,8 @@ function approveTeacher(uid){
   var u=db.users.find(function(x){return x.id===uid;});
   if(!u)return;
   u.approved=true;
-  addNotification(db, u.id, '✅ Ro\'yxatdan muvaffaqiyatli o\'tdingiz!', 'Login: '+_cEsc(u.login)+' - Admin hisobingizni tasdiqladi, endi tizimga kirishingiz mumkin.');
-  notifyAdmins(db, '👤 Ustoz tasdiqlandi', u.name+' ('+_cEsc(u.login)+') tasdiqlandi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
+  addNotification(db, u.id, '✅ Ro\'yxatdan muvaffaqiyatli o\'tdingiz!', 'Login: '+u.login+' - Admin hisobingizni tasdiqladi, endi tizimga kirishingiz mumkin.');
+  notifyAdmins(db, '👤 Ustoz tasdiqlandi', u.name+' ('+u.login+') tasdiqlandi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
   saveDB(db);
   renderPendingTeachers();
   renderAdminAllUsers();
@@ -5313,8 +5314,8 @@ function rejectTeacher(uid){
   var db=getDB();
   var u=db.users.find(function(x){return x.id===uid;});
   if(!u)return;
-  if(!confirm(u.name+' ("'+_cEsc(u.login)+'") hisobini butunlay ochirasizmi?'))return;
-  notifyAdmins(db, '🚫 Ustoz rad etildi', u.name+' ('+_cEsc(u.login)+') hisobi rad etildi va o\'chirildi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
+  if(!confirm(u.name+' ("'+u.login+'") hisobini butunlay ochirasizmi?'))return;
+  notifyAdmins(db, '🚫 Ustoz rad etildi', u.name+' ('+u.login+') hisobi rad etildi va o\'chirildi.'+(u.email?' Email yuborilmoqda: '+u.email:' Email manzil yo\'q.'));
   saveDB(db);
   notifyTeacherEmailHonestly(u,'blocked',db);
   db=getDB(); // reload after possible notif save
