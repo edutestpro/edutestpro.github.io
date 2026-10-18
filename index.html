@@ -2,6 +2,8 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
+<!-- tun/kunduz rejimi sahifa chizilishidan OLDIN (yangilanganda oq lahza bo'lmasin) -->
+<script>try{var _pm=localStorage.getItem("et_px_mode");document.documentElement.setAttribute("data-px",_pm==="day"?"day":"night");}catch(e){document.documentElement.setAttribute("data-px","night");}</script>
 <!-- et-lite-redirect -->
 <script>(function(){try{var u=navigator.userAgent||"";var k=/KAIOS/i.test(u);if(!k&&/Android|iPhone|iPad|iPod|Windows NT|Macintosh|X11|CrOS|Linux x86/i.test(u))return;if(location.search.indexOf("full=1")>=0)return;if(k||/Opera Mini|MAUI|Series ?(30|40|60)|MIDP|J2ME|CLDC|UCWEB|Obigo|Teleca|NetFront|Polaris|SymbianOS|MRE\/|Spreadtrum|BREW|Nokia/i.test(u))location.replace("https://130-61-74-112.nip.io/m");}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
@@ -1163,7 +1165,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v190';
+var APP_VER = 'edutest-v191';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -3745,8 +3747,19 @@ document.addEventListener('keydown',function(e){
     }
     renderQ();
     e.preventDefault();
+    _scrollOptIntoView(next);
   }
 });
+// Belgilangan variant ko'rinmasa (pastda/tepada) — sahifa unga suriladi; pastdagi tugmalar paneli ham hisobga olinadi
+function _scrollOptIntoView(i){
+  try{
+    var el=document.querySelectorAll('#t-qbody .opt')[i]; if(!el) return;
+    var r=el.getBoundingClientRect(), vh=window.innerHeight||document.documentElement.clientHeight;
+    var bar=0; [].forEach.call(document.querySelectorAll('#pg-test .tnav,#pg-test .t-nav,#pg-test .tfoot'),function(x){ var br=x.getBoundingClientRect(); if(br.top<vh&&br.bottom>=vh-2&&getComputedStyle(x).position==='fixed') bar=Math.max(bar,br.height); });
+    var top=70, bottom=vh-bar-12;
+    if(r.bottom>bottom||r.top<top) el.scrollIntoView({block:'center',behavior:'smooth'});
+  }catch(e){}
+}
 // ENTER TUGMASI : test ichida — keyingi savol (oxirgisida
 function _visible(el){ return !!(el && el.offsetParent!==null && !el.disabled); }
 document.addEventListener('keydown',function(e){
@@ -8830,6 +8843,7 @@ async function _tgaEnter(a){
 #rep-fab{position:fixed;left:14px;bottom:14px;z-index:900;background:#fff;color:var(--pri,#25316d);border:1px solid rgba(37,49,109,.18);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer}
 #rep-fab:hover{transform:translateY(-1px)}
 body:has(#pg-test.on) #rep-fab{display:none}
+html.et-auth .pg.on{padding-bottom:76px}   /* oxirgi kartalar pastdagi "Muammo yozish" tugmasi ostida qolmasin */
 /* 2026-10-14: muammo faqat tizimga kirgandan keyin yoziladi (admin javobi bildirishnomaga keladi) */
 html:not(.et-auth) #rep-fab{display:none!important}
 #rep-ov{position:fixed;inset:0;background:rgba(10,15,40,.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
