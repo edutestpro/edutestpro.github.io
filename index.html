@@ -1166,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v196';
+var APP_VER = 'edutest-v197';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -3600,7 +3600,8 @@ function _eduCanvasClick(e, canvasId) {
   }
 }
 
-// YOZMA JAVOB TEKSHIRUVI
+// YOZMA JAVOB TEKSHIRUVI (2026-10-16): katta/kichik harf, kirill/lotin, apostrof turlari, raqam so'z bilan (o'zbekcha/inglizcha),
+// o'nli vergul/nuqta, kasr, foiz, daraja belgilari, birlik (5 sm = 5), "x=5" = "5". ES5 (eski iPhone uchun).
 var _OA_UNITS={nol:0,zero:0,bir:1,one:1,ikki:2,two:2,uch:3,three:3,tort:4,four:4,besh:5,five:5,olti:6,six:6,yetti:7,seven:7,sakkiz:8,eight:8,toqqiz:9,nine:9,
   on:10,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,
   yigirma:20,twenty:20,ottiz:30,thirty:30,qirq:40,forty:40,ellik:50,fifty:50,oltmish:60,sixty:60,yetmish:70,seventy:70,sakson:80,eighty:80,toqson:90,ninety:90};
@@ -3639,6 +3640,7 @@ function _oaCanon(s){
   try{ s=s.normalize('NFKC'); }catch(e){}
   s=s.toLowerCase();
   s=s.replace(/[’`ʻʼ‘´ʹ′]/g,"'").replace(/[−–—‒]/g,'-').replace(/[×·⋅]/g,'*').replace(/÷/g,'/');
+  s=s.replace(/√/g,'sqrt').replace(/π/g,'pi');
   s=s.replace(/[а-яёўқғҳ]/g,function(c){ return _OA_CYR[c]!==undefined?_OA_CYR[c]:c; });
   return s.replace(/\s+/g,' ').trim();
 }
@@ -3652,11 +3654,90 @@ function _oaParseNum(s){ // boshidagi son: {v,rest} yoki null
 }
 function _oaKey(s){ return s.replace(/'/g,'').replace(/[^a-z0-9^*\/+\-=√.]/g,'').replace(/^\.+|\.+$/g,''); }
 function _oaUnit(r){ return r.replace(/'/g,'').replace(/[^a-z]/g,''); }
+// ── FORMULA (LaTeX) qo'llab-quvvatlash (2026-10-20): \frac, \sqrt, ^{}, \pi, \cdot... -> oddiy matn; ifodani hisoblab solishtirish ──
+function _oaIsLatex(s){ return /\\[a-zA-Z]|\^\{|_\{/.test(String(s==null?'':s)); }
+function _oaBraced(s,i){ // s[i]=='{' -> [ichi, keyingi indeks]
+  var d=0,j=i; for(;j<s.length;j++){ if(s[j]==='{') d++; else if(s[j]==='}'){ d--; if(!d) break; } }
+  return [s.substring(i+1,j), j+1];
+}
+function _oaArg(s,i){ // {..} yoki bitta belgi/son
+  while(s[i]===' ') i++;
+  if(s[i]==='{') return _oaBraced(s,i);
+  var m=/^(\d+(?:[.,]\d+)?|\\[a-zA-Z]+|.)/.exec(s.substr(i)); return m?[m[1],i+m[1].length]:['',i];
+}
+function _oaLatexToPlain(s){
+  s=String(s==null?'':s).replace(/\\left|\\right|\\displaystyle|\\textstyle|\\!|\\,|\\;|\\:|\\ /g,' ');
+  var out='', i=0, m;
+  while(i<s.length){
+    var c=s[i];
+    if(c==='\\'){
+      m=/^\\([a-zA-Z]+)/.exec(s.substr(i));
+      if(!m){ i+=2; continue; }
+      var cmd=m[1]; i+=m[0].length;
+      if(cmd==='frac'||cmd==='dfrac'||cmd==='tfrac'){ var a=_oaArg(s,i); var b=_oaArg(s,a[1]); i=b[1]; if(/(^|[\s+\-*\/(])\d+$/.test(out)) out+='+'; /* 1\frac{1}{2} = aralash son 1,5 */ out+='(('+_oaLatexToPlain(a[0])+')/('+_oaLatexToPlain(b[0])+'))'; }
+      else if(cmd==='sqrt'){ var deg=null; while(s[i]===' ') i++; if(s[i]==='['){ var k=s.indexOf(']',i); deg=s.substring(i+1,k); i=k+1; }
+        var r=_oaArg(s,i); i=r[1]; out+=deg!==null?'root('+_oaLatexToPlain(deg)+';'+_oaLatexToPlain(r[0])+')':'sqrt('+_oaLatexToPlain(r[0])+')'; }
+      else if(cmd==='cdot'||cmd==='times') out+='*';
+      else if(cmd==='div') out+='/';
+      else if(cmd==='pi') out+=' pi ';
+      else if(cmd==='pm') out+='+-';
+      else out+=' ';
+      continue; }
+    if(c==='^'||c==='_'){ i++; var t; if(s[i]==='{'){ var g=_oaBraced(s,i); i=g[1]; t=_oaLatexToPlain(g[0]); } else { var g2=_oaArg(s,i); i=g2[1]; t=_oaLatexToPlain(g2[0]); }
+      out+=c==='^'?'^('+t+')':'_'+t; continue; }
+    if(c==='{'||c==='}'){ i++; continue; }
+    out+=c; i++;
+  }
+  return out;
+}
+// Oddiy ifodani hisoblaydi: son, + - * / ^, (), sqrt x, root(n,x), pi; "2sqrt3", "2pi", "(1)(2)" — ko'paytirish yashirin. Bo'lmasa NaN.
+function _oaEval(str){
+  var s=String(str).replace(/\s+/g,''), p=0, bad=false;
+  function peek(){ return s[p]; }
+  function num(){ var m=/^(\d+(?:[.,]\d+)?|[.,]\d+)/.exec(s.substr(p)); if(!m){ bad=true; return NaN; } p+=m[1].length; return parseFloat(m[1].replace(',','.')); }
+  function atom(){
+    var c=peek();
+    if(c==='('){ p++; var v=expr(); if(peek()===')') p++; else bad=true; return v; }
+    if(s.substr(p,4)==='sqrt'){ p+=4; var x=factor(); return x<0?(bad=true,NaN):Math.sqrt(x); }
+    if(s.substr(p,4)==='root'){ p+=4; if(peek()!=='('){ bad=true; return NaN; } p++; var n=expr(); if(peek()===';') p++; else bad=true; var y=expr(); if(peek()===')') p++; else bad=true;
+      if(!n||(y<0&&n%2===0)) { bad=true; return NaN; } return y<0?-Math.pow(-y,1/n):Math.pow(y,1/n); }
+    if(s.substr(p,2)==='pi'){ p+=2; return Math.PI; }
+    if(c&&/[\d.,]/.test(c)) return num();
+    bad=true; return NaN;
+  }
+  function factor(){ // atom [^ unary]
+    var b=atom();
+    if(peek()==='^'){ p++; var e=unary(); b=Math.pow(b,e); }
+    return b;
+  }
+  function unary(){ if(peek()==='-'){ p++; return -unary(); } if(peek()==='+'){ p++; return unary(); } return factor(); }
+  function term(){
+    var v=unary();
+    while(p<s.length&&!bad){
+      var c=peek();
+      if(c==='*'){ p++; v*=unary(); }
+      else if(c==='/'){ p++; var d=unary(); v=v/d; }
+      else if(c==='('||c==='p'&&s.substr(p,2)==='pi'||s.substr(p,4)==='sqrt'||s.substr(p,4)==='root'||/\d/.test(c)){ v*=factor(); }
+      else break;
+    }
+    return v;
+  }
+  function expr(){
+    var v=term();
+    while(p<s.length&&!bad){ var c=peek(); if(c==='+'){ p++; v+=term(); } else if(c==='-'){ p++; v-=term(); } else break; }
+    return v;
+  }
+  var r=expr();
+  if(bad||p<s.length||!isFinite(r)) return NaN;
+  return r;
+}
 function openMatch(user,accepted,opts){
   opts=opts||{}; var numeric=opts.numeric!==false;
+  if(_oaIsLatex(user)) user=_oaLatexToPlain(user);
   var u0=_oaWordsToDigits(_oaCanon(user)); if(!u0) return false;
   for(var i=0;i<(accepted||[]).length;i++){
-    var a0=_oaWordsToDigits(_oaCanon(accepted[i])); if(!a0) continue;
+    var acc=accepted[i]; if(_oaIsLatex(acc)) acc=_oaLatexToPlain(acc);
+    var a0=_oaWordsToDigits(_oaCanon(acc)); if(!a0) continue;
     var u=u0;
     if(a0.indexOf('=')<0) u=u.replace(/^[a-z]\s*=\s*/,'');
     if(_oaKey(u)===_oaKey(a0)) return true;
@@ -3667,9 +3748,68 @@ function openMatch(user,accepted,opts){
         var pw=function(r){return r==='foiz'||r==='percent'||r==='pct';};
         if(ru===ra||!ru||!ra||(pw(ru)&&pw(ra))) return true;
       }
+      var eu=_oaEval(u), ea=_oaEval(a0);   // formula: kasr, ildiz, pi, daraja — qiymati bo'yicha
+      if(isFinite(eu)&&isFinite(ea)&&Math.abs(eu-ea)<=1e-9*Math.max(1,Math.abs(ea))) return true;
     }
   }
   return false;
+}
+// ── Yozma javobda FORMULA kiritish (2026-10-20): oddiy matn yoki "∑ Formula" (MathLive); javob LaTeX ko'rinishida saqlanadi ──
+function _openEscH(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function _openShow(x){   // Batafsil: LaTeX bo'lsa KaTeX bilan chiziladi
+  x=String(x==null?'':x);
+  if(_oaIsLatex(x)){ try{ if(typeof katex!=='undefined') return katex.renderToString(x,{throwOnError:false}); }catch(e){} }
+  return _openEscH(x);
+}
+function _openFxHtml(v, setCall){
+  var isL=_oaIsLatex(v);
+  var bt=function(l,t,ti){ return '<button type="button" class="btn bg bsm" style="padding:6px 10px;min-width:40px;font-size:15px" title="'+ti+'" onmousedown="event.preventDefault()" onclick="openFxIns(\''+l+'\')">'+t+'</button>'; };
+  return '<div id="open-box">'+
+    '<div id="open-txt"'+(isL?' style="display:none"':'')+'><input id="open-inp" class="open-inp" value="'+_openEscH(isL?'':v)+'" oninput="'+setCall+'" '+
+      'autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Javobingizni yozing" '+
+      'style="width:100%;box-sizing:border-box;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;border:1.5px solid #cbd5e1;margin-top:6px"></div>'+
+    '<div id="open-fx"'+(isL?'':' style="display:none"')+'>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 6px">'+bt('\\\\frac{#?}{#?}','a/b','Kasr')+bt('\\\\sqrt{#?}','&#8730;','Kvadrat ildiz')+bt('\\\\sqrt[#?]{#?}','&#8319;&#8730;','n-darajali ildiz')+bt('^{#?}','x&#8319;','Daraja')+bt('\\\\pi','&pi;','Pi')+'</div>'+
+      '<math-field id="open-mf" class="open-mf" virtual-keyboard-mode="off" style="display:block;width:100%;box-sizing:border-box;font-size:22px;padding:8px 12px;border-radius:12px;border:1.5px solid #cbd5e1;background:#fff;color:#0f172a;min-height:52px"></math-field>'+
+    '</div>'+
+    '<button type="button" class="btn bg bsm" id="open-fx-btn" style="margin-top:8px" onclick="openFxToggle()">'+(isL?'&#9000; Oddiy yozuv':'&#8721; Formula kiritish')+'</button></div>';
+}
+function _openCommit(v){ setOpenAns(v); }
+function _openFxCommit(v){ _openCommit(v); }
+function _openFxInit(){
+  var mf=document.getElementById('open-mf'); if(!mf||mf._fxInit) return; mf._fxInit=true;
+  var go=function(){
+    try{ mf.mathVirtualKeyboardPolicy='manual'; }catch(e){}
+    try{ mf.setAttribute('math-virtual-keyboard-policy','manual'); }catch(e){}
+    try{ var sk=mf.shadowRoot&&mf.shadowRoot.querySelector('.ML__keyboard-sink'); if(sk) sk.setAttribute('inputmode','text'); }catch(e){}
+    var a=(S.answers[S.idx]||[])[0];
+    if(_oaIsLatex(a)){ try{ mf.value=a; }catch(e){} }
+    mf.addEventListener('input',function(){ _openFxCommit(mf.value); });
+    mf.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); try{ goQ(1); }catch(e){} } });
+  };
+  if(window.customElements&&customElements.get('math-field')) go();
+  else if(window.customElements&&customElements.whenDefined) customElements.whenDefined('math-field').then(go);
+}
+function openFxIns(latex){
+  var mf=document.getElementById('open-mf'); if(!mf||!mf.insert) return;
+  try{ mf.focus(); mf.insert(latex,{insertionMode:'replaceSelection',selectionMode:'placeholder',focus:true}); }catch(e){}
+  _openFxCommit(mf.value);
+}
+function openFxToggle(){
+  var tx=document.getElementById('open-txt'), fx=document.getElementById('open-fx'), mf=document.getElementById('open-mf'), inp=document.getElementById('open-inp'), btn=document.getElementById('open-fx-btn');
+  if(!tx||!fx||!mf||!inp) return;
+  if(fx.style.display==='none'){
+    if(!(window.customElements&&customElements.get('math-field'))){ alert("Formula muharriri hali yuklanmoqda. Birozdan keyin qayta urinib ko'ring."); return; }
+    tx.style.display='none'; fx.style.display=''; btn.innerHTML='&#9000; Oddiy yozuv';
+    try{ mf.value=inp.value; }catch(e){}
+    try{ mf.focus(); }catch(e){}
+    _openFxCommit(mf.value);
+  } else {
+    var l=mf.value||'', plain=_oaIsLatex(l)?_oaLatexToPlain(l).replace(/\(\(([^()]*)\)\/\(([^()]*)\)\)/g,'$1/$2').replace(/\s+/g,' ').trim():l;
+    fx.style.display='none'; tx.style.display=''; btn.innerHTML='&#8721; Formula kiritish';
+    inp.value=plain; _openFxCommit(plain);
+    try{ inp.focus(); }catch(e){}
+  }
 }
 function _oEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function _choiceOnly(a){ return (a||[]).filter(function(q){ return q.type!=='open'; }); }
@@ -3678,8 +3818,8 @@ function setOpenAns(v){ if(String(v).trim()) S.answers[S.idx]=[v]; else delete S
   var c=document.getElementById('t-qans'); if(c) c.textContent=Object.keys(S.answers).length+' ta javoblandi'; }
 function openDetailHtml(d){
   var u=(d.userAns||[])[0]||'', acc=d.accepted||[];
-  return '<div style="font-size:14px;line-height:1.7;padding:4px 2px">Javob: '+(d.ok?'<b style="color:#16a34a">'+_oEsc(u)+' &#9989;</b>':'<span style="color:#dc2626;text-decoration:line-through">'+_oEsc(u||'—')+'</span>')+
-    (d.ok?'':'<br>To\'g\'ri javob: <b style="color:#16a34a">'+_oEsc(acc[0]||'')+'</b>')+'</div>';
+  return '<div style="font-size:14px;line-height:1.7;padding:4px 2px">Javob: '+(d.ok?'<b style="color:#16a34a">'+_openShow(u)+' &#9989;</b>':'<span style="color:#dc2626;text-decoration:line-through">'+(u?_openShow(u):'—')+'</span>')+
+    (d.ok?'':'<br>To\'g\'ri javob: <b style="color:#16a34a">'+_openShow(acc[0]||'')+'</b>')+'</div>';
 }
 function renderQ(){
   setTimeout(_prefetchNextQImgs,0);
@@ -3716,9 +3856,7 @@ function renderQ(){
     return '<div class="opt'+(sel?' sel':'')+'" onclick="selAns('+i+')">'+ctrl+'<div style="flex:1"><span>'+String.fromCharCode(65+i)+'.</span>'+optContent+'</div></div>';
   }).join('');
   if(q.type==='open'){
-    optsHtml='<input id="open-inp" value="'+_oEsc((ans&&ans[0])||'')+'" oninput="setOpenAns(this.value)" '+
-      'autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Javobingizni yozing" '+
-      'style="width:100%;box-sizing:border-box;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;border:1.5px solid #cbd5e1;margin-top:6px">';
+    optsHtml=_openFxHtml((ans&&ans[0])||'','setOpenAns(this.value)');
   }
   document.getElementById('t-qbody').innerHTML=
     '<div style="font-weight:700;font-size:17px;margin-bottom:8px;line-height:1.6">'+(S.idx+1)+'. '+(q.text||'')+'</div>'+
@@ -3726,7 +3864,7 @@ function renderQ(){
     (q.isMulti?'<div class="alt ai ts" style="margin-bottom:10px">Ko\'p javobli: bir nechta to\'g\'ri</div>':'')+
     optsHtml;
   renderMathIn(document.getElementById('t-qbody'));
-  if(q.type==='open'){ try{ if(!(navigator.maxTouchPoints>0)) setTimeout(function(){ var o=document.getElementById('open-inp'); if(o) o.focus(); },50); }catch(e){} }
+  if(q.type==='open'){ try{ if(!(navigator.maxTouchPoints>0)) setTimeout(function(){ var o=document.getElementById('open-inp'); if(o&&o.offsetParent) o.focus(); },50); }catch(e){} try{ _openFxInit(); }catch(e){} }
 }
 function goQ(d){
   if(S.review&&d>0){ var j=_nextUnanswered(S.idx); if(j<0||j===S.idx&&_isAns(S.idx)){ S.review=false; submitTest(); return; } if(j===S.idx){ showTestToast('Bu savolga javob bering'); return; } S.idx=j; renderQ(); return; }
