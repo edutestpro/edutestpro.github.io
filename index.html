@@ -1166,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v197';
+var APP_VER = 'edutest-v200';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -1264,7 +1264,7 @@ function _sessionExpired(){
   }
 }
 var _AUTH_HOSTS=/^https:\/\/[^\/]*\.(?:nip\.io|duckdns\.org)(?::\d+)?(?=\/)/;
-var _AUTH_PATHS=/^\/(?:db_get|db_save|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|report_issue|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
+var _AUTH_PATHS=/^\/(?:db_get|db_save|result_add|ai_check|parse|parse_batch|parse_batch_start|parse_batch_status\/[^\/?#]+|extract_batch_start|convert_emfs|compose_parts|parse_document|parse_image|generate_test_start|generate_test_status\/[^\/?#]+|upload_image|notify_teacher|notify_teacher_status|parent_link_create|report_issue|r2_stats|send_email_smtp|tg_login_start|tg_link_info|auth\/contact)(?:[?#]|$)/;
 (function(){
   var origFetch=window.fetch.bind(window);
   window.fetch=function(input,init){
@@ -1437,6 +1437,26 @@ async function _sbPushOnce(db) {
 }
 
 // Server bu qurilmaning bazasini "eskirgan" deb rad etdi (409)
+// ── Yengil natija yuborish (2026-10-20): o'quvchi natijasi ~1 KB /result_add orqali ketadi, butun baza emas ──
+var _noResultAdd=false, _lastMasteryStr='', _fastSent={};
+async function pushResultsFast(list){
+  if(!ME||ME.role!=='student'||!_authToken||_noResultAdd) return null;
+  try{
+    var body={results:list.slice(0,20)};
+    try{ var _m=(getDBro().mastery||{})[ME.id]; if(_m){ var ms=JSON.stringify(_m); if(ms!==_lastMasteryStr&&ms.length<200000){ body.mastery=_m; body._ms=ms; } } }catch(e){}
+    var ms2=body._ms; delete body._ms;
+    var res=await fetch(DB_SERVER+'/result_add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.status===404||res.status===405){ _noResultAdd=true; return null; }
+    if(res.status===401||res.status===403) return null;
+    if(!res.ok){ markConnLost(); return false; }
+    markConnOk();
+    if(ms2) _lastMasteryStr=ms2;
+    try{ var sy=JSON.parse(localStorage.getItem(SYNCED_IDS_KEY)||'{}'); sy.results=sy.results||[];
+      list.forEach(function(r){ var id=String(r.id); _fastSent[r.id]=true; if(sy.results.indexOf(id)<0) sy.results.push(id); });
+      localStorage.setItem(SYNCED_IDS_KEY,JSON.stringify(sy)); }catch(e){}
+    return true;
+  }catch(e){ markConnLost(); return false; }
+}
 var _resolvingConflict=false;
 // YANGI QO'SHILGANLARNI SAQLAB QOLISH
 var SYNC_COLLS=['users','userQs','decks','results','collaborations'];
@@ -1497,6 +1517,7 @@ function showSyncNotice(msg){
   }catch(e){}
 }
 
+var _lastView = '';
 async function sbPull() {
   if (!_dbReady) return null;
   try {
@@ -1513,6 +1534,7 @@ async function sbPull() {
     }
     markConnOk();
     // server bizni tanimadi (token muddati o'tgan) - bazaning qisqa nusxasi keldi
+    if (data) _lastView = data.view;
     if (data && data.view==='anon' && _authToken) _sessionExpired();
     if (data && data.value) return JSON.parse(data.value);
   } catch(e) { markConnLost(); }
@@ -1578,7 +1600,9 @@ async function flushPendingSync(){
   _flushingSync=true;
   try{
     var db=getDB();
-    var ok=await sbPush(db, true);
+    var _pl=(db.results||[]).filter(function(r){ return pending.indexOf(r.id)>=0; });
+    var ok=_pl.length?await pushResultsFast(_pl):null;
+    if(ok===null) ok=await sbPush(db, true);
     if(ok){
       pending.forEach(function(rid){
         var r=(db.results||[]).find(function(x){return x.id===rid;});
@@ -1639,9 +1663,9 @@ async function notifyResultToTeacher(res, wasOffline){
     var title = wasOffline ? '\u26A0\uFE0F Kechiktirilgan natija keldi' : '\uD83D\uDCCA Yangi imtihon natijasi';
     var body = res.student+' ('+(res.cls||'')+') - '+res.topic+' - '+res.pct+'%'+(wasOffline?' (internetsiz topshirilgan, endi tekshirsa boladi)':'');
     // Ilova ICHIDAGI bildirishnoma - push ruxsat berilmagan/hali obuna
-    var db2=getDB();
+    if(!_fastSent[res.id]){ var db2=getDB();
     addNotification(db2, teacherId, title, body);
-    saveDB(db2);
+    saveDB(db2); }
     // Brauzer push - agar ustoz oldin obuna bolgan bolsa, qurilmasiga darhol keladi.
     fetch(DB_SERVER+'/notify_teacher', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -2549,7 +2573,7 @@ function _rerenderAfterSync(){
     renderTopics();
   }catch(e){}
 }
-function _qsNotLoaded(){ try{ return !((getDB().userQs||[]).length); }catch(e){ return true; } }
+function _qsNotLoaded(){ try{ if(_lastView==='user'||_lastView==='admin') return false; return !((getDB().userQs||[]).length); }catch(e){ return true; } }
 var _autoReloadTried=false;
 function _notLoadedHtml(){
   if(!_autoReloadTried){ _autoReloadTried=true; setTimeout(function(){ reloadTopicsNow(null); },300); }
@@ -2946,8 +2970,12 @@ async function doLogin(){
     return;
   }
   if(srv) _authToken=srv.token; // token bilan to'liq (rolga mos) baza keladi
-  // Har doim serverdan eng so'nggi ma'lumotni yuklaymiz
-  try{ await syncFromCloud(); }catch(e){}
+  document.getElementById('auth-err').innerHTML='<div class="alt ai">&#x23F3; Ma&#39;lumotlar yuklanmoqda (internet sekin bo&#39;lsa biroz kuting)...</div>';
+  // Qurilmada shu foydalanuvchining nusxasi bor bo'lsa — panel darhol ochiladi, yangi baza fonda yuklanadi;
+  // birinchi marta kirishda esa serverdan yuklanishini kutamiz
+  var _db0=getDB(), _hadLocal=!!srv&&(_db0.users||[]).some(function(x){return x.login===u&&x.role===authRole;})&&(_db0.userQs||[]).length>0;
+  if(_hadLocal){ try{ syncFromCloud().then(function(){ try{ renderNotifBell(); }catch(e){} }); }catch(e){} }
+  else { try{ await syncFromCloud(); }catch(e){} }
   var db=getDB(),found=null;
   db.users.forEach(function(x){if(x.login===u&&x.role===authRole&&(srv?true:x.pass===p))found=x;});
   if(!found){
@@ -4072,7 +4100,7 @@ async function doSubmitTest(){
   // Natija ekranini DARHOL korsatamiz (internetni kutib turmaymiz)
   showResult(res, isExam?'checking':null);showPg('pg-res');
   if(isExam){
-    sbPush(getDB()).then(function(ok){
+    pushResultsFast([res]).then(function(fr){ return fr===null ? sbPush(getDB()) : fr; }).then(function(ok){
       if(ok){ notifyResultToTeacher(res,false); updateSyncBanner('synced'); }
       else { queuePendingResult(res.id); updateSyncBanner('offline'); }
     });
