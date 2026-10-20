@@ -1166,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v200';
+var APP_VER = 'edutest-v201';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -1559,7 +1559,7 @@ function ensureConnBanner(){
   el=document.createElement('div');
   el.id='conn-banner';
   el.style.cssText='display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#b91c1c;color:#fff;text-align:center;padding:9px 14px;font-size:13px;font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.25)';
-  el.textContent='\u26A0\uFE0F Internet aloqasi yoq - Wi-Fi yoki mobil internetni yoqing';
+  el.textContent='\u26A0\uFE0F Internet yo\'q \u2014 internet yonganidan keyin ma\'lumotlar yuklanadi va yuboriladi';
   document.body.appendChild(el);
   return el;
 }
@@ -7430,6 +7430,7 @@ function updateOfflineOverlay(){
   var ov=document.getElementById('offline-overlay');
   if(!ov)return;
   if(S.mode || window._batchImportMode){ ov.style.display='none'; return; }
+  if(typeof ME!=='undefined' && ME){ if(_offlineOverlayTimer){clearTimeout(_offlineOverlayTimer);_offlineOverlayTimer=null;} ov.style.display='none'; return; }
   if(navigator.onLine){
     if(_offlineOverlayTimer){clearTimeout(_offlineOverlayTimer);_offlineOverlayTimer=null;}
     ov.style.display='none';
@@ -7439,7 +7440,7 @@ function updateOfflineOverlay(){
   if(_offlineOverlayTimer) return; // allaqachon kutilmoqda
   _offlineOverlayTimer=setTimeout(function(){
     _offlineOverlayTimer=null;
-    if(!navigator.onLine && !S.mode && !window._batchImportMode){
+    if(!navigator.onLine && !S.mode && !window._batchImportMode && !(typeof ME!=='undefined' && ME)){
       ov.style.display='flex';
     }
   }, 4000);
