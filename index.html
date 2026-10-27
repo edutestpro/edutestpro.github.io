@@ -1166,7 +1166,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v201';
+var APP_VER = 'edutest-v202';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -8340,8 +8340,13 @@ function _cancelAutoSubmit(){
 // Kichik (suzuvchi) oyna yoki bo'lingan ekran
 function _winTooSmall(){
   try{
-    if(!(navigator.maxTouchPoints>0)) return false;
     var sw=screen.width, sh=screen.height; if(!sw||!sh) return false;
+    var desk=false; try{ desk=matchMedia('(hover:hover) and (pointer:fine)').matches; }catch(e){}
+    if(desk){   // kompyuter: oyna ekranning kamida 90% ini egallashi kerak (outer o'lcham — zoom va DevTools'ga bog'liq emas)
+      var ow=window.outerWidth, oh=window.outerHeight; if(!ow||!oh) return false;
+      return (ow*oh)/(sw*sh) < 0.9;
+    }
+    if(!(navigator.maxTouchPoints>0)) return false;
     var ae=document.activeElement; if(ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return false;
     return (window.innerWidth*window.innerHeight)/(sw*sh) < 0.6;
   }catch(e){ return false; }
