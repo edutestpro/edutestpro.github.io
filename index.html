@@ -663,6 +663,7 @@ html[data-px=night] #tab-rg.on{background:#7a4fd6!important;color:#fff!important
       </div>
     </div>
     <div class="pb" style="margin-top:10px"><div class="pf" id="t-prog" style="width:0%"></div></div>
+    <div class="alt aw" id="t-warn" style="margin:10px 0 0;padding:8px 12px;font-size:12.5px;line-height:1.4">&#x26A0;&#xFE0F; Test paytida hech qayerga chiqmang! Boshqa oyna, tab yoki ilovaga o'tsangiz test avtomatik tugaydi va natija shu holatda yuboriladi.</div>
   </div>
   <div class="card">
     <div class="fx between" style="margin-bottom:8px">
@@ -1166,7 +1167,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v202';
+var APP_VER = 'edutest-v204';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -6576,6 +6577,7 @@ function sendToServer(file,msg,server){
         xhr.open('POST',currentServer+'/parse',true);
         xhr.timeout=1800000;
         xhr.setRequestHeader('Content-Type','application/json');
+        try{ if(_authToken && _AUTH_HOSTS.test(currentServer+'/parse')) xhr.setRequestHeader('Authorization','Bearer '+_authToken); }catch(e){}
         var retryNote=retryCount?(' ('+(retryCount+1)+'-urinish)'):'';
         msg.innerHTML='<div class="alt ai">&#x23F3; "'+file.name+'" serverga yuborildi ('+sizeMB+' MB)'+retryNote+'. Katta fayllar 10-30 daqiqagacha vaqt olishi mumkin, kuting...</div>';
         function retryOrGiveUp(reasonMsg){
@@ -6592,6 +6594,10 @@ function sendToServer(file,msg,server){
         }
         xhr.onload=async function(){
           // Server 200 dan boshqa kod qaytarsa (masalan 502/503/504
+          if(xhr.status===401){   // sessiya tugagan: qayta urinishning foydasi yo'q
+            msg.innerHTML='<div class="alt ar">&#x274C; Sessiya muddati tugagan. Chiqib, qayta kiring va importni takrorlang.</div>';
+            resolve(false); return;
+          }
           if(xhr.status<200||xhr.status>=300){
             retryOrGiveUp('Server xatosi qaytardi (kod: '+xhr.status+').');
             return;
