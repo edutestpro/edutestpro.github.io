@@ -1167,7 +1167,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v204';
+var APP_VER = 'edutest-v205';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -4413,13 +4413,13 @@ function renderTopicDetail(t){
       var isImg=isImgVal(o);
       var isPending=typeof o==='string'&&o.indexOf('__IMG_PENDING__')>=0;
       if(isPending) return String.fromCharCode(65+oi)+'.⚠️[rasm yuklanmadi]';
-      return String.fromCharCode(65+oi)+(isImg?'.[rasm]':'. '+o.substring(0,30));
+      return String.fromCharCode(65+oi)+(isImg?'.[rasm]':'. '+mathPreview(o,30));
     }).join('<br>');
     var correctOpts=(q.correct||[]).map(function(ci){return String.fromCharCode(65+ci);}).join(',');
     if(q.type==='open'){ opts='<b>Yozma javob</b> &middot; '+(((q.data&&q.data.answers)||[]).length)+' ta javob varianti'; correctOpts='&#x2713; '+_oEsc(((q.data&&q.data.answers)||[])[0]||''); }
     return '<tr>'+
       '<td>'+(qi+1)+'</td>'+
-      '<td style="max-width:200px;font-size:13px">'+(q.image?'🖼 ':'')+(q.text||'').substring(0,60)+'...</td>'+
+      '<td style="max-width:200px;font-size:13px">'+(q.image?'🖼 ':'')+mathPreview(q.text||'',60)+'</td>'+
       '<td style="font-size:12px;color:var(--color-text-secondary)">'+opts+'</td>'+
       '<td>'+((q.correct||[]).length||q.type==='open'?'<span class="bdg" style="background:#e8f5e9;color:#2e7d32">'+correctOpts+'</span>':'<span class="bdg" style="background:#fee2e2;color:#b91c1c" title="Javob belgilanmagan — tahrirlab belgilang">Javob yo\'q</span>')+
         (q.aiAnswer?' <span class="bdg" style="background:#fef3c7;color:#92400e" title="Javob faylda belgilanmagan edi — AI tanladi. Tekshirib saqlang">AI</span>':'')+'</td>'+
@@ -4468,7 +4468,8 @@ function editQ(qid,topic){
   document.getElementById('eq-modal').style.display='flex';
   document.getElementById('eq-qid').value=qid;
   document.getElementById('eq-topic').value=topic;
-  document.getElementById('eq-text').value=q.text||'';
+  mathEditSetValue(document.getElementById('eq-text'), q.text||'');
+  try{ refreshSyms('eq-syms', q.subject||'math'); }catch(e){}
   // Savol rasmi (q.img yoki q.image)
   var eqImgDiv=document.getElementById('eq-q-img');
   if(eqImgDiv){
@@ -4494,20 +4495,21 @@ function editQ(qid,topic){
     return '<div style="margin-bottom:10px;border:1px solid var(--color-border);border-radius:8px;padding:8px">'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
         '<span style="font-weight:600;min-width:20px">'+String.fromCharCode(65+i)+'.</span>'+
-        '<input type="text" value="'+(isImg?'':o.replace(/"/g,'&quot;'))+'" id="eq-opt-'+i+'" placeholder="'+(isImg?'Matn kiriting (rasm o\'rnini bosadi)':'Javob matni')+'" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--color-border);font-size:13px">'+
+        '<div class="mathedit optedit" id="eq-opt-'+i+'" contenteditable="true" data-placeholder="'+(isImg?'Matn kiriting (rasm o\'rnini bosadi)':'Javob matni')+'" style="flex:1"></div>'+
         '<label style="display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap">'+
           '<input type="checkbox" id="eq-cor-'+i+'"'+(isCorrect?' checked':'')+'>✓</label>'+
       '</div>'+
       imgPart+
     '</div>';
   }).join('');
+  opts.forEach(function(o,i){ var el=document.getElementById('eq-opt-'+i); if(el&&!isImgVal(o)) mathEditSetValue(el,o); });
 }
 
 function saveEditQ(){
   var _qv=document.getElementById('eq-qid').value; // ID matn bo'lishi mumkin (import): parseInt buzardi
   var qid=/^\d+$/.test(_qv)?parseInt(_qv,10):_qv;
   var topic=document.getElementById('eq-topic').value;
-  var newText=document.getElementById('eq-text').value.trim();
+  var newText=mathEditGetLatexString(document.getElementById('eq-text')).trim();
   var db=getDB();
   var uq=db.userQs.find(function(x){return x.id===qid && x.topic===topic && x.teacherId===ME.id;});
   if(!uq) uq=db.userQs.find(function(x){return x.id===qid;}); // zaxira: eski malumotlar uchun
@@ -4522,10 +4524,11 @@ function saveEditQ(){
   var newCorr=[];
   (uq.options||[]).forEach(function(o,i){
     var inp=document.getElementById('eq-opt-'+i);
-    if(inp&&inp.value.trim())uq.options[i]=inp.value.trim(); // matn kiritilsa - rasm o'rnini bosadi
+    var _ov=inp?(inp.tagName==='DIV'?mathEditGetLatexString(inp):inp.value).trim():''; if(_ov)uq.options[i]=_ov; // matn kiritilsa - rasm o'rnini bosadi
     var cor=document.getElementById('eq-cor-'+i);
     if(cor&&cor.checked)newCorr.push(i);
   });
+  if(uq.subject==='math' && typeof mathAutoText==='function'){ uq.text=mathAutoText(uq.text); (uq.options||[]).forEach(function(o,i){ if(typeof o==='string'&&!isImgVal(o)) uq.options[i]=mathAutoText(o); }); }
   if(newCorr.length)uq.correct=newCorr;
   if(newCorr.length){ delete uq.aiAnswer; delete uq.noAnswer; delete uq.aiWarn; }
   saveDB(db);
@@ -4568,8 +4571,26 @@ function refreshTopicList(){
   topics.sort();
   box.innerHTML=topics.map(function(t){return '<option value="'+t.replace(/"/g,'&quot;')+'">';}).join('');
 }
-function refreshSyms(){
-  var subj=document.getElementById('aq-subj').value||'math';
+// Matn ichidagi $...$ formulalarni chizilgan (KaTeX) holda qisqa ko'rsatadi (jadval/ro'yxatlar uchun); max — oddiy belgilar soni
+function mathPreview(text,max){
+  text=String(text==null?'':text).replace(/\s*\n\s*/g,' '); max=max||60;
+  var parts=text.split(/(\$[^$]*\$)/), out='', used=0, cut=false;
+  for(var i=0;i<parts.length&&!cut;i++){
+    var q=parts[i]; if(!q) continue;
+    if(i%2===1){
+      var tex=q.slice(1,-1); used+=Math.min(6,tex.length);
+      try{ out+=(typeof katex!=='undefined')?katex.renderToString(tex,{throwOnError:false}):_cEsc(tex); }catch(e){ out+=_cEsc(tex); }
+    } else {
+      var room=max-used;
+      if(q.length>room){ out+=_cEsc(q.slice(0,Math.max(0,room))); cut=true; } else { out+=_cEsc(q); }
+      used+=Math.min(q.length,Math.max(room,0));
+    }
+    if(used>=max && i<parts.length-1) cut=true;
+  }
+  return out+(cut?'&hellip;':'');
+}
+function refreshSyms(tid,sj){
+  var subj=sj||document.getElementById('aq-subj').value||'math';
   var syms=SYMBOLS_BY_SUBJECT[subj]||SYMBOLS_BY_SUBJECT.math;
   var special={
     'a/b':['insFraction()','Kasr (surat/mahraj) - chizig\'i avtomatik cho\'ziladi'],
@@ -4580,7 +4601,7 @@ function refreshSyms(){
     '∜':['insRootQuick(\'4\')','4-daraja ildiz'],
     '(':['insWrapAny()','Belgilangan qismni qavsga oladi']
   };
-  document.getElementById('aq-syms').innerHTML=syms.map(function(s){
+  document.getElementById(tid||'aq-syms').innerHTML=syms.map(function(s){
     // MUHIM TUZATISH: onmousedown="event.preventDefault()" - aks holda
     if(special[s])return '<button class="symb" onmousedown="event.preventDefault()" onclick="'+special[s][0]+'" title="'+special[s][1]+'">'+s+'</button>';
     return '<button class="symb" onmousedown="event.preventDefault()" onclick="insSym(\''+s+'\')">'+s+'</button>';
@@ -7314,7 +7335,7 @@ function aiCheckTopic(topic, force) {
       var bg = r.skipped ? '#f8fafc' : (r.ok ? '#f0fdf4' : '#fff7ed');
       var bd = r.skipped ? '#cbd5e1' : (r.ok ? '#86efac' : '#fdba74');
       out += '<div style="padding:8px 10px;border-radius:8px;background:' + bg + ';border:1px solid ' + bd + ';margin-bottom:6px;cursor:pointer" onclick="toggleAiDetail(' + i + ')">';
-      out += '<b>' + (i+1) + '.</b> ' + _aiEsc((r.q.text || '(formula)').substring(0, 50)) + '  -  <span style="font-size:13px">' + _aiEsc(r.result) + '</span>';
+      out += '<b>' + (i+1) + '.</b> ' + mathPreview(r.q.text || '(formula)', 50) + '  -  <span style="font-size:13px">' + _aiEsc(r.result) + '</span>';
       out += '<span style="float:right;font-size:11px;color:#888">tafsilot &#9660;</span>';
       out += '<div id="ai-detail-' + i + '" style="display:none;margin-top:10px;padding-top:10px;border-top:1px dashed ' + bd + '">';
       if (r.q.image) out += '<div style="margin-bottom:8px"><img src="' + r.q.image + '" style="max-width:100%;max-height:160px;border-radius:6px"></div>';
@@ -7343,6 +7364,7 @@ function aiCheckTopic(topic, force) {
       '<button class="btn bsm" style="background:#e8f4fd;color:#1565c0" onclick="aiCheckTopic(\'' + tEsc + '\', true)">&#x1F504; Qayta tekshirish</button></div>';
     if (_aiRun && _aiRun.topic === topic) _aiRun.done = true;
     body.innerHTML = out;
+    try{ renderMathIn(body); }catch(e){}
     if (_aiRun && _aiRun.topic === topic) _aiRun = null;
   }
 
@@ -8507,14 +8529,15 @@ history.pushState(null, '', location.href);
   </div>
 
   <div class="mbg" id="eq-modal" style="display:none">
-    <div class="modal" style="max-width:500px;width:95%">
+    <div class="modal" style="max-width:640px;width:95%">
       <div class="mh"><h3>Savolni tahrirlash</h3><button class="xb" onclick="closeEditQ()">&#x2715;</button></div>
       <input type="hidden" id="eq-qid">
       <input type="hidden" id="eq-topic">
       <div class="fg" style="margin-bottom:12px">
         <label style="font-weight:500;margin-bottom:4px;display:block">Savol</label>
         <div id="eq-q-img"></div>
-        <textarea id="eq-text" rows="3" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--color-border);resize:vertical;font-size:14px"></textarea>
+        <div id="eq-text" class="mathedit" contenteditable="true" data-placeholder="Savolni yozing..." style="min-height:64px"></div>
+        <div class="sarea" id="eq-syms" style="margin-top:6px"></div>
       </div>
       <div class="fg">
         <label style="font-weight:500;margin-bottom:8px;display:block">Javoblar</label>
