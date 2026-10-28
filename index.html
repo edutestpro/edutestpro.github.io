@@ -85,6 +85,7 @@ textarea{width:100%;padding:10px 13px;border:1.5px solid var(--bdr);border-radiu
 #aq-text .mfrag{font-size:1.5em}
 .mfrag:hover{border-bottom-color:var(--bdr)}
 .mfrag:focus-within{border-bottom-color:var(--pri)}
+.mathedit .mfrag{min-width:.9em;padding:0 2px;vertical-align:baseline;background:transparent!important}   /* formula qutichasiz, matn bilan bir qatorda */
 /* MathLive'ning o'zi qo'shadigan qo'shimcha asboblar */
 math-field::part(virtual-keyboard-toggle),
 math-field::part(menu-toggle){display:none!important}
@@ -1167,7 +1168,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v205';
+var APP_VER = 'edutest-v207';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -2285,10 +2286,14 @@ function makeChip(latex){
 }
 
 // Matn (masalan DB'dan kelgan "...text $\frac{1}{2}$ text...") ni
+// Import ba'zan faqat indeks/darajani formula qiladi, asos harfi tashqarida qoladi: x$_{A}$ -> $x_{A}$ (muharrirda bo'sh katak bo'lib ko'rinmasin)
+function joinLoneScripts(text){
+  return String(text==null?'':text).replace(/([A-Za-z0-9Α-ω])\$([_^](?:\{[^{}$]*\}|[A-Za-z0-9]))\$/g,function(m,b,sc){ return '$'+b+sc+'$'; });
+}
 function mathEditSetValue(el, text){
   if(!el) return;
   el.innerHTML='';
-  text=text||'';
+  text=joinLoneScripts(text||'');
   var re=/\$([^$]+)\$/g, lastIdx=0, m;
   while((m=re.exec(text))){
     if(m.index>lastIdx) el.appendChild(document.createTextNode(text.slice(lastIdx,m.index)));
