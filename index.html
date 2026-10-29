@@ -1168,7 +1168,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v207';
+var APP_VER = 'edutest-v208';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -2695,7 +2695,7 @@ function subjClassMap(u){
   if(u.classesBySubj&&typeof u.classesBySubj==='object') return JSON.parse(JSON.stringify(u.classesBySubj));
   var subs=[]; function add(v){ if(v&&subs.indexOf(v)<0) subs.push(v); }
   add(u.subject); Object.keys(u.teachClassesBySubj||{}).forEach(add);
-  (getDB().userQs||[]).forEach(function(q){ if(q.teacherId===u.id) add(q.subject); });
+  (getDBro().userQs||[]).forEach(function(q){ if(q.teacherId===u.id) add(q.subject); });   // faqat o'qish: tsiklda har safar butun bazani qayta tahlil qilmasin
   var m={}, tb=u.teachClassesBySubj||{};
   subs.forEach(function(sb){ m[sb]=(tb[sb]&&tb[sb].length?tb[sb]:(u.teachClasses||[])).slice(); });
   if(!subs.length) m[u.subject||'']=(u.teachClasses||[]).slice();
