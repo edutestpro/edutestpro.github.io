@@ -1168,7 +1168,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v210';
+var APP_VER = 'edutest-v211';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -4848,7 +4848,9 @@ function _flagSel(f,g){
   return sel.map(function(k){ var v=s.options[k], i=(o.options||[]).indexOf(v); return i>=0?i:k; });
 }
 // 2026-10-08: navbatdagi hamma savolni bir bosishda "savol durust" deb yopish (asl testdagi javob to'g'ri)
+var _revBusy=false;   // amal bajarilayotganda takroriy bosish e'tiborsiz (sahifa band paytida yig'ilib qolgan bosishlar)
 async function resolveAllReviewCorrect(){
+  if(_revBusy) return;
   var gs=_reviewGroups.slice(); if(!gs.length) return;
   var nf=gs.reduce(function(s,g){return s+g.flags.length;},0);
   if(!confirm(gs.length+' ta savol ('+nf+' ta xato javob) "To\'g\'ri — savol durust" deb yopilsinmi?\nSavollarning to\'g\'ri javobi o\'zgarmaydi.')) return;
@@ -4858,13 +4860,18 @@ async function resolveAllReviewCorrect(){
     if(q) q.trustVotes=(q.trustVotes||0)+g.flags.length;
     g.flags.forEach(function(f){ ids.push(f.id); });
   });
-  saveDB(db);
-  try{ for(var i=0;i<ids.length;i+=100) await _sb.from('answer_flags').delete().in('id', ids.slice(i,i+100)); }catch(e){ alert('Ba\'zilari o\'chirilmadi: '+e.message); }
-  _reviewGroups=[]; renderReviewList(); loadReviewQueue();
+  _revBusy=true; _reviewGroups=[];
+  try{
+    saveDB(db);
+    try{ for(var i=0;i<ids.length;i+=100) await _sb.from('answer_flags').delete().in('id', ids.slice(i,i+100)); }catch(e){ alert('Ba\'zilari o\'chirilmadi: '+e.message); }
+  } finally { _revBusy=false; }
+  renderReviewList(); loadReviewQueue();
 }
 async function resolveReviewCorrect(gi){
+  if(_revBusy) return;
   var g=_reviewGroups[gi];
   if(!g) return;
+  _revBusy=true;
   var db=getDB();
   var q=(db.userQs||[]).find(function(x){return String(x.id)===String(g.question_id)&&x.teacherId===ME.id;});
   if(q) q.trustVotes=(q.trustVotes||0)+g.flags.length;
@@ -4873,6 +4880,7 @@ async function resolveReviewCorrect(gi){
     await _sb.from('answer_flags').delete().in('id', g.flags.map(function(f){return f.id;}));
   }catch(e){}
   _reviewGroups.splice(gi,1);
+  _revBusy=false;
   renderReviewList();
 }
 function openReviewFix(gi){
