@@ -1168,7 +1168,7 @@ var INIT_META = [{"topic": "Guruhlash qonuni", "questionsToAsk": 20}, {"topic": 
 
 var SK = 'edutest_v3';
 // APP_VER sw.js dagi CACHE bilan bir xil bo'lishi SHART (sw versiyasini oshirganda buni ham oshiring)
-var APP_VER = 'edutest-v208';
+var APP_VER = 'edutest-v209';
 (function(){
   try{
     if('serviceWorker' in navigator && navigator.serviceWorker.controller) return; // SW bor - o'zining yangilanish banneri ishlaydi
@@ -2677,7 +2677,7 @@ function resultVisibleToMe(r){
   var cls=myTeachClasses();
   var rCls=r.cls||r.class||'';
   if(cls && cls.indexOf(rCls)<0) return false;
-  var db=getDB();
+  var db=getDBro();   // faqat o'qish: har natija uchun butun bazani qayta tahlil qilmasin
   var stu=(db.users||[]).find(function(u){return u.role==='student'&&u.name===r.student&&(u.cls||'')===rCls;});
   if(stu) return studentVisibleToMe(stu);
   return true;
